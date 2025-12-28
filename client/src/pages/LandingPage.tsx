@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import {
     CheckCircle2,
@@ -9,7 +10,7 @@ import {
 } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import PublicLayout from '@/components/layout/PublicLayout';
-import heroDashboard from '@/assets/hero-dashboard.png';
+import heroDashboard from '@/assets/hero-dashboard-hd.jpg';
 import iconLeadManagement from '@/assets/icon-feature-lead-management.png';
 import iconPropertyAnalysis from '@/assets/icon-feature-property-analysis.png';
 import iconDealCalculator from '@/assets/icon-feature-deal-calculator.png';
@@ -25,6 +26,29 @@ const LandingPage = () => {
     const heroY = useTransform(scrollY, [0, 500], [0, 200]);
     const heroOpacity = useTransform(scrollY, [0, 300], [1, 0]);
     const dashboardY = useTransform(scrollY, [0, 500], [0, -100]);
+
+    const [stats, setStats] = useState({
+        activeUsers: "500+",
+        dealsClosed: "1240+"
+    });
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const res = await fetch('/api/marketing/stats');
+                if (res.ok) {
+                    const data = await res.json();
+                    setStats({
+                        activeUsers: data.activeUsers > 500 ? `${data.activeUsers}+` : `${data.activeUsers}`,
+                        dealsClosed: `${data.dealsClosed}+`
+                    });
+                }
+            } catch (err) {
+                console.error("Failed to fetch stats", err);
+            }
+        };
+        fetchStats();
+    }, []);
 
     const features = [
         {
@@ -247,17 +271,34 @@ const LandingPage = () => {
                                         transition={{ duration: 0.8 }}
                                         className={`relative rounded-2xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-900 aspect-video group ${index % 2 === 0 ? 'md:order-2' : ''}`}
                                     >
-                                        <div className={`absolute inset-0 opacity-20 bg-gradient-to-br ${step.color.replace('bg-', 'from-')} to-transparent`}></div>
-                                        <div className="absolute inset-0 flex items-center justify-center p-8">
+                                        {/* Background Layer (Blurred & Filled) */}
+                                        <div className="absolute inset-0 z-0">
+                                            {step.image && (
+                                                <img
+                                                    src={step.image}
+                                                    alt=""
+                                                    className="w-full h-full object-cover opacity-20 blur-2xl scale-125"
+                                                />
+                                            )}
+                                            <div className={`absolute inset-0 opacity-30 bg-gradient-to-br ${step.color.replace('bg-', 'from-')} to-transparent mix-blend-overlay`}></div>
+                                        </div>
+
+                                        {/* Main Content Layer */}
+                                        <div className="absolute inset-0 flex items-center justify-center p-4 z-10">
                                             {step.image ? (
-                                                <img src={step.image} alt={step.title} className="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity drop-shadow-[0_0_30px_rgba(45,212,191,0.3)]" />
+                                                <img
+                                                    src={step.image}
+                                                    alt={step.title}
+                                                    className="w-full h-full object-contain drop-shadow-[0_0_50px_rgba(45,212,191,0.4)] group-hover:scale-105 transition-transform duration-700 ease-out"
+                                                />
                                             ) : (
                                                 <step.icon size={64} className="text-slate-700 opacity-50" />
                                             )}
                                         </div>
+
                                         {/* Mock UI Elements (Only show if no image) */}
                                         {!step.image && (
-                                            <div className="absolute bottom-4 left-4 right-4 h-2 bg-slate-800 rounded-full overflow-hidden">
+                                            <div className="absolute bottom-4 left-4 right-4 h-2 bg-slate-800 rounded-full overflow-hidden z-20">
                                                 <motion.div
                                                     initial={{ width: "0%" }}
                                                     whileInView={{ width: "100%" }}
@@ -317,7 +358,7 @@ const LandingPage = () => {
                         {[
                             { value: "1000+", label: "Monthly Leads", color: "text-teal-400" },
                             { value: "$2.4M", label: "Tracked Volume", color: "text-blue-400" },
-                            { value: "500+", label: "Active Users", color: "text-indigo-400" },
+                            { value: stats.activeUsers, label: "Active Users", color: "text-indigo-400" },
                             { value: "24/7", label: "Support", color: "text-teal-500" }
                         ].map((stat, i) => (
                             <motion.div
