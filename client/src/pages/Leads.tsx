@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Pipeline from '@/components/leads/Pipeline';
 import LeadsList from '@/components/leads/LeadsList';
-import { Plus, Columns, List } from 'lucide-react';
+import { Plus, Columns, List, X } from 'lucide-react';
 import { Lead } from '@/types';
 import axios from 'axios';
 
@@ -9,6 +9,8 @@ const Leads = () => {
     const [viewMode, setViewMode] = useState<'pipeline' | 'list'>('pipeline');
     const [leads, setLeads] = useState<Lead[]>([]);
     const [loading, setLoading] = useState(true);
+    const [showModal, setShowModal] = useState(false);
+    const [newLead, setNewLead] = useState({ firstName: '', lastName: '', email: '', phone: '', source: 'Manual', status: 'New Lead' });
 
     useEffect(() => {
         fetchLeads();
@@ -39,10 +41,22 @@ const Leads = () => {
         }
     };
 
+    const handleCreateLead = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const res = await axios.post('/leads', newLead);
+            setLeads(prev => [res.data, ...prev]);
+            setShowModal(false);
+            setNewLead({ firstName: '', lastName: '', email: '', phone: '', source: 'Manual', status: 'New Lead' });
+        } catch (error) {
+            console.error('Error creating lead:', error);
+        }
+    };
+
     if (loading) return <div className="p-8 text-center text-slate-400">Loading leads...</div>;
 
     return (
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full relative">
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-100">Leads Pipeline</h1>
@@ -63,7 +77,10 @@ const Leads = () => {
                             <List size={20} />
                         </button>
                     </div>
-                    <button className="bg-teal-600 hover:bg-teal-500 text-white px-4 py-2 rounded-lg flex items-center font-medium transition-colors">
+                    <button 
+                        onClick={() => setShowModal(true)}
+                        className="bg-teal-600 hover:bg-teal-500 text-white px-4 py-2 rounded-lg flex items-center font-medium transition-colors"
+                    >
                         <Plus size={20} className="mr-2" />
                         Add Lead
                     </button>
@@ -77,6 +94,90 @@ const Leads = () => {
                     <LeadsList leads={leads} />
                 )}
             </div>
+
+            {/* Add Lead Modal */}
+            {showModal && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-slate-900 border border-slate-800 rounded-xl w-full max-w-md p-6 shadow-2xl">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-xl font-bold text-slate-100">Add New Lead</h2>
+                            <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-white">
+                                <X size={24} />
+                            </button>
+                        </div>
+                        <form onSubmit={handleCreateLead} className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-400 mb-1">First Name</label>
+                                    <input
+                                        required
+                                        type="text"
+                                        value={newLead.firstName}
+                                        onChange={e => setNewLead({ ...newLead, firstName: e.target.value })}
+                                        className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-400 mb-1">Last Name</label>
+                                    <input
+                                        required
+                                        type="text"
+                                        value={newLead.lastName}
+                                        onChange={e => setNewLead({ ...newLead, lastName: e.target.value })}
+                                        className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-400 mb-1">Email</label>
+                                <input
+                                    type="email"
+                                    value={newLead.email}
+                                    onChange={e => setNewLead({ ...newLead, email: e.target.value })}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-400 mb-1">Phone</label>
+                                <input
+                                    type="tel"
+                                    value={newLead.phone}
+                                    onChange={e => setNewLead({ ...newLead, phone: e.target.value })}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-400 mb-1">Source</label>
+                                <select
+                                    value={newLead.source}
+                                    onChange={e => setNewLead({ ...newLead, source: e.target.value })}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none"
+                                >
+                                    <option value="Manual">Manual Entry</option>
+                                    <option value="Website">Website</option>
+                                    <option value="Referral">Referral</option>
+                                    <option value="Cold Call">Cold Call</option>
+                                </select>
+                            </div>
+                            <div className="pt-4 flex justify-end space-x-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowModal(false)}
+                                    className="px-4 py-2 text-slate-300 hover:text-white transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg font-medium transition-colors"
+                                >
+                                    Create Lead
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

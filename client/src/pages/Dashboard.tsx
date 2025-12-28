@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { TrendingUp, Users, FileText, CheckCircle, DollarSign, Activity } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { TrendingUp, Users, FileText, CheckCircle, DollarSign, Activity, RefreshCcw } from 'lucide-react';
 import axios from 'axios';
 
 const motivationalQuotes = [
@@ -13,6 +13,8 @@ const Dashboard = () => {
     const [quoteIndex, setQuoteIndex] = useState(0);
     const [stats, setStats] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+    const [refreshing, setRefreshing] = useState(false);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -22,20 +24,26 @@ const Dashboard = () => {
         return () => clearInterval(interval);
     }, []);
 
-    useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const res = await axios.get('/analytics/dashboard');
-                setStats(res.data);
-            } catch (error) {
-                console.error("Failed to fetch dashboard stats", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchStats();
+    const fetchStats = useCallback(async (isRefresh = false) => {
+        if (isRefresh) setRefreshing(true);
+        try {
+            const res = await axios.get('/analytics/dashboard');
+            setStats(res.data);
+            setLastUpdated(new Date());
+        } catch (error) {
+            console.error("Failed to fetch dashboard stats", error);
+        } finally {
+            setLoading(false);
+            setRefreshing(false);
+        }
     }, []);
+
+    useEffect(() => {
+        fetchStats();
+        // Auto-refresh every 60 seconds
+        const refreshInterval = setInterval(() => fetchStats(true), 60000);
+        return () => clearInterval(refreshInterval);
+    }, [fetchStats]);
 
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('en-US', {
@@ -58,6 +66,17 @@ const Dashboard = () => {
 
     return (
         <div className="space-y-6">
+            <div className="flex justify-end items-center text-xs text-slate-500 space-x-2">
+                <span>Last updated: {lastUpdated.toLocaleTimeString()}</span>
+                <button 
+                    onClick={() => fetchStats(true)} 
+                    className={`p-1 hover:text-teal-400 transition-colors ${refreshing ? 'animate-spin' : ''}`}
+                    title="Refresh Data"
+                >
+                    <RefreshCcw size={14} />
+                </button>
+            </div>
+
             {/* Motivational Banner */}
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 to-teal-900 border border-teal-500/20 shadow-lg p-8">
                 <div className="absolute top-0 right-0 p-4 opacity-10">

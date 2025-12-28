@@ -1,6 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { db } from '../db';
 import { betaSignups, users } from '../db/schema';
+import { requireAuth } from '../middleware/auth';
+import { desc } from 'drizzle-orm';
 
 const router = Router();
 
@@ -17,6 +19,16 @@ router.post('/beta-signup', async (req: Request, res: Response) => {
     } catch (error) {
         console.error('Beta signup error:', error);
         res.status(500).json({ message: 'Error signing up for beta' });
+    }
+});
+
+router.get('/beta-signups', requireAuth, async (req: Request, res: Response) => {
+    try {
+        const signups = await db.select().from(betaSignups).orderBy(desc(betaSignups.createdAt));
+        res.json(signups);
+    } catch (error) {
+        console.error('Error fetching beta signups:', error);
+        res.status(500).json({ message: 'Error fetching beta signups' });
     }
 });
 

@@ -1,13 +1,48 @@
 import React, { useState, useEffect } from 'react';
-import { Calculator, DollarSign, TrendingUp, Percent, ArrowRight } from 'lucide-react';
+import { Calculator, DollarSign, TrendingUp, Percent, ArrowRight, Building } from 'lucide-react';
+import axios from 'axios';
+import { Property } from '@/types';
 
 const DealCalculator = () => {
+    const [properties, setProperties] = useState<Property[]>([]);
+    const [selectedPropertyId, setSelectedPropertyId] = useState<string>('');
+    const [loadingProperties, setLoadingProperties] = useState(true);
+
     const [arv, setArv] = useState<number>(300000);
     const [repairCost, setRepairCost] = useState<number>(50000);
     const [assignmentFee, setAssignmentFee] = useState<number>(10000);
     const [ruleOfThumb, setRuleOfThumb] = useState<number>(70); // 70% rule
 
     const [mao, setMao] = useState<number>(0);
+
+    useEffect(() => {
+        fetchProperties();
+    }, []);
+
+    const fetchProperties = async () => {
+        try {
+            const res = await axios.get('/properties');
+            setProperties(res.data);
+        } catch (error) {
+            console.error('Error fetching properties:', error);
+        } finally {
+            setLoadingProperties(false);
+        }
+    };
+
+    const handlePropertySelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const propertyId = e.target.value;
+        setSelectedPropertyId(propertyId);
+
+        if (propertyId) {
+            const property = properties.find(p => p.id === parseInt(propertyId));
+            if (property) {
+                if (property.arv) setArv(parseFloat(property.arv));
+                if (property.repairCost) setRepairCost(parseFloat(property.repairCost));
+                if (property.assignmentFee) setAssignmentFee(parseFloat(property.assignmentFee));
+            }
+        }
+    };
 
     useEffect(() => {
         const calculatedMao = (arv * (ruleOfThumb / 100)) - repairCost - assignmentFee;
@@ -22,6 +57,27 @@ const DealCalculator = () => {
                     Deal Calculator
                 </h1>
                 <p className="text-slate-400">Calculate Maximum Allowable Offer (MAO) and projected spreads.</p>
+            </div>
+
+            {/* Property Selector */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 mb-8">
+                <label className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2 block">Load Property Data</label>
+                <div className="relative">
+                    <span className="absolute left-3 top-3 text-slate-500"><Building size={16} /></span>
+                    <select
+                        value={selectedPropertyId}
+                        onChange={handlePropertySelect}
+                        disabled={loadingProperties}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-lg py-3 pl-10 pr-4 text-slate-100 focus:outline-none focus:border-teal-500 appearance-none"
+                    >
+                        <option value="">Select a property to load data...</option>
+                        {properties.map(prop => (
+                            <option key={prop.id} value={prop.id}>
+                                {prop.address} {prop.city ? `- ${prop.city}` : ''}
+                            </option>
+                        ))}
+                    </select>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

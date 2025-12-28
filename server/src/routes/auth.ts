@@ -128,4 +128,27 @@ router.get('/me', async (req: Request, res: Response) => {
     });
 });
 
+router.post('/change-password', async (req: Request, res: Response) => {
+    if (!req.session.userId) return res.status(401).json({ message: 'Unauthorized' });
+
+    const { currentPassword, newPassword } = req.body;
+    
+    try {
+        const [user] = await db.select().from(users).where(eq(users.id, req.session.userId));
+        
+        const isValid = await comparePassword(currentPassword, user.passwordHash);
+        if (!isValid) {
+            return res.status(400).json({ message: 'Invalid current password' });
+        }
+
+        const newPasswordHash = await hashPassword(newPassword);
+        await db.update(users).set({ passwordHash: newPasswordHash }).where(eq(users.id, user.id));
+
+        res.json({ message: 'Password updated successfully' });
+    } catch (error) {
+        console.error('Change password error:', error);
+        res.status(500).json({ message: 'Error changing password' });
+    }
+});
+
 export default router;
