@@ -7,6 +7,28 @@ import { generateAssignmentContract } from '../services/pdf';
 
 const router = Router();
 
+// Get available templates
+router.get('/templates', requireAuth, (req: Request, res: Response) => {
+    res.json([
+        { id: 'assignment', name: 'Assignment of Contract', description: 'Standard Assignment Agreement', active: true },
+        { id: 'purchase_sale', name: 'Purchase & Sale Agreement', description: 'Coming Soon', active: false }
+    ]);
+});
+
+// Get recent contracts (properties under contract)
+router.get('/recent', requireAuth, async (req: Request, res: Response) => {
+    try {
+        const recentContracts = await db.select()
+            .from(properties)
+            .where(eq(properties.status, 'Under Contract'))
+            .limit(10);
+        res.json(recentContracts);
+    } catch (error) {
+        console.error('Error fetching recent contracts:', error);
+        res.status(500).json({ message: 'Error fetching recent contracts' });
+    }
+});
+
 router.post('/generate/assignment', requireAuth, async (req: Request, res: Response) => {
     const { propertyId, assigneeName, assignmentFee } = req.body;
 

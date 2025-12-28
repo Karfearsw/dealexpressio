@@ -2,10 +2,28 @@ import { Router, Request, Response } from 'express';
 import { requireAuth } from '../middleware/auth';
 import { makeCall, sendSMS } from '../services/signalwire';
 import { db } from '../db';
-import { calls, smsMessages } from '../db/schema'; // Assuming these schemas exist
+import { calls, smsMessages, voicemails } from '../db/schema'; // Assuming these schemas exist
 import { eq, desc } from 'drizzle-orm';
 
 const router = Router();
+
+// Get recent communication history (global)
+router.get('/recent', requireAuth, async (req: Request, res: Response) => {
+    try {
+        const recentCalls = await db.select().from(calls).orderBy(desc(calls.createdAt)).limit(20);
+        const recentSms = await db.select().from(smsMessages).orderBy(desc(smsMessages.createdAt)).limit(20);
+        const recentVoicemails = await db.select().from(voicemails).orderBy(desc(voicemails.createdAt)).limit(20); // Assuming voicemails table exists and is imported
+
+        res.json({
+            calls: recentCalls,
+            sms: recentSms,
+            voicemail: recentVoicemails
+        });
+    } catch (error) {
+        console.error('Error fetching recent communication:', error);
+        res.status(500).json({ message: 'Error fetching recent communication' });
+    }
+});
 
 // Initiate a call
 router.post('/call', requireAuth, async (req: Request, res: Response) => {

@@ -14,6 +14,7 @@ import analyticsRoutes from './routes/analytics';
 import timesheetsRoutes from './routes/timesheets';
 import systemRoutes from './routes/system';
 import marketingRoutes from './routes/marketing';
+import buyersRoutes from './routes/buyers';
 import { pool } from './db';
 
 import path from 'path';
@@ -84,6 +85,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/timesheets', timesheetsRoutes);
 app.use('/api/system', systemRoutes);
 app.use('/api/marketing', marketingRoutes);
+app.use('/api/buyers', buyersRoutes);
 
 app.get('/health', (req: express.Request, res: express.Response) => {
     res.json({ status: 'ok' });

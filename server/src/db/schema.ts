@@ -48,6 +48,16 @@ export const properties = pgTable('properties', {
     createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+export const buyers = pgTable('buyers', {
+    id: serial('id').primaryKey(),
+    name: text('name').notNull(),
+    email: text('email'),
+    phone: text('phone'),
+    criteria: text('criteria'),
+    dealsClosed: integer('deals_closed').default(0),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 export const calls = pgTable('calls', {
     id: serial('id').primaryKey(),
     leadId: integer('lead_id').references(() => leads.id),

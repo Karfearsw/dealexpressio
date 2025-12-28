@@ -1,9 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Dialer from '@/components/communication/Dialer';
 import { MessageSquare, Phone, Voicemail } from 'lucide-react';
+import axios from 'axios';
 
 const Communication = () => {
     const [activeTab, setActiveTab] = useState<'calls' | 'sms' | 'voicemail'>('calls');
+    const [history, setHistory] = useState<{ calls: any[], sms: any[], voicemail: any[] }>({ calls: [], sms: [], voicemail: [] });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchHistory = async () => {
+            try {
+                const res = await axios.get('/api/communication/recent');
+                setHistory(res.data);
+            } catch (error) {
+                console.error("Failed to fetch communication history", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchHistory();
+    }, []);
 
     return (
         <div className="flex h-full gap-6">
@@ -42,27 +59,90 @@ const Communication = () => {
                 </div>
 
                 {/* Content Area */}
-                <div className="flex-1 bg-slate-900 border border-slate-800 rounded-xl p-6 flex flex-col items-center justify-center text-slate-500">
-                    {activeTab === 'calls' && (
-                        <div className="text-center">
-                            <Phone size={48} className="mx-auto mb-4 opacity-50" />
-                            <h3 className="text-lg font-medium text-slate-300">Call History</h3>
-                            <p>No recent calls found.</p>
-                        </div>
-                    )}
-                    {activeTab === 'sms' && (
-                        <div className="text-center">
-                            <MessageSquare size={48} className="mx-auto mb-4 opacity-50" />
-                            <h3 className="text-lg font-medium text-slate-300">Messages</h3>
-                            <p>Select a conversation to start messaging.</p>
-                        </div>
-                    )}
-                    {activeTab === 'voicemail' && (
-                        <div className="text-center">
-                            <Voicemail size={48} className="mx-auto mb-4 opacity-50" />
-                            <h3 className="text-lg font-medium text-slate-300">Voicemails</h3>
-                            <p>No new voicemails.</p>
-                        </div>
+                <div className="flex-1 bg-slate-900 border border-slate-800 rounded-xl p-6 flex flex-col items-center justify-start text-slate-500 overflow-y-auto">
+                    {loading ? (
+                        <div className="m-auto">Loading...</div>
+                    ) : (
+                        <>
+                            {activeTab === 'calls' && (
+                                history.calls.length === 0 ? (
+                                    <div className="text-center m-auto">
+                                        <Phone size={48} className="mx-auto mb-4 opacity-50" />
+                                        <h3 className="text-lg font-medium text-slate-300">Call History</h3>
+                                        <p>No recent calls found.</p>
+                                    </div>
+                                ) : (
+                                    <div className="w-full space-y-3">
+                                        {history.calls.map((call: any) => (
+                                            <div key={call.id} className="w-full p-4 bg-slate-950 border border-slate-800 rounded-lg flex items-center justify-between">
+                                                <div className="flex items-center">
+                                                    <div className={`p-2 rounded-full mr-3 ${call.direction === 'outbound' ? 'bg-blue-500/10 text-blue-400' : 'bg-green-500/10 text-green-400'}`}>
+                                                        <Phone size={16} />
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-slate-200 font-medium">{call.direction === 'outbound' ? 'Outbound Call' : 'Inbound Call'}</div>
+                                                        <div className="text-xs text-slate-500">{new Date(call.createdAt).toLocaleString()}</div>
+                                                    </div>
+                                                </div>
+                                                <span className="text-xs bg-slate-800 text-slate-400 px-2 py-1 rounded capitalize">{call.status}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )
+                            )}
+                            {activeTab === 'sms' && (
+                                history.sms.length === 0 ? (
+                                    <div className="text-center m-auto">
+                                        <MessageSquare size={48} className="mx-auto mb-4 opacity-50" />
+                                        <h3 className="text-lg font-medium text-slate-300">Messages</h3>
+                                        <p>Select a conversation to start messaging.</p>
+                                    </div>
+                                ) : (
+                                    <div className="w-full space-y-3">
+                                        {history.sms.map((sms: any) => (
+                                            <div key={sms.id} className="w-full p-4 bg-slate-950 border border-slate-800 rounded-lg flex items-center justify-between">
+                                                <div className="flex items-center">
+                                                    <div className={`p-2 rounded-full mr-3 ${sms.direction === 'outbound' ? 'bg-blue-500/10 text-blue-400' : 'bg-green-500/10 text-green-400'}`}>
+                                                        <MessageSquare size={16} />
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-slate-200 font-medium truncate max-w-xs">{sms.message}</div>
+                                                        <div className="text-xs text-slate-500">{new Date(sms.createdAt).toLocaleString()}</div>
+                                                    </div>
+                                                </div>
+                                                <span className="text-xs bg-slate-800 text-slate-400 px-2 py-1 rounded capitalize">{sms.status}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )
+                            )}
+                            {activeTab === 'voicemail' && (
+                                history.voicemail.length === 0 ? (
+                                    <div className="text-center m-auto">
+                                        <Voicemail size={48} className="mx-auto mb-4 opacity-50" />
+                                        <h3 className="text-lg font-medium text-slate-300">Voicemails</h3>
+                                        <p>No new voicemails.</p>
+                                    </div>
+                                ) : (
+                                    <div className="w-full space-y-3">
+                                        {history.voicemail.map((vm: any) => (
+                                            <div key={vm.id} className="w-full p-4 bg-slate-950 border border-slate-800 rounded-lg flex items-center justify-between">
+                                                <div className="flex items-center">
+                                                    <div className="p-2 rounded-full mr-3 bg-purple-500/10 text-purple-400">
+                                                        <Voicemail size={16} />
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-slate-200 font-medium">Voicemail</div>
+                                                        <div className="text-xs text-slate-500">{new Date(vm.createdAt).toLocaleString()}</div>
+                                                    </div>
+                                                </div>
+                                                <audio controls src={vm.recordingUrl} className="h-8 w-48" />
+                                            </div>
+                                        ))}
+                                    </div>
+                                )
+                            )}
+                        </>
                     )}
                 </div>
             </div>

@@ -1,14 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Users, Search, Plus, Mail, Phone, MapPin } from 'lucide-react';
+import axios from 'axios';
 
 const BuyersList = () => {
     const [searchTerm, setSearchTerm] = useState('');
+    const [buyers, setBuyers] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const buyers = [
-        { id: 1, name: 'Investor One, LLC', email: 'deals@investorone.com', phone: '555-0101', criteria: 'SFH, Multifamily in 33101', dealsClosed: 12 },
-        { id: 2, name: 'Sarah Jenkins', email: 'sarah.j@realty.com', phone: '555-0102', criteria: 'Fix & Flip, Budget < $200k', dealsClosed: 5 },
-        { id: 3, name: 'Skyline Capital', email: 'acquisitions@skyline.com', phone: '555-0103', criteria: 'Commercial, Florida wide', dealsClosed: 28 },
-    ];
+    useEffect(() => {
+        fetchBuyers();
+    }, []);
+
+    const fetchBuyers = async () => {
+        try {
+            const res = await axios.get('/api/buyers');
+            setBuyers(res.data);
+        } catch (error) {
+            console.error("Failed to fetch buyers", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const filteredBuyers = buyers.filter(buyer => 
+        buyer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        buyer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        buyer.criteria?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
         <div className="space-y-6">
@@ -37,35 +55,45 @@ const BuyersList = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {buyers.map((buyer) => (
-                    <div key={buyer.id} className="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-teal-500/30 transition-all group">
-                        <div className="flex items-start justify-between mb-4">
-                            <div className="w-12 h-12 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-center text-teal-400">
-                                <Users size={24} />
-                            </div>
-                            <div className="text-[10px] font-bold text-teal-500 bg-teal-500/10 px-2 py-1 rounded uppercase tracking-wider">
-                                {buyer.dealsClosed} Deals Closed
-                            </div>
-                        </div>
-
-                        <h3 className="text-lg font-bold text-slate-100 group-hover:text-teal-400 transition-colors">{buyer.name}</h3>
-
-                        <div className="mt-4 space-y-2">
-                            <div className="flex items-center text-sm text-slate-400">
-                                <Mail size={14} className="mr-2 shrink-0" />
-                                <span className="truncate">{buyer.email}</span>
-                            </div>
-                            <div className="flex items-center text-sm text-slate-400">
-                                <Phone size={14} className="mr-2 shrink-0" />
-                                <span>{buyer.phone}</span>
-                            </div>
-                            <div className="flex items-start text-sm text-slate-400 pt-2 border-t border-slate-800">
-                                <MapPin size={14} className="mr-2 mt-0.5 shrink-0" />
-                                <p className="italic">{buyer.criteria}</p>
-                            </div>
-                        </div>
+                {loading ? (
+                    <div className="col-span-full text-center py-20 text-slate-500">
+                        Loading buyers...
                     </div>
-                ))}
+                ) : filteredBuyers.length === 0 ? (
+                    <div className="col-span-full text-center py-20 text-slate-500">
+                        No buyers found.
+                    </div>
+                ) : (
+                    filteredBuyers.map((buyer) => (
+                        <div key={buyer.id} className="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-teal-500/30 transition-all group">
+                            <div className="flex items-start justify-between mb-4">
+                                <div className="w-12 h-12 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-center text-teal-400">
+                                    <Users size={24} />
+                                </div>
+                                <div className="text-[10px] font-bold text-teal-500 bg-teal-500/10 px-2 py-1 rounded uppercase tracking-wider">
+                                    {buyer.dealsClosed || 0} Deals Closed
+                                </div>
+                            </div>
+
+                            <h3 className="text-lg font-bold text-slate-100 group-hover:text-teal-400 transition-colors">{buyer.name}</h3>
+
+                            <div className="mt-4 space-y-2">
+                                <div className="flex items-center text-sm text-slate-400">
+                                    <Mail size={14} className="mr-2 shrink-0" />
+                                    <span className="truncate">{buyer.email || 'No email'}</span>
+                                </div>
+                                <div className="flex items-center text-sm text-slate-400">
+                                    <Phone size={14} className="mr-2 shrink-0" />
+                                    <span>{buyer.phone || 'No phone'}</span>
+                                </div>
+                                <div className="flex items-start text-sm text-slate-400 pt-2 border-t border-slate-800">
+                                    <MapPin size={14} className="mr-2 mt-0.5 shrink-0" />
+                                    <p className="italic">{buyer.criteria || 'No criteria listed'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                )}
             </div>
         </div>
     );
