@@ -30,7 +30,24 @@ app.use(helmet({
 }));
 app.use(morgan('dev'));
 app.use(cors({
-    origin: 'http://localhost:5173', // Vite default port
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        
+        // Allow localhost and Vercel deployments
+        const allowedOrigins = [
+            'http://localhost:5173',
+            'http://localhost:3000',
+            process.env.VITE_API_URL // Your production URL if set
+        ];
+        
+        // Also allow any Vercel preview URLs
+        if (origin.endsWith('.vercel.app') || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
 }));
 app.use(express.json());
@@ -54,7 +71,7 @@ app.use(session({
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
         secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+        sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax' // Use 'lax' for single-domain monorepo
     }
 }));
 
