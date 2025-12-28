@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-teal: #008080;
+  --color-brand-navy: #000080;
+  --font-display: 'Barlow', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+}
+
+:root {
+  color-scheme: dark light;
+}
+
+body {
+  font-family: var(--font-body);
+  @apply bg-slate-950 text-slate-50;
+}
