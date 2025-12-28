@@ -35,7 +35,30 @@ const LandingPage = () => {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const res = await fetch('/api/marketing/stats');
+                const baseUrl = import.meta.env.VITE_API_URL || '/api';
+                // If baseUrl ends with /api and the path starts with /api, avoid double /api/api if using relative path logic, 
+                // but here we are appending to baseUrl. 
+                // If VITE_API_URL is "http://host/api", and we append "/marketing/stats", we get "http://host/api/marketing/stats".
+                // If using local proxy, baseUrl is "/api", result is "/api/marketing/stats".
+                // However, the original code was fetch('/api/marketing/stats'). 
+                // If I use baseUrl + '/marketing/stats', I get '/api/marketing/stats'. Correct.
+                
+                // But wait, axios baseURL is prepended to requests. 
+                // fetch does not have a baseURL option. 
+                
+                // If VITE_API_URL is provided, it likely includes /api or not? 
+                // Let's assume VITE_API_URL = "https://host/api".
+                // Then `fetch(`${baseUrl}/marketing/stats`)` -> "https://host/api/marketing/stats". 
+                // BUT the server route is mounted at /api/marketing.
+                
+                // If I use the axios logic: 
+                // axios.defaults.baseURL = import.meta.env.VITE_API_URL || '/api';
+                // axios.get('/marketing/stats') -> baseURL + '/marketing/stats'.
+                
+                // Here I am manually constructing the url. 
+                // So I should remove '/api' from the string literal if I assume baseUrl handles it.
+                
+                const res = await fetch(`${baseUrl.replace(/\/$/, '')}/marketing/stats`); 
                 if (res.ok) {
                     const data = await res.json();
                     setStats({

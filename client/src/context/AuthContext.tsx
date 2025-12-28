@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
 // Configure axios defaults
-axios.defaults.baseURL = '/api'; // Use Vite proxy
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || '/api'; // Use Vite proxy in dev, env var in prod
 axios.defaults.withCredentials = true;
 
 interface User {

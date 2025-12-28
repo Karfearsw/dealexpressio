@@ -1,21 +1,26 @@
 {
   "dependencies": {
     "@signalwire/realtime-api": "^4.1.3",
+    "@signalwire/compatibility-api": "^3.2.0",
     "bcrypt": "^6.0.0",
     "connect-pg-simple": "^10.0.0",
     "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.45.1",
     "express": "^5.2.1",
     "express-session": "^1.18.2",
     "helmet": "^8.1.0",
     "morgan": "^1.10.1",
+    "pdfkit": "^0.17.2",
     "pg": "^8.16.3",
     "qrcode": "^1.5.4",
     "speakeasy": "^2.0.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
+    "@types/node": "^20.10.0",
+    "@types/pdfkit": "^0.17.4",
     "@types/qrcode": "^1.5.6",
     "@types/speakeasy": "^2.0.10"
   }

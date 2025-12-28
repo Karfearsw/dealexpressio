@@ -21,7 +21,7 @@ const PropertyDetail = () => {
 
     const fetchProperty = async () => {
         try {
-            const res = await axios.get(`/ properties / ${id} `);
+            const res = await axios.get(`/properties/${id}`);
             setProperty(res.data);
             setFormData(res.data);
         } catch (error) {
@@ -33,7 +33,7 @@ const PropertyDetail = () => {
 
     const handleSave = async () => {
         try {
-            const res = await axios.put(`/ properties / ${id} `, formData);
+            const res = await axios.put(`/properties/${id}`, formData);
             setProperty(res.data);
             setIsEditing(false);
         } catch (error) {
