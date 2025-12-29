@@ -26,14 +26,11 @@ const Sidebar = () => {
         { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
         { name: 'Leads', path: '/leads', icon: Users },
         { name: 'Properties', path: '/properties', icon: Home },
-        { name: 'Buyers List', path: '/buyers', icon: Users, isComingSoon: false },
-        { name: 'Deal Calculator', path: '/calculator', icon: Calculator, isComingSoon: false },
-    ];
-
-    const upcomingItems = [
         { name: 'Communication', path: '/communication', icon: MessageSquare },
         { name: 'Contracts', path: '/contracts', icon: FileText },
         { name: 'Analytics', path: '/analytics', icon: BarChart },
+        { name: 'Buyers List', path: '/buyers', icon: Users },
+        { name: 'Deal Calculator', path: '/calculator', icon: Calculator },
         { name: 'Settings', path: '/settings', icon: Settings },
     ];
 
@@ -69,36 +66,6 @@ const Sidebar = () => {
                                 <item.icon size={20} className={cn("shrink-0", collapsed ? "mx-auto" : "mr-3")} />
                                 {!collapsed && <span>{item.name}</span>}
                             </Link>
-                        );
-                    })}
-                </div>
-
-                <div className="space-y-1">
-                    {!collapsed && <div className="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Future Updates</div>}
-                    {upcomingItems.map((item) => {
-                        return (
-                            <div key={item.path} className="relative group">
-                                <Link
-                                    href={item.path}
-                                    className={cn(
-                                        "flex items-center px-4 py-3 text-sm font-medium transition-colors opacity-50 cursor-not-allowed",
-                                        "text-slate-500 hover:text-slate-400"
-                                    )}
-                                >
-                                    <item.icon size={20} className={cn("shrink-0", collapsed ? "mx-auto" : "mr-3")} />
-                                    {!collapsed && (
-                                        <div className="flex items-center justify-between w-full">
-                                            <span>{item.name}</span>
-                                            <span className="text-[9px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400 font-bold uppercase">Soon</span>
-                                        </div>
-                                    )}
-                                </Link>
-                                {collapsed && (
-                                    <div className="absolute left-16 top-1/2 -translate-y-1/2 hidden group-hover:block bg-slate-800 text-slate-100 text-[10px] px-2 py-1 rounded shadow-xl whitespace-nowrap z-50">
-                                        {item.name} (Coming Soon)
-                                    </div>
-                                )}
-                            </div>
                         );
                     })}
                 </div>

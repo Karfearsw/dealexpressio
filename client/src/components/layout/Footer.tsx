@@ -11,7 +11,10 @@ const Footer = () => {
                     </div>
                 </Link>
 
-                <p className="text-slate-500 text-sm">© 2025 ExpressDeal CRM. All rights reserved.</p>
+                <div className="text-slate-500 text-sm text-center md:text-left">
+                    <p>© 2025 Express Brands LLC. All rights reserved.</p>
+                    <p className="mt-1">1000 Brickell Ave Miami, FL 33131</p>
+                </div>
 
                 <div className="flex space-x-6 text-slate-400 text-sm">
                     <Link href="/terms" className="hover:text-teal-400 block p-1">Terms</Link>

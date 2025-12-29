@@ -1,90 +1,100 @@
 import { Link } from 'wouter';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 import { Check, Shield, Zap, Database } from 'lucide-react';
 import { motion } from 'framer-motion';
 import PublicLayout from '@/components/layout/PublicLayout';
 
 const Pricing = () => {
-    const tiers = [
+    const [tiers, setTiers] = useState<any[]>([
         {
-            name: "Demo / Trial",
-            price: "0.99",
-            period: "one-time",
-            description: "Perfect for testing the waters and seeing the power of DealExpress.",
+            name: "Basic",
+            price: "50",
+            period: "per month",
+            description: "For starters who need a solid foundation.",
             features: [
-                "Full System Access (3 Days)",
-                "50 Lead Imports",
-                "Basic Deal Calculator",
+                "Includes 500 leads",
+                "Lead Management & Auto-Enrich",
+                "Deal Calculator & Offer Letters",
                 "1 User Seat"
             ],
-            color: "border-slate-700 hover:border-slate-500",
-            buttonColor: "bg-slate-800 hover:bg-slate-700 text-white",
+            color: "border-teal-500/50 hover:border-teal-400 bg-teal-500/5",
+            buttonColor: "bg-teal-600 hover:bg-teal-500 text-white shadow-lg shadow-teal-500/25",
         },
         {
-            name: "Alpha Solo",
-            price: "49.99",
+            name: "Pro",
+            price: "100",
             period: "per month",
-            description: "For individual wholesalers ready to scale using our public alpha tools.",
+            description: "For growing operations ready to scale.",
             features: [
-                "Public Alpha Features",
-                "Unlimited Lead Imports",
+                "Includes 1,000 leads",
                 "Advanced Property Analysis",
                 "Automated Follow-ups",
-                "1 User Seat",
-                "Email Support"
-            ],
-            color: "border-teal-500/50 hover:border-teal-400 bg-teal-500/5",
-            buttonColor: "bg-gradient-to-r from-teal-500 to-emerald-500 text-white shadow-lg shadow-teal-500/25",
-        },
-        {
-            name: "Alpha Team",
-            price: "99.99",
-            period: "per month",
-            description: "For growing teams needing multi-seat access and all features.",
-            features: [
-                "All Features included",
-                "Multi-Seat Access (up to 5)",
-                "Unlimited Contracts",
-                "Priority Support",
-                "Custom Contract Templates",
-                "Dedicated Account Manager"
+                "Up to 3 User Seats",
+                "Priority Support"
             ],
             popular: true,
             color: "border-blue-500/50 hover:border-blue-400 bg-blue-500/5",
             buttonColor: "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25",
         },
         {
-            name: "Yearly Pro",
-            price: "999.99",
-            period: "per year",
-            description: "Best value for committed investors building a long-term enterprise.",
+            name: "Enterprise",
+            price: "1000",
+            period: "per month",
+            description: "For teams demanding performance at scale.",
             features: [
-                "Everything in Alpha Team",
-                "2 Months Free",
-                "10 User Seats",
-                "API Access",
-                "White-label Reports",
-                "Founder's Circle Community"
+                "Includes 15,000 leads",
+                "Multi-Seat Access",
+                "Custom Contract Templates",
+                "Dedicated Account Manager",
+                "API Access"
             ],
             color: "border-indigo-500/50 hover:border-indigo-400 bg-indigo-500/5",
             buttonColor: "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/25",
-        },
-        {
-            name: "Lifetime",
-            price: "9999.99",
-            period: "one-time",
-            description: "Own the software. No monthly fees ever again.",
-            features: [
-                "Everything in Yearly",
-                "Lifetime Updates",
-                "Unlimited User Seats",
-                "White-label Options",
-                "Direct Developer Access",
-                " VIP Feature Requests"
-            ],
-            color: "border-purple-500/50 hover:border-purple-400 bg-purple-500/5",
-            buttonColor: "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/25",
         }
-    ];
+    ]);
+
+    useEffect(() => {
+        const loadPricing = async () => {
+            try {
+                const res = await axios.get('/api/marketing/pricing-tiers');
+                const apiTiers = res.data.map((t: any) => ({
+                    name: t.name,
+                    price: String(t.price),
+                    period: t.period,
+                    description:
+                        t.name === 'Basic'
+                            ? 'For starters who need a solid foundation.'
+                            : t.name === 'Pro'
+                                ? 'For growing operations ready to scale.'
+                                : 'For teams demanding performance at scale.',
+                    features:
+                        t.name === 'Basic'
+                            ? ["Includes 500 leads", "Lead Management & Auto-Enrich", "Deal Calculator & Offer Letters", "1 User Seat"]
+                            : t.name === 'Pro'
+                                ? ["Includes 1,000 leads", "Advanced Property Analysis", "Automated Follow-ups", "Up to 3 User Seats", "Priority Support"]
+                                : ["Includes 15,000 leads", "Multi-Seat Access", "Custom Contract Templates", "Dedicated Account Manager", "API Access"],
+                    color:
+                        t.name === 'Basic'
+                            ? "border-teal-500/50 hover:border-teal-400 bg-teal-500/5"
+                            : t.name === 'Pro'
+                                ? "border-blue-500/50 hover:border-blue-400 bg-blue-500/5"
+                                : "border-indigo-500/50 hover:border-indigo-400 bg-indigo-500/5",
+                    buttonColor:
+                        t.name === 'Basic'
+                            ? "bg-teal-600 hover:bg-teal-500 text-white shadow-lg shadow-teal-500/25"
+                            : t.name === 'Pro'
+                                ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25"
+                                : "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/25",
+                    popular: t.name === 'Pro'
+                }));
+                setTiers(apiTiers);
+            } catch {
+                // Keep default tiers
+            }
+        };
+        loadPricing();
+    }, []);
 
     return (
         <PublicLayout>

@@ -90,9 +90,10 @@ const Contact = () => {
                                 </div>
                                 <button
                                     type="submit"
-                                    className="w-full bg-gradient-to-r from-teal-500 to-blue-600 text-white font-bold py-3 rounded-lg hover:shadow-lg hover:from-teal-400 hover:to-blue-500 transition-all transform hover:scale-[1.02]"
+                                    disabled={loading}
+                                    className={`w-full bg-gradient-to-r from-teal-500 to-blue-600 text-white font-bold py-3 rounded-lg hover:shadow-lg hover:from-teal-400 hover:to-blue-500 transition-all transform hover:scale-[1.02] ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
-                                    Send Message
+                                    {loading ? 'Sending...' : 'Send Message'}
                                 </button>
                             </form>
                         )}

@@ -1,8 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { db } from '../db';
-import { betaSignups, users } from '../db/schema';
+import { betaSignups, users, properties, leads } from '../db/schema';
 import { requireAuth } from '../middleware/auth';
-import { desc } from 'drizzle-orm';
+import { desc, eq, count, sql } from 'drizzle-orm';
 
 const router = Router();
 
@@ -35,18 +35,48 @@ router.get('/beta-signups', requireAuth, async (req: Request, res: Response) => 
 router.get('/stats', async (_req: Request, res: Response) => {
     try {
         // Count total users
-        // Since we don't have a specific "active" flag, we'll count all registered users
-        const result = await db.select({ count: users.id }).from(users);
-        const userCount = result.length;
+        const [userResult] = await db.select({ count: count() }).from(users);
+        const userCount = userResult?.count || 0;
+
+        // Count closed deals (properties with status 'Closed')
+        const [dealsResult] = await db.select({ count: count() }).from(properties).where(eq(properties.status, 'Closed'));
+        const dealsCount = dealsResult?.count || 0;
+
+        // Monthly leads (last 30 days)
+        const [leadsResult] = await db.select({ count: count() })
+            .from(leads)
+            .where(sql`${leads.createdAt} > NOW() - INTERVAL '30 days'`);
+        const monthlyLeads = leadsResult?.count || 0;
+
+        // Tracked Volume (sum of projected_spread)
+        const [volumeResult] = await db.select({ sum: sql<string>`sum(${properties.projectedSpread})` }).from(properties);
+        const volume = parseFloat(volumeResult?.sum || '0');
 
         // Return structured stats
         res.json({
-            activeUsers: userCount > 500 ? userCount : 500 + userCount, // Marketing fluff: start at 500+ for social proof if low
-            dealsClosed: 1240 + userCount * 2, // Algorithmic estimation based on user base
+            activeUsers: userCount,
+            dealsClosed: dealsCount,
+            monthlyLeads,
+            trackedVolume: volume
         });
     } catch (error) {
         console.error('Stats fetch error:', error);
         res.status(500).json({ message: 'Error fetching stats' });
+    }
+});
+
+// Public pricing tiers
+router.get('/pricing-tiers', async (_req: Request, res: Response) => {
+    try {
+        const tiers = [
+            { name: 'Basic', price: 50, period: 'per month', leadsIncluded: 500 },
+            { name: 'Pro', price: 100, period: 'per month', leadsIncluded: 1000 },
+            { name: 'Enterprise', price: 1000, period: 'per month', leadsIncluded: 15000 }
+        ];
+        res.json(tiers);
+    } catch (error) {
+        console.error('Error fetching pricing tiers:', error);
+        res.status(500).json({ message: 'Error fetching pricing tiers' });
     }
 });
 

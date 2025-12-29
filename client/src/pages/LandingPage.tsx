@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
+import axios from 'axios';
 import {
     CheckCircle2,
     Users,
@@ -27,45 +28,23 @@ const LandingPage = () => {
     const heroOpacity = useTransform(scrollY, [0, 300], [1, 0]);
     const dashboardY = useTransform(scrollY, [0, 500], [0, -100]);
 
-    const [stats, setStats] = useState({
-        activeUsers: "500+",
-        dealsClosed: "1240+"
+    const [stats, setStats] = useState<{
+        activeUsers: number | null;
+        dealsClosed: number | null;
+        monthlyLeads: number | null;
+        trackedVolume: number | null;
+    }>({
+        activeUsers: null,
+        dealsClosed: null,
+        monthlyLeads: null,
+        trackedVolume: null
     });
 
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const baseUrl = import.meta.env.VITE_API_URL || '/api';
-                // If baseUrl ends with /api and the path starts with /api, avoid double /api/api if using relative path logic, 
-                // but here we are appending to baseUrl. 
-                // If VITE_API_URL is "http://host/api", and we append "/marketing/stats", we get "http://host/api/marketing/stats".
-                // If using local proxy, baseUrl is "/api", result is "/api/marketing/stats".
-                // However, the original code was fetch('/api/marketing/stats'). 
-                // If I use baseUrl + '/marketing/stats', I get '/api/marketing/stats'. Correct.
-                
-                // But wait, axios baseURL is prepended to requests. 
-                // fetch does not have a baseURL option. 
-                
-                // If VITE_API_URL is provided, it likely includes /api or not? 
-                // Let's assume VITE_API_URL = "https://host/api".
-                // Then `fetch(`${baseUrl}/marketing/stats`)` -> "https://host/api/marketing/stats". 
-                // BUT the server route is mounted at /api/marketing.
-                
-                // If I use the axios logic: 
-                // axios.defaults.baseURL = import.meta.env.VITE_API_URL || '/api';
-                // axios.get('/marketing/stats') -> baseURL + '/marketing/stats'.
-                
-                // Here I am manually constructing the url. 
-                // So I should remove '/api' from the string literal if I assume baseUrl handles it.
-                
-                const res = await fetch(`${baseUrl.replace(/\/$/, '')}/marketing/stats`); 
-                if (res.ok) {
-                    const data = await res.json();
-                    setStats({
-                        activeUsers: data.activeUsers > 500 ? `${data.activeUsers}+` : `${data.activeUsers}`,
-                        dealsClosed: `${data.dealsClosed}+`
-                    });
-                }
+                const res = await axios.get('/api/marketing/stats');
+                setStats(res.data);
             } catch (err) {
                 console.error("Failed to fetch stats", err);
             }
@@ -73,10 +52,20 @@ const LandingPage = () => {
         fetchStats();
     }, []);
 
+    const formatCurrency = (value: number) => {
+        if (value >= 1000000) {
+            return `$${(value / 1000000).toFixed(1)}M`;
+        }
+        if (value >= 1000) {
+            return `$${(value / 1000).toFixed(1)}K`;
+        }
+        return `$${value}`;
+    };
+
     const features = [
         {
             title: "Lead Management",
-            description: "Manage and nurture leads through every stage of the real estate pipeline with ease.",
+            description: "Choose DONE FOR YOU imported leads or instantly auto-enrich your own data. Get the full picture immediately.",
             icon: Users,
             image: iconLeadManagement,
             color: "text-teal-400"
@@ -90,9 +79,15 @@ const LandingPage = () => {
         },
         {
             title: "Deal Calculator",
-            description: "Powerful financial calculators to evaluate MAO, ARV, and projected spreads instantly.",
+            description: "Run the numbers in seconds. Determine max offer amount and generate professional offer letters with one click.",
             icon: Calculator,
             image: iconDealCalculator,
+            color: "text-indigo-400"
+        },
+        {
+            title: "Financial Tools",
+            description: "MAO, ARV, and projected spreads calculators. Get instant evaluations.",
+            icon: Calculator,
             color: "text-indigo-400"
         },
         {
@@ -161,8 +156,7 @@ const LandingPage = () => {
                             transition={{ duration: 0.7, delay: 0.1 }}
                             className="text-5xl md:text-8xl font-extrabold tracking-tight leading-[1.1]"
                         >
-                            Wholesale Real Estate <br />
-                            <span className="bg-gradient-to-r from-teal-400 via-blue-400 to-indigo-500 bg-clip-text text-transparent">Powerfully Simple.</span>
+                            The Express Way to Wholesaling
                         </motion.h1>
 
                         <motion.p
@@ -171,7 +165,7 @@ const LandingPage = () => {
                             transition={{ duration: 0.7, delay: 0.3 }}
                             className="max-w-2xl mx-auto text-xl text-slate-400 leading-relaxed"
                         >
-                            The all-in-one CRM designed by wholesalers, for wholesalers. Manage leads, calculate deals, and close assignments faster than ever before.
+                            All your tools, leads, and deals—managed in one powerful platform. Calculate, track, and close faster than ever.
                         </motion.p>
 
                         <motion.div
@@ -206,50 +200,7 @@ const LandingPage = () => {
                     </motion.div>
                 </section>
 
-                {/* Beta Email Capture Section */}
-                <section className="py-12 bg-slate-950/80 border-y border-slate-900">
-                    <div className="max-w-4xl mx-auto px-4 text-center">
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                        >
-                            <h3 className="text-2xl font-bold text-white mb-4">Want early access updates?</h3>
-                            <p className="text-slate-400 mb-6">Join our exclusive waiting list to get notified when new spots open up.</p>
-
-                            <form onSubmit={async (e) => {
-                                e.preventDefault();
-                                const form = e.target as HTMLFormElement;
-                                const email = (form.elements.namedItem('email') as HTMLInputElement).value;
-                                try {
-                                    await fetch('/api/marketing/beta-signup', {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ email })
-                                    });
-                                    alert('You are on the list!');
-                                    form.reset();
-                                } catch (error) {
-                                    console.error(error);
-                                }
-                            }} className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
-                                <input
-                                    type="email"
-                                    name="email"
-                                    placeholder="Enter your email"
-                                    className="flex-1 bg-slate-900 border border-slate-800 rounded-full px-6 py-3 text-white focus:outline-none focus:border-teal-500 transition-colors"
-                                    required
-                                />
-                                <button
-                                    type="submit"
-                                    className="bg-slate-800 hover:bg-slate-700 text-white font-bold px-8 py-3 rounded-full transition-colors border border-slate-700"
-                                >
-                                    Join Waitlist
-                                </button>
-                            </form>
-                        </motion.div>
-                    </div>
-                </section>
+                
 
                 {/* Scrollytelling Workflow Section */}
                 <section id="workflow" className="relative bg-slate-950 py-24">
@@ -427,6 +378,51 @@ const LandingPage = () => {
                             </motion.div>
                         </div>
                     </motion.div>
+                </section>
+
+                {/* Beta Email Capture Section (Bottom) */}
+                <section className="py-12 bg-slate-950/80 border-t border-slate-900">
+                    <div className="max-w-4xl mx-auto px-4 text-center">
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                        >
+                            <h3 className="text-2xl font-bold text-white mb-4">Want early access updates?</h3>
+                            <p className="text-slate-400 mb-6">Join our exclusive waiting list to get notified when new spots open up.</p>
+
+                            <form onSubmit={async (e) => {
+                                e.preventDefault();
+                                const form = e.target as HTMLFormElement;
+                                const email = (form.elements.namedItem('email') as HTMLInputElement).value;
+                                try {
+                                    await fetch('/api/marketing/beta-signup', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ email })
+                                    });
+                                    alert('You are on the list!');
+                                    form.reset();
+                                } catch (error) {
+                                    console.error(error);
+                                }
+                            }} className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
+                                <input
+                                    type="email"
+                                    name="email"
+                                    placeholder="Enter your email"
+                                    className="flex-1 bg-slate-900 border border-slate-800 rounded-full px-6 py-3 text-white focus:outline-none focus:border-teal-500 transition-colors"
+                                    required
+                                />
+                                <button
+                                    type="submit"
+                                    className="bg-slate-800 hover:bg-slate-700 text-white font-bold px-8 py-3 rounded-full transition-colors border border-slate-700"
+                                >
+                                    Join Waitlist
+                                </button>
+                            </form>
+                        </motion.div>
+                    </div>
                 </section>
             </div>
         </PublicLayout>

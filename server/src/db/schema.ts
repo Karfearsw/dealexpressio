@@ -114,6 +114,14 @@ export const timesheets = pgTable('timesheets', {
     status: text('status').default('active'), // active, completed
 });
 
+export const contactSubmissions = pgTable('contact_submissions', {
+    id: serial('id').primaryKey(),
+    email: text('email').notNull(),
+    message: text('message').notNull(),
+    status: text('status').default('new'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
     leads: many(leads),
