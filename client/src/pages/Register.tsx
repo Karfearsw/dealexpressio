@@ -23,7 +23,7 @@ const Register = () => {
 
         try {
             await register(email, password, role as 'admin' | 'employee', firstName, lastName, accessCode);
-            setLocation('/');
+            setLocation('/dashboard');
         } catch (err: any) {
             setError(err.response?.data?.error || 'Failed to register');
         } finally {
