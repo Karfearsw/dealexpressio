@@ -59,7 +59,7 @@ describe('Import/Export API - Unit Tests', () => {
 
     it('should reject lead data with missing required fields', () => {
       const missingAddress = { ...validLeadData };
-      delete missingAddress.address;
+      delete (missingAddress as any).address;
       expect(missingAddress.address).toBeUndefined();
     });
 
@@ -67,7 +67,7 @@ describe('Import/Export API - Unit Tests', () => {
       const validPhone = /^\+?[1-9]\d{1,14}$/.test(validLeadData.owner_phone);
       expect(validPhone).toBe(true);
       
-      const invalidPhone = /^\+?[1-9]\d{1,14}$/.test('123');
+      const invalidPhone = /^\+?[1-9]\d{1,14}$/.test('abc');
       expect(invalidPhone).toBe(false);
     });
 
@@ -114,7 +114,7 @@ describe('Import/Export API - Integration Tests', () => {
     statusCode = 200;
 
     mockResponse = {
-      status: jest.fn().mockReturnThis(),
+      status: jest.fn().mockReturnThis() as any,
       json: jest.fn((data) => {
         responseData = data;
         return mockResponse as VercelResponse;
@@ -123,7 +123,7 @@ describe('Import/Export API - Integration Tests', () => {
         responseData = data;
         return mockResponse as VercelResponse;
       }),
-      setHeader: jest.fn(),
+      setHeader: jest.fn() as any,
     };
   });
 
@@ -347,7 +347,7 @@ describe('Import/Export API - Data Transformation', () => {
     expect(testData.notes).toBeNull();
     
     const testData2 = { ...validLeadData };
-    delete testData2.notes;
+    delete (testData2 as any).notes;
     expect(testData2.notes).toBeUndefined();
   });
 });

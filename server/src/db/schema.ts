@@ -19,6 +19,48 @@ export const users = pgTable('users', {
     createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+export const subscriptions = pgTable('subscriptions', {
+    id: serial('id').primaryKey(),
+    userId: integer('user_id').references(() => users.id).notNull().unique(),
+    planId: text('plan_id').notNull(), // basic, pro, enterprise
+    planName: text('plan_name').notNull(),
+    amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
+    currency: text('currency').default('USD').notNull(),
+    billingInterval: text('billing_interval').default('monthly').notNull(), // monthly, yearly
+    status: text('status').default('ACTIVE').notNull(), // TRIALING, ACTIVE, PAST_DUE, CANCELED, UNPAID
+    currentPeriodStart: timestamp('current_period_start').notNull(),
+    currentPeriodEnd: timestamp('current_period_end').notNull(),
+    nextBillingDate: timestamp('next_billing_date').notNull(),
+    lastPaymentId: text('last_payment_id'),
+    lastTransactionId: text('last_transaction_id'),
+    maxLeads: integer('max_leads').default(500),
+    maxProperties: integer('max_properties').default(50),
+    maxUsers: integer('max_users').default(1),
+    cancelAtPeriodEnd: boolean('cancel_at_period_end').default(false),
+    canceledAt: timestamp('canceled_at'),
+    trialEndsAt: timestamp('trial_ends_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const payments = pgTable('payments', {
+    id: serial('id').primaryKey(),
+    userId: integer('user_id').references(() => users.id).notNull(),
+    poofCheckoutId: text('poof_checkout_id').unique().notNull(),
+    poofTransactionId: text('poof_transaction_id').unique(),
+    amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
+    currency: text('currency').default('USD').notNull(),
+    paymentMethod: text('payment_method'), // bitcoin, credit_card, paypal, etc.
+    status: text('status').default('PENDING').notNull(), // PENDING, COMPLETED, FAILED, REFUNDED
+    description: text('description'),
+    subscriptionId: integer('subscription_id').references(() => subscriptions.id),
+    webhookData: jsonb('webhook_data'),
+    paidAt: timestamp('paid_at'),
+    failedAt: timestamp('failed_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 export const betaSignups = pgTable('beta_signups', {
     id: serial('id').primaryKey(),
     email: text('email').unique().notNull(),
@@ -134,6 +176,30 @@ export const usersRelations = relations(users, ({ many }) => ({
     leads: many(leads),
     notifications: many(notifications),
     timesheets: many(timesheets),
+    subscription: one(subscriptions, {
+        fields: [users.id],
+        references: [subscriptions.userId],
+    }),
+    payments: many(payments),
+}));
+
+export const subscriptionsRelations = relations(subscriptions, ({ one, many }) => ({
+    user: one(users, {
+        fields: [subscriptions.userId],
+        references: [users.id],
+    }),
+    payments: many(payments),
+}));
+
+export const paymentsRelations = relations(payments, ({ one }) => ({
+    user: one(users, {
+        fields: [payments.userId],
+        references: [users.id],
+    }),
+    subscription: one(subscriptions, {
+        fields: [payments.subscriptionId],
+        references: [subscriptions.id],
+    }),
 }));
 
 export const leadsRelations = relations(leads, ({ one, many }) => ({

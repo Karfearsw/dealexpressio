@@ -2,6 +2,7 @@ import { Route, Switch, Redirect } from 'wouter';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import AppShell from './components/layout/AppShell';
+import ErrorBoundary from './components/ErrorBoundary';
 // Pages
 import LandingPage from './pages/LandingPage';
 import Terms from './pages/Terms';

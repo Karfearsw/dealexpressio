@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { db } from '../db';
 import { properties, leads } from '../db/schema';
 import { eq, desc } from 'drizzle-orm';
-import { requireAuth } from '../middleware/auth';
+import { requireAuth, requireSubscription } from '../middleware/auth';
 import multer from 'multer';
 import csv from 'csv-parser';
 import fs from 'fs';
@@ -10,8 +10,8 @@ import fs from 'fs';
 const router = Router();
 const upload = multer({ dest: 'uploads/' });
 
-// Import properties from CSV
-router.post('/import', requireAuth, upload.single('file'), async (req: Request, res: Response) => {
+// Import properties from CSV (Pro feature)
+router.post('/import', requireAuth, requireSubscription('pro'), upload.single('file'), async (req: Request, res: Response) => {
     if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded' });
     }
@@ -57,8 +57,8 @@ router.post('/import', requireAuth, upload.single('file'), async (req: Request, 
         });
 });
 
-// Export properties to CSV
-router.get('/export', requireAuth, async (req: Request, res: Response) => {
+// Export properties to CSV (Pro feature)
+router.get('/export', requireAuth, requireSubscription('pro'), async (req: Request, res: Response) => {
     try {
         const allProperties = await db.select().from(properties).orderBy(desc(properties.createdAt));
         

@@ -25,6 +25,9 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Trust the first proxy (Vercel, Heroku, etc.)
+app.set('trust proxy', 1);
+
 const PgSession = connectPgSimple(session);
 
 app.use(helmet({

@@ -10,6 +10,7 @@ interface User {
     email: string;
     role: string;
     twoFactorEnabled: boolean;
+    subscriptionTier?: 'basic' | 'pro' | 'enterprise';
 }
 
 interface AuthContextType {
@@ -64,8 +65,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         checkAuth();
     };
 
-    const register = async (email: string, password: string, firstName: string, lastName: string, accessCode?: string) => {
-        const res = await axios.post('/auth/register', { email, password, firstName, lastName, accessCode });
+    const register = async (email: string, password: string, firstName: string, lastName: string, accessCode?: string, subscriptionTier?: string) => {
+        const res = await axios.post('/auth/register', { email, password, firstName, lastName, accessCode, subscriptionTier });
         setUser(res.data.user);
     };
 

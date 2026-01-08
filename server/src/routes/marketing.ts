@@ -3,6 +3,7 @@ import { db } from '../db';
 import { betaSignups, users, properties, leads } from '../db/schema';
 import { requireAuth } from '../middleware/auth';
 import { desc, eq, count, sql } from 'drizzle-orm';
+import { PRICING_TIERS } from '../config/tiers';
 
 const router = Router();
 
@@ -68,11 +69,13 @@ router.get('/stats', async (_req: Request, res: Response) => {
 // Public pricing tiers
 router.get('/pricing-tiers', async (_req: Request, res: Response) => {
     try {
-        const tiers = [
-            { name: 'Basic', price: 50, period: 'per month', leadsIncluded: 500, priceId: 'price_1Q...Basic' },
-            { name: 'Pro', price: 100, period: 'per month', leadsIncluded: 1000, priceId: 'price_1Q...Pro' },
-            { name: 'Enterprise', price: 1000, period: 'per month', leadsIncluded: 15000, priceId: 'price_1Q...Enterprise' }
-        ];
+        const tiers = Object.values(PRICING_TIERS).map(tier => ({
+            name: tier.name,
+            price: parseInt(tier.price),
+            period: 'per month',
+            leadsIncluded: tier.leadsIncluded,
+            priceId: tier.priceId
+        }));
         res.json(tiers);
     } catch (error) {
         console.error('Error fetching pricing tiers:', error);

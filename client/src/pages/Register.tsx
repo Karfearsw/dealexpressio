@@ -123,6 +123,25 @@ const Register = () => {
 
 
                     <div>
+                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Subscription Tier</label>
+                        <div className="relative">
+                            <span className="absolute left-3 top-3 text-slate-500"><CreditCard size={18} /></span>
+                            <select
+                                value={subscriptionTier}
+                                onChange={(e) => setSubscriptionTier(e.target.value)}
+                                className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2.5 pl-10 pr-4 text-slate-200 focus:outline-none focus:border-teal-500 transition-colors appearance-none cursor-pointer"
+                            >
+                                <option value="basic">Basic Plan</option>
+                                <option value="pro">Pro Plan</option>
+                                <option value="enterprise">Enterprise Plan</option>
+                            </select>
+                            <div className="absolute right-3 top-3 pointer-events-none text-slate-500">
+                                <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
                         <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Team Access Code (Optional)</label>
                         <div className="relative">
                             <span className="absolute left-3 top-3 text-slate-500"><Lock size={18} /></span>

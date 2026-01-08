@@ -7,14 +7,16 @@ import speakeasy from 'speakeasy';
 import QRCode from 'qrcode';
 import rateLimit from 'express-rate-limit';
 import { isEmailValid, isPasswordValid, isNameValid, sanitize } from '../utils/validation';
+import { SubscriptionTier } from '../config/tiers';
 
 const router = Router();
+
 
 const registerLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 50 });
 const loginLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 100 });
 
 router.post('/register', registerLimiter, async (req: Request, res: Response) => {
-    const { email, password, firstName, lastName, accessCode } = req.body;
+    const { email, password, firstName, lastName, accessCode, subscriptionTier } = req.body;
     const sEmail = sanitize(email);
     const sFirst = sanitize(firstName);
     const sLast = sanitize(lastName);
@@ -43,7 +45,8 @@ router.post('/register', registerLimiter, async (req: Request, res: Response) =>
             firstName: sFirst,
             lastName: sLast,
             role: 'user',
-            subscriptionStatus: 'inactive',
+            subscriptionStatus: 'active',
+            subscriptionTier: subscriptionTier || 'basic',
             twoFactorEnabled: false
         }).onConflictDoNothing({ target: users.email }).returning();
 
@@ -55,9 +58,10 @@ router.post('/register', registerLimiter, async (req: Request, res: Response) =>
 
         req.session.userId = newUser.id;
         req.session.role = newUser.role;
+        req.session.subscriptionTier = newUser.subscriptionTier || 'basic';
         req.session.is2FAVerified = false;
 
-        res.status(201).json({ user: { id: newUser.id, email: newUser.email, role: newUser.role } });
+        res.status(201).json({ user: { id: newUser.id, email: newUser.email, role: newUser.role, subscriptionTier: newUser.subscriptionTier } });
     } catch (error: any) {
         // Handle duplicate constraint gracefully across drivers
         const msg = String(error?.message || '');
@@ -120,10 +124,11 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
 
         req.session.userId = user.id;
         req.session.role = user.role;
+        req.session.subscriptionTier = user.subscriptionTier || 'basic';
         req.session.is2FAVerified = !user.twoFactorEnabled; // If 2FA not enabled, considered verified
 
         res.json({
-            user: { id: user.id, email: user.email, role: user.role, twoFactorEnabled: user.twoFactorEnabled },
+            user: { id: user.id, email: user.email, role: user.role, twoFactorEnabled: user.twoFactorEnabled, subscriptionTier: user.subscriptionTier },
             requires2FA: user.twoFactorEnabled
         });
     } catch (error) {
@@ -186,7 +191,7 @@ router.get('/me', async (req: Request, res: Response) => {
 
     const [user] = await db.select().from(users).where(eq(users.id, req.session.userId));
     res.json({
-        user: { id: user.id, email: user.email, role: user.role, twoFactorEnabled: user.twoFactorEnabled },
+        user: { id: user.id, email: user.email, role: user.role, twoFactorEnabled: user.twoFactorEnabled, subscriptionTier: user.subscriptionTier },
         is2FAVerified: req.session.is2FAVerified
     });
 });

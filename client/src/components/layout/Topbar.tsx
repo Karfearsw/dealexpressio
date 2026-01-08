@@ -27,7 +27,13 @@ const Topbar = () => {
                 <div className="flex items-center pl-4 border-l border-slate-700">
                     <div className="text-right mr-3 hidden sm:block">
                         <p className="text-sm font-medium text-slate-200">{user?.email}</p>
-                        <p className="text-xs text-slate-400 capitalize">{user?.role}</p>
+                        <div className="flex items-center justify-end gap-2 text-xs text-slate-400 capitalize">
+                            <span>{user?.role}</span>
+                            <span className="text-slate-600">•</span>
+                            <span className={user?.subscriptionTier === 'enterprise' ? 'text-purple-400' : user?.subscriptionTier === 'pro' ? 'text-blue-400' : 'text-teal-400'}>
+                                {user?.subscriptionTier || 'Basic'} Plan
+                            </span>
+                        </div>
                     </div>
                     <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-teal-500 to-blue-600 flex items-center justify-center text-xs font-bold text-white uppercase">
                         {user?.email?.substring(0, 2)}

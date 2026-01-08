@@ -13,7 +13,7 @@ const Communication = () => {
         const fetchHistory = async () => {
             try {
                 const res = await axios.get('/api/communication/recent');
-                setHistory(res.data);
+                setHistory(res.data || { calls: [], sms: [], voicemail: [] });
             } catch (error: any) {
                 console.error("Failed to fetch communication history", error);
                 // If the backend returns a specific error structure (as we added), use it
@@ -28,6 +28,10 @@ const Communication = () => {
         };
         fetchHistory();
     }, []);
+
+    if (loading) return <div className="p-8 text-center text-slate-400">Loading communication history...</div>;
+    if (error) return <div className="p-8 text-center text-red-400">{error}</div>;
+    if (!history) return <div className="p-8 text-center text-slate-400">No data available</div>;
 
     if (history.notConfigured) {
         return (
@@ -156,7 +160,7 @@ const Communication = () => {
                                     </div>
                                 ) : (
                                     <div className="w-full space-y-3">
-                                        {history.voicemail.map((vm: any) => (
+                                        {(history.voicemail || []).map((vm: any) => (
                                             <div key={vm.id} className="w-full p-4 bg-slate-950 border border-slate-800 rounded-lg flex items-center justify-between">
                                                 <div className="flex items-center">
                                                     <div className="p-2 rounded-full mr-3 bg-purple-500/10 text-purple-400">

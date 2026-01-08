@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { db } from '../db';
 import { leads } from '../db/schema';
 import { eq, desc } from 'drizzle-orm';
-import { requireAuth } from '../middleware/auth';
+import { requireAuth, requireSubscription } from '../middleware/auth';
 import multer from 'multer';
 import csv from 'csv-parser';
 import fs from 'fs';
@@ -10,8 +10,8 @@ import fs from 'fs';
 const router = Router();
 const upload = multer({ dest: 'uploads/' });
 
-// Import leads from CSV
-router.post('/import', requireAuth, upload.single('file'), async (req: Request, res: Response) => {
+// Import leads from CSV (Pro feature)
+router.post('/import', requireAuth, requireSubscription('pro'), upload.single('file'), async (req: Request, res: Response) => {
     if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded' });
     }
@@ -50,8 +50,8 @@ router.post('/import', requireAuth, upload.single('file'), async (req: Request, 
         });
 });
 
-// Export leads to CSV
-router.get('/export', requireAuth, async (req: Request, res: Response) => {
+// Export leads to CSV (Pro feature)
+router.get('/export', requireAuth, requireSubscription('pro'), async (req: Request, res: Response) => {
     try {
         const allLeads = await db.select().from(leads).orderBy(desc(leads.createdAt));
         
@@ -108,6 +108,10 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
     const { firstName, lastName, email, phone, source, status } = req.body;
 
     try {
+        if (!firstName || !lastName) {
+            return res.status(400).json({ message: 'First Name and Last Name are required' });
+        }
+
         const [newLead] = await db.insert(leads).values({
             firstName,
             lastName,
@@ -119,9 +123,12 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
         }).returning();
 
         res.status(201).json(newLead);
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error creating lead:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        if (error.code === '23503') {
+             return res.status(400).json({ message: 'Invalid user session. Please log in again.' });
+        }
+        res.status(500).json({ message: 'Internal server error: ' + (error.message || 'Unknown error') });
     }
 });
 

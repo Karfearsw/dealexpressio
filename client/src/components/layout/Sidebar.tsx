@@ -11,27 +11,34 @@ import {
     ChevronLeft,
     ChevronRight,
     LogOut,
-    Calculator
+    Calculator,
+    Lock
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
 import logo from '@/assets/logo-white.png';
 
+type SubscriptionTier = 'basic' | 'pro' | 'enterprise';
+
 const Sidebar = () => {
     const [location] = useLocation();
     const [collapsed, setCollapsed] = useState(false);
-    const { logout } = useAuth();
+    const { logout, user } = useAuth();
+
+    const userTier = (user?.subscriptionTier || 'basic') as SubscriptionTier;
+    const tierLevels: Record<SubscriptionTier, number> = { 'basic': 1, 'pro': 2, 'enterprise': 3 };
+    const currentLevel = tierLevels[userTier] || 1;
 
     const navItems = [
-        { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-        { name: 'Leads', path: '/leads', icon: Users },
-        { name: 'Properties', path: '/properties', icon: Home },
-        { name: 'Communication', path: '/communication', icon: MessageSquare },
-        { name: 'Contracts', path: '/contracts', icon: FileText },
-        { name: 'Analytics', path: '/analytics', icon: BarChart },
-        { name: 'Buyers List', path: '/buyers', icon: Users },
-        { name: 'Deal Calculator', path: '/calculator', icon: Calculator },
-        { name: 'Settings', path: '/settings', icon: Settings },
+        { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, minTier: 'basic' },
+        { name: 'Leads', path: '/leads', icon: Users, minTier: 'basic' },
+        { name: 'Properties', path: '/properties', icon: Home, minTier: 'basic' },
+        { name: 'Communication', path: '/communication', icon: MessageSquare, minTier: 'pro' },
+        { name: 'Contracts', path: '/contracts', icon: FileText, minTier: 'basic' },
+        { name: 'Analytics', path: '/analytics', icon: BarChart, minTier: 'pro' },
+        { name: 'Buyers List', path: '/buyers', icon: Users, minTier: 'basic' },
+        { name: 'Deal Calculator', path: '/calculator', icon: Calculator, minTier: 'basic' },
+        { name: 'Settings', path: '/settings', icon: Settings, minTier: 'basic' },
     ];
 
     return (
@@ -54,17 +61,30 @@ const Sidebar = () => {
                     {!collapsed && <div className="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Core Tools</div>}
                     {navItems.map((item) => {
                         const isActive = location === item.path;
+                        const isLocked = currentLevel < tierLevels[item.minTier as SubscriptionTier];
+                        
                         return (
                             <Link
                                 key={item.path}
-                                href={item.path}
+                                href={isLocked ? '/pricing' : item.path}
                                 className={cn(
-                                    "flex items-center px-4 py-3 text-sm font-medium transition-colors hover:bg-slate-800/50",
-                                    isActive ? "text-teal-400 border-r-2 border-teal-400 bg-slate-800/30" : "text-slate-400 hover:text-slate-100"
+                                    "flex items-center px-4 py-3 text-sm font-medium transition-colors hover:bg-slate-800/50 relative group",
+                                    isActive ? "text-teal-400 border-r-2 border-teal-400 bg-slate-800/30" : "text-slate-400 hover:text-slate-100",
+                                    isLocked && "opacity-50 hover:opacity-100"
                                 )}
                             >
                                 <item.icon size={20} className={cn("shrink-0", collapsed ? "mx-auto" : "mr-3")} />
-                                {!collapsed && <span>{item.name}</span>}
+                                {!collapsed && (
+                                    <div className="flex items-center justify-between w-full">
+                                        <span>{item.name}</span>
+                                        {isLocked && <Lock size={14} className="text-slate-500" />}
+                                    </div>
+                                )}
+                                {collapsed && isLocked && (
+                                    <div className="absolute right-2 top-2">
+                                        <Lock size={10} className="text-slate-500" />
+                                    </div>
+                                )}
                             </Link>
                         );
                     })}

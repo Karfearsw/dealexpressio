@@ -211,9 +211,10 @@ const Leads = () => {
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg font-medium transition-colors"
+                                    disabled={isCreating}
+                                    className={`px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg font-medium transition-colors ${isCreating ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
-                                    Create Lead
+                                    {isCreating ? 'Creating...' : 'Create Lead'}
                                 </button>
                             </div>
                         </form>
