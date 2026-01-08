@@ -29,7 +29,7 @@ const Register = () => {
             if (password.length < 8 || !hasLetter || !hasNumber) {
                 throw { response: { data: { message: 'Password must be at least 8 characters and include letters and numbers' } } };
             }
-            await register(email, password, firstName, lastName, accessCode);
+            await register(email, password, firstName, lastName, accessCode, subscriptionTier);
             if (accessCode) {
                 setLocation('/dashboard');
             } else {

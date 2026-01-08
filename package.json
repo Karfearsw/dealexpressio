@@ -9,7 +9,9 @@
     "server:start": "npm --prefix server run start",
     "build": "npm run client:build && npm run server:build",
     "start": "npm run server:start",
-    "dev": "node tools/dev.js"
+    "dev": "node tools/dev.js",
+    "pre-deploy": "ts-node tools/pre-deploy-check.ts",
+    "deploy": "npm run pre-deploy && git push"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
