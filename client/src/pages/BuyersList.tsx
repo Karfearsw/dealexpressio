@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Search, Plus, Mail, Phone, MapPin } from 'lucide-react';
+import { Users, Search, Plus, Mail, Phone, MapPin, X } from 'lucide-react';
 import axios from 'axios';
 
 const BuyersList = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [buyers, setBuyers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [showModal, setShowModal] = useState(false);
+    const [newBuyer, setNewBuyer] = useState({ name: '', email: '', phone: '', criteria: '' });
 
     useEffect(() => {
         fetchBuyers();
@@ -22,6 +24,18 @@ const BuyersList = () => {
         }
     };
 
+    const handleCreateBuyer = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const res = await axios.post('/api/buyers', newBuyer);
+            setBuyers(prev => [res.data, ...prev]);
+            setShowModal(false);
+            setNewBuyer({ name: '', email: '', phone: '', criteria: '' });
+        } catch (error) {
+            console.error("Failed to create buyer", error);
+        }
+    };
+
     const filteredBuyers = buyers.filter(buyer => 
         buyer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         buyer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -35,7 +49,10 @@ const BuyersList = () => {
                     <h1 className="text-2xl font-bold text-slate-100 italic">Buyers List</h1>
                     <p className="text-slate-400">Manage and segment your qualified buyers.</p>
                 </div>
-                <button className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg flex items-center shadow-lg shadow-teal-500/20 transition-all active:scale-95">
+                <button 
+                    onClick={() => setShowModal(true)}
+                    className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg flex items-center shadow-lg shadow-teal-500/20 transition-all active:scale-95"
+                >
                     <Plus size={20} className="mr-2" />
                     Add Buyer
                 </button>
@@ -95,6 +112,74 @@ const BuyersList = () => {
                     ))
                 )}
             </div>
+
+            {/* Add Buyer Modal */}
+            {showModal && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-slate-900 border border-slate-800 rounded-xl w-full max-w-md p-6 shadow-2xl">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-xl font-bold text-slate-100">Add New Buyer</h2>
+                            <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-white">
+                                <X size={24} />
+                            </button>
+                        </div>
+                        <form onSubmit={handleCreateBuyer} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-slate-400 mb-1">Name</label>
+                                <input
+                                    required
+                                    type="text"
+                                    value={newBuyer.name}
+                                    onChange={e => setNewBuyer({ ...newBuyer, name: e.target.value })}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-400 mb-1">Email</label>
+                                <input
+                                    type="email"
+                                    value={newBuyer.email}
+                                    onChange={e => setNewBuyer({ ...newBuyer, email: e.target.value })}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-400 mb-1">Phone</label>
+                                <input
+                                    type="tel"
+                                    value={newBuyer.phone}
+                                    onChange={e => setNewBuyer({ ...newBuyer, phone: e.target.value })}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-400 mb-1">Criteria</label>
+                                <textarea
+                                    value={newBuyer.criteria}
+                                    onChange={e => setNewBuyer({ ...newBuyer, criteria: e.target.value })}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none h-24 resize-none"
+                                    placeholder="e.g. Single family in Orlando, under $200k"
+                                />
+                            </div>
+                            <div className="pt-4 flex justify-end space-x-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowModal(false)}
+                                    className="px-4 py-2 text-slate-300 hover:text-white transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg font-medium transition-colors"
+                                >
+                                    Add Buyer
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -88,7 +88,7 @@ const DealCalculator = () => {
                     <div className="space-y-2">
                         <label className="text-sm text-slate-400 flex justify-between">
                             <span>After Repair Value (ARV)</span>
-                            <span className="text-teal-400 font-mono">${arv.toLocaleString()}</span>
+                            <span className="text-teal-400 font-mono">{arv.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span>
                         </label>
                         <div className="relative">
                             <span className="absolute left-3 top-2.5 text-slate-500"><DollarSign size={16} /></span>
@@ -104,7 +104,7 @@ const DealCalculator = () => {
                     <div className="space-y-2">
                         <label className="text-sm text-slate-400 flex justify-between">
                             <span>Repair Estimates</span>
-                            <span className="text-red-400 font-mono">-${repairCost.toLocaleString()}</span>
+                            <span className="text-red-400 font-mono">-{repairCost.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span>
                         </label>
                         <div className="relative">
                             <span className="absolute left-3 top-2.5 text-slate-500"><DollarSign size={16} /></span>
@@ -120,7 +120,7 @@ const DealCalculator = () => {
                     <div className="space-y-2">
                         <label className="text-sm text-slate-400 flex justify-between">
                             <span>Target Assignment Fee</span>
-                            <span className="text-blue-400 font-mono">${assignmentFee.toLocaleString()}</span>
+                            <span className="text-blue-400 font-mono">{assignmentFee.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span>
                         </label>
                         <div className="relative">
                             <span className="absolute left-3 top-2.5 text-slate-500"><DollarSign size={16} /></span>
@@ -159,7 +159,7 @@ const DealCalculator = () => {
                         <div className="relative z-10">
                             <h4 className="text-xs font-bold text-teal-400 uppercase tracking-widest mb-1">Max Allowable Offer (MAO)</h4>
                             <div className="text-5xl font-black text-slate-100 tracking-tight">
-                                ${mao.toLocaleString()}
+                                {mao.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
                             </div>
                             <p className="text-teal-400/60 text-xs mt-4 leading-relaxed font-medium capitalize italic">
                                 Based on {ruleOfThumb}% rule minus repairs and your fee.
@@ -170,11 +170,11 @@ const DealCalculator = () => {
                     <div className="grid grid-cols-2 gap-4">
                         <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
                             <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Your Fee</h4>
-                            <div className="text-2xl font-bold text-blue-400">${assignmentFee.toLocaleString()}</div>
+                            <div className="text-2xl font-bold text-blue-400">{assignmentFee.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</div>
                         </div>
                         <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
                             <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Investor Buy Price</h4>
-                            <div className="text-2xl font-bold text-indigo-400">${(mao + assignmentFee).toLocaleString()}</div>
+                            <div className="text-2xl font-bold text-indigo-400">{(mao + assignmentFee).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</div>
                         </div>
                     </div>
 
