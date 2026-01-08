@@ -69,9 +69,9 @@ router.get('/stats', async (_req: Request, res: Response) => {
 router.get('/pricing-tiers', async (_req: Request, res: Response) => {
     try {
         const tiers = [
-            { name: 'Basic', price: 50, period: 'per month', leadsIncluded: 500 },
-            { name: 'Pro', price: 100, period: 'per month', leadsIncluded: 1000 },
-            { name: 'Enterprise', price: 1000, period: 'per month', leadsIncluded: 15000 }
+            { name: 'Basic', price: 50, period: 'per month', leadsIncluded: 500, priceId: 'price_1Q...Basic' },
+            { name: 'Pro', price: 100, period: 'per month', leadsIncluded: 1000, priceId: 'price_1Q...Pro' },
+            { name: 'Enterprise', price: 1000, period: 'per month', leadsIncluded: 15000, priceId: 'price_1Q...Enterprise' }
         ];
         res.json(tiers);
     } catch (error) {

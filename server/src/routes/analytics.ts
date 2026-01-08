@@ -22,7 +22,7 @@ router.get('/dashboard', requireAuth, async (req: Request, res: Response) => {
             .from(leads)
             .groupBy(leads.status);
 
-        const pipelineStats = pipelineRaw.map(p => ({ name: p.status, value: p.count }));
+        const pipelineStats = pipelineRaw.map((p: { status: string; count: number }) => ({ name: p.status, value: p.count }));
 
         // Revenue (Sum of assignment fees for Closed properties)
         const [revenueResult] = await db

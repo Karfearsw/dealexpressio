@@ -14,6 +14,10 @@ const Login = () => {
         e.preventDefault();
         setError('');
         try {
+            const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRe.test(email.trim())) {
+                throw { response: { data: { message: 'Please enter a valid email address' } } };
+            }
             await login({ email, password });
             setLocation('/dashboard');
         } catch (err: any) {

@@ -1,6 +1,5 @@
 import { Link, useLocation } from 'wouter';
 import { useState, useEffect } from 'react';
-import logo from '@/assets/logo-white.png';
 import { Menu, X } from 'lucide-react';
 
 const PublicHeader = () => {
@@ -36,8 +35,10 @@ const PublicHeader = () => {
         <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-slate-950/90 backdrop-blur-md border-b border-slate-800 py-2' : 'bg-transparent py-4'}`}>
             <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
                 <Link href="/">
-                    <div className="flex items-center space-x-2 cursor-pointer">
-                        <img src={logo} alt="DealExpress" className="h-16 w-auto" />
+                    <div className="flex items-center space-x-2 cursor-pointer group">
+                        <div className="font-extrabold text-2xl tracking-tighter text-white group-hover:text-teal-400 transition-colors">
+                            Deal<span className="text-teal-500">Express</span>
+                        </div>
                     </div>
                 </Link>
 

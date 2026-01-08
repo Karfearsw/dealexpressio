@@ -3,12 +3,19 @@ import { relations, type InferSelectModel, type InferInsertModel } from 'drizzle
 
 export const users = pgTable('users', {
     id: serial('id').primaryKey(),
+    firstName: text('first_name'),
+    lastName: text('last_name'),
     email: text('email').unique().notNull(),
     passwordHash: text('password_hash').notNull(),
-    role: text('role').default('employee').notNull(), // admin, employee
+    role: text('role').default('user').notNull(), // admin, user, premium
     twoFactorSecret: text('two_factor_secret'),
     twoFactorEnabled: boolean('two_factor_enabled').default(false),
     accessCode: text('access_code'),
+    stripeCustomerId: text('stripe_customer_id').unique(),
+    subscriptionStatus: text('subscription_status').default('inactive'),
+    subscriptionTier: text('subscription_tier'),
+    failedLoginAttempts: integer('failed_login_attempts').default(0),
+    lockUntil: timestamp('lock_until'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 

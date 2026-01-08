@@ -26,8 +26,7 @@ router.post('/contact', async (req, res) => {
 router.get('/health', async (req, res) => {
     try {
         const start = Date.now();
-        // Simple DB check
-        await db.execute(sql`SELECT 1`);
+        await db.select({ one: sql<number>`1` }).from(contactSubmissions).limit(1);
         const dbLatency = Date.now() - start;
 
         const health = {

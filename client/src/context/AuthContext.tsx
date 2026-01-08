@@ -16,7 +16,7 @@ interface AuthContextType {
     user: User | null;
     loading: boolean;
     login: (data: any) => Promise<void>;
-    register: (email: string, password: string, role: 'admin' | 'employee', firstName: string, lastName: string, accessCode: string) => Promise<void>;
+    register: (email: string, password: string, firstName: string, lastName: string, accessCode?: string) => Promise<void>;
     logout: () => Promise<void>;
     checkAuth: () => Promise<void>;
     requires2FA: boolean;
@@ -64,8 +64,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         checkAuth();
     };
 
-    const register = async (email: string, password: string, role: 'admin' | 'employee', firstName: string, lastName: string, accessCode: string) => {
-        const res = await axios.post('/auth/register', { email, password, role, firstName, lastName, accessCode });
+    const register = async (email: string, password: string, firstName: string, lastName: string, accessCode?: string) => {
+        const res = await axios.post('/auth/register', { email, password, firstName, lastName, accessCode });
         setUser(res.data.user);
     };
 

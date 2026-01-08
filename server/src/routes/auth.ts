@@ -5,54 +5,117 @@ import { eq } from 'drizzle-orm';
 import { hashPassword, comparePassword } from '../utils/auth';
 import speakeasy from 'speakeasy';
 import QRCode from 'qrcode';
+import rateLimit from 'express-rate-limit';
+import { isEmailValid, isPasswordValid, isNameValid, sanitize } from '../utils/validation';
 
 const router = Router();
 
-router.post('/register', async (req: Request, res: Response) => {
-    const { email, password, role } = req.body;
+const registerLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 50 });
+const loginLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 100 });
+
+router.post('/register', registerLimiter, async (req: Request, res: Response) => {
+    const { email, password, firstName, lastName, accessCode } = req.body;
+    const sEmail = sanitize(email);
+    const sFirst = sanitize(firstName);
+    const sLast = sanitize(lastName);
 
     try {
-        const existingUser = await db.select().from(users).where(eq(users.email, email));
-        if (existingUser.length > 0) {
-            return res.status(400).json({ message: 'User already exists' });
+        if (!isEmailValid(sEmail)) {
+            return res.status(400).json({ message: 'Invalid email address' });
+        }
+        if (!isPasswordValid(password)) {
+            return res.status(400).json({ message: 'Password must be at least 8 characters and include letters and numbers' });
+        }
+        if (!isNameValid(sFirst) || !isNameValid(sLast)) {
+            return res.status(400).json({ message: 'First and last name are required' });
         }
 
-        const accessCode = req.body.accessCode;
-        if (accessCode !== '3911') {
-            return res.status(403).json({ message: 'Invalid Access Code. Registration is currently restricted.' });
+        // Pre-check for existing user to return a clean 409 instead of generic 500
+        const [existing] = await db.select().from(users).where(eq(users.email, sEmail));
+        if (existing) {
+            return res.status(409).json({ message: 'User already exists' });
         }
 
         const passwordHash = await hashPassword(password);
-        const [newUser] = await db.insert(users).values({
-            email,
+        const inserted = await db.insert(users).values({
+            email: sEmail,
             passwordHash,
-            role: role || 'employee',
+            firstName: sFirst,
+            lastName: sLast,
+            role: 'user',
+            subscriptionStatus: 'inactive',
             twoFactorEnabled: false
-        }).returning();
+        }).onConflictDoNothing({ target: users.email }).returning();
+
+        if (!inserted || inserted.length === 0) {
+            return res.status(409).json({ message: 'User already exists' });
+        }
+
+        const newUser = inserted[0];
 
         req.session.userId = newUser.id;
         req.session.role = newUser.role;
         req.session.is2FAVerified = false;
 
         res.status(201).json({ user: { id: newUser.id, email: newUser.email, role: newUser.role } });
-    } catch (error) {
+    } catch (error: any) {
+        // Handle duplicate constraint gracefully across drivers
+        const msg = String(error?.message || '');
+        if (
+            error?.code === '23505' ||
+            msg.includes('duplicate key value') ||
+            msg.includes('violates unique constraint') ||
+            msg.includes('already exists')
+        ) {
+            return res.status(409).json({ message: 'User already exists' });
+        }
+        // As a fallback, check if user now exists and return 409
+        try {
+            const [exists] = await db.select().from(users).where(eq(users.email, sEmail));
+            if (exists) {
+                return res.status(409).json({ message: 'User already exists' });
+            }
+        } catch {}
         console.error('Register error:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });
 
-router.post('/login', async (req: Request, res: Response) => {
+router.post('/login', loginLimiter, async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     try {
-        const [user] = await db.select().from(users).where(eq(users.email, email));
+        const sEmail = sanitize(email);
+        if (!isEmailValid(sEmail) || typeof password !== 'string') {
+            return res.status(400).json({ message: 'Invalid credentials' });
+        }
+
+        const [user] = await db.select().from(users).where(eq(users.email, sEmail));
         if (!user) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
+        if (user.lockUntil && new Date(user.lockUntil).getTime() > Date.now()) {
+            return res.status(429).json({ message: 'Account temporarily locked due to too many failed attempts. Try again later.' });
+        }
+
         const isValid = await comparePassword(password, user.passwordHash);
         if (!isValid) {
+            const attempts = (user.failedLoginAttempts || 0) + 1;
+            let lockUntil = null as Date | null;
+            if (attempts >= 5) {
+                lockUntil = new Date(Date.now() + 15 * 60 * 1000);
+            }
+            await db.update(users)
+                .set({ failedLoginAttempts: attempts, lockUntil })
+                .where(eq(users.id, user.id));
             return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        if (user.failedLoginAttempts && user.failedLoginAttempts > 0) {
+            await db.update(users)
+                .set({ failedLoginAttempts: 0, lockUntil: null })
+                .where(eq(users.id, user.id));
         }
 
         req.session.userId = user.id;
@@ -132,10 +195,10 @@ router.post('/change-password', async (req: Request, res: Response) => {
     if (!req.session.userId) return res.status(401).json({ message: 'Unauthorized' });
 
     const { currentPassword, newPassword } = req.body;
-    
+
     try {
         const [user] = await db.select().from(users).where(eq(users.id, req.session.userId));
-        
+
         const isValid = await comparePassword(currentPassword, user.passwordHash);
         if (!isValid) {
             return res.status(400).json({ message: 'Invalid current password' });

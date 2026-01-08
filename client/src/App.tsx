@@ -10,6 +10,7 @@ import Contact from './pages/Contact';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Pricing from './pages/Pricing';
+import Success from './pages/Success';
 import Community from './components/layout/Community';
 import Dashboard from './pages/Dashboard';
 import Leads from './pages/Leads';
@@ -35,6 +36,7 @@ const AppRoutes = () => {
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/pricing" component={Pricing} />
+      <Route path="/success" component={Success} />
       <Route path="/community" component={Community} />
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />

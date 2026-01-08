@@ -1,14 +1,25 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import { drizzle as drizzlePg } from 'drizzle-orm/node-postgres';
+import { drizzle as drizzleNeon } from 'drizzle-orm/neon-http';
 import pg from 'pg';
+import { neon } from '@neondatabase/serverless';
 import * as schema from './schema';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
 const { Pool } = pg;
 
-export const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-});
+let pool: pg.Pool | undefined;
+let db: any;
 
-export const db = drizzle(pool, { schema });
+if (process.env.DB_DRIVER === 'neon_http') {
+    const sql = neon(process.env.DATABASE_URL!);
+    db = drizzleNeon(sql, { schema });
+} else {
+    pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false }
+    });
+    db = drizzlePg(pool, { schema });
+}
+
+export { db, pool };

@@ -12,6 +12,7 @@ import communicationRoutes from './routes/communication';
 import contractsRoutes from './routes/contracts';
 import analyticsRoutes from './routes/analytics';
 import timesheetsRoutes from './routes/timesheets';
+import paymentsRoutes from './routes/payments';
 import systemRoutes from './routes/system';
 import marketingRoutes from './routes/marketing';
 import buyersRoutes from './routes/buyers';
@@ -60,21 +61,21 @@ if (process.env.NODE_ENV === 'production' || process.env.SERVE_CLIENT === 'true'
 }
 
 // Session middleware
-app.use(session({
-    store: new PgSession({
-        pool,
-        tableName: 'session'
-    }),
+const sessionOptions: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || 'secret',
     resave: false,
     saveUninitialized: false,
     cookie: {
-        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+        maxAge: 30 * 24 * 60 * 60 * 1000,
         secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
-        sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax' // Use 'lax' for single-domain monorepo
+        sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax'
     }
-}));
+};
+if (pool) {
+    sessionOptions.store = new PgSession({ pool, tableName: 'session' });
+}
+app.use(session(sessionOptions));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/leads', leadsRoutes);
@@ -86,6 +87,7 @@ app.use('/api/timesheets', timesheetsRoutes);
 app.use('/api/system', systemRoutes);
 app.use('/api/marketing', marketingRoutes);
 app.use('/api/buyers', buyersRoutes);
+app.use('/api/payments', paymentsRoutes);
 
 app.get('/health', (req: express.Request, res: express.Response) => {
     res.json({ status: 'ok' });

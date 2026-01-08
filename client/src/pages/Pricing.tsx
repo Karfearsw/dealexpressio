@@ -1,11 +1,16 @@
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Check, Shield, Zap, Database } from 'lucide-react';
+import { Check, Shield, Zap, Database, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import PublicLayout from '@/components/layout/PublicLayout';
+import { useAuth } from '@/context/AuthContext';
 
 const Pricing = () => {
+    const { user } = useAuth();
+    const [, setLocation] = useLocation();
+    const [isLoading, setIsLoading] = useState<string | null>(null);
+
     const [tiers, setTiers] = useState<any[]>([
         {
             name: "Basic",
@@ -18,6 +23,7 @@ const Pricing = () => {
                 "Deal Calculator & Offer Letters",
                 "1 User Seat"
             ],
+            priceId: 'price_1Q...Basic',
             color: "border-teal-500/50 hover:border-teal-400 bg-teal-500/5",
             buttonColor: "bg-teal-600 hover:bg-teal-500 text-white shadow-lg shadow-teal-500/25",
         },
@@ -34,6 +40,7 @@ const Pricing = () => {
                 "Priority Support"
             ],
             popular: true,
+            priceId: 'price_1Q...Pro',
             color: "border-blue-500/50 hover:border-blue-400 bg-blue-500/5",
             buttonColor: "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25",
         },
@@ -49,6 +56,7 @@ const Pricing = () => {
                 "Dedicated Account Manager",
                 "API Access"
             ],
+            priceId: 'price_1Q...Enterprise',
             color: "border-indigo-500/50 hover:border-indigo-400 bg-indigo-500/5",
             buttonColor: "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/25",
         }
@@ -62,6 +70,7 @@ const Pricing = () => {
                     name: t.name,
                     price: String(t.price),
                     period: t.period,
+                    priceId: t.priceId,
                     description:
                         t.name === 'Basic'
                             ? 'For starters who need a solid foundation.'
@@ -79,13 +88,13 @@ const Pricing = () => {
                             ? "border-teal-500/50 hover:border-teal-400 bg-teal-500/5"
                             : t.name === 'Pro'
                                 ? "border-blue-500/50 hover:border-blue-400 bg-blue-500/5"
-                                : "border-indigo-500/50 hover:border-indigo-400 bg-indigo-500/5",
+                            : "border-indigo-500/50 hover:border-indigo-400 bg-indigo-500/5",
                     buttonColor:
                         t.name === 'Basic'
                             ? "bg-teal-600 hover:bg-teal-500 text-white shadow-lg shadow-teal-500/25"
                             : t.name === 'Pro'
                                 ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25"
-                                : "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/25",
+                            : "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/25",
                     popular: t.name === 'Pro'
                 }));
                 setTiers(apiTiers);
@@ -95,6 +104,26 @@ const Pricing = () => {
         };
         loadPricing();
     }, []);
+
+    const handleSubscribe = async (tier: any) => {
+        if (!user) {
+            setLocation('/register');
+            return;
+        }
+
+        setIsLoading(tier.name);
+
+        try {
+            const { data } = await axios.post('/api/payments/create-checkout-session', {
+                priceId: tier.priceId
+            });
+            window.location.href = data.url;
+        } catch (error) {
+            console.error('Subscription error:', error);
+            alert("Failed to start checkout session. Please try again.");
+            setIsLoading(null);
+        }
+    };
 
     return (
         <PublicLayout>
@@ -147,7 +176,7 @@ const Pricing = () => {
                                 </div>
 
                                 <ul className="space-y-4 mb-8 flex-1">
-                                    {tier.features.map((feature) => (
+                                    {tier.features.map((feature: string) => (
                                         <li key={feature} className="flex items-start">
                                             <Check className="h-5 w-5 text-teal-500 shrink-0 mr-3" />
                                             <span className="text-slate-300 text-sm">{feature}</span>
@@ -155,9 +184,20 @@ const Pricing = () => {
                                     ))}
                                 </ul>
 
-                                <Link href="/register" className={`w-full py-3 rounded-xl font-bold text-center transition-all hover:scale-[1.02] active:scale-[0.98] ${tier.buttonColor}`}>
-                                    Choose {tier.name}
-                                </Link>
+                                <button
+                                    onClick={() => handleSubscribe(tier)}
+                                    disabled={isLoading === tier.name}
+                                    className={`w-full py-3 rounded-xl font-bold text-center transition-all hover:scale-[1.02] active:scale-[0.98] ${tier.buttonColor} disabled:opacity-50 disabled:cursor-not-allowed`}
+                                >
+                                    {isLoading === tier.name ? (
+                                        <span className="flex items-center justify-center gap-2">
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                            Processing...
+                                        </span>
+                                    ) : (
+                                        `Choose ${tier.name}`
+                                    )}
+                                </button>
                             </motion.div>
                         ))}
                     </div>

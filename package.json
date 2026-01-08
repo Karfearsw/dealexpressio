@@ -8,7 +8,8 @@
     "server:build": "npm --prefix server run build",
     "server:start": "npm --prefix server run start",
     "build": "npm run client:build && npm run server:build",
-    "start": "npm run server:start"
+    "start": "npm run server:start",
+    "dev": "node tools/dev.js"
   },
   "dependencies": {
     "@signalwire/realtime-api": "^4.1.3",

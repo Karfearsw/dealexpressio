@@ -4,7 +4,7 @@ import axios from 'axios';
 
 const motivationalQuotes = [
     "Real estate investing, even on a very small scale, remains a tried and true means of building an individual's cash flow and wealth. - Robert Kiyosaki",
-    "Where Express Deals Become Mailbox Money.",
+    "Where Deal Express Become Mailbox Money.",
     "Don't wait to buy real estate. Buy real estate and wait. - Will Rogers",
     "Ninety percent of all millionaires become so through owning real estate. - Andrew Carnegie"
 ];
@@ -68,8 +68,8 @@ const Dashboard = () => {
         <div className="space-y-6">
             <div className="flex justify-end items-center text-xs text-slate-500 space-x-2">
                 <span>Last updated: {lastUpdated.toLocaleTimeString()}</span>
-                <button 
-                    onClick={() => fetchStats(true)} 
+                <button
+                    onClick={() => fetchStats(true)}
                     className={`p-1 hover:text-teal-400 transition-colors ${refreshing ? 'animate-spin' : ''}`}
                     title="Refresh Data"
                 >
