@@ -47,22 +47,24 @@ const AppRoutes = () => {
         {() => (
           <ProtectedRoute>
             <AppShell>
-              <Switch>
-                <Route path="/dashboard" component={Dashboard} />
-                <Route path="/leads" component={Leads} />
-                <Route path="/properties" component={Properties} />
-                <Route path="/properties/:id" component={PropertyDetail} />
-                <Route path="/communication" component={Communication} />
-                <Route path="/analytics" component={Analytics} />
-                <Route path="/contracts" component={Contracts} />
-                <Route path="/devtools" component={DevTools} />
-                <Route path="/settings" component={Settings} />
-                <Route path="/buyers" component={BuyersList} />
-                <Route path="/calculator" component={DealCalculator} />
+              <ErrorBoundary>
+                <Switch>
+                  <Route path="/dashboard" component={Dashboard} />
+                  <Route path="/leads" component={Leads} />
+                  <Route path="/properties" component={Properties} />
+                  <Route path="/properties/:id" component={PropertyDetail} />
+                  <Route path="/communication" component={Communication} />
+                  <Route path="/analytics" component={Analytics} />
+                  <Route path="/contracts" component={Contracts} />
+                  <Route path="/devtools" component={DevTools} />
+                  <Route path="/settings" component={Settings} />
+                  <Route path="/buyers" component={BuyersList} />
+                  <Route path="/calculator" component={DealCalculator} />
 
-                {/* Fallback for unknown protected routes */}
-                <Route component={NotFound} />
-              </Switch>
+                  {/* Fallback for unknown protected routes */}
+                  <Route component={NotFound} />
+                </Switch>
+              </ErrorBoundary>
             </AppShell>
           </ProtectedRoute>
         )}

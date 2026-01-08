@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import Pipeline from '@/components/leads/Pipeline';
 import LeadsList from '@/components/leads/LeadsList';
-import { Plus, Columns, List, X } from 'lucide-react';
+import { Plus, Columns, List, X, Upload, Download } from 'lucide-react';
 import { Lead } from '@/types';
 import axios from 'axios';
+import DataImportModal from '@/components/common/DataImportModal';
 
 const Leads = () => {
     const [viewMode, setViewMode] = useState<'pipeline' | 'list'>('pipeline');
     const [leads, setLeads] = useState<Lead[]>([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+    const [showImportModal, setShowImportModal] = useState(false);
     const [newLead, setNewLead] = useState({ firstName: '', lastName: '', email: '', phone: '', source: 'Manual', status: 'New Lead' });
 
     useEffect(() => {
@@ -24,6 +26,21 @@ const Leads = () => {
             console.error('Error fetching leads:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleExport = async () => {
+        try {
+            const response = await axios.get('/leads/export', { responseType: 'blob' });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'leads-export.csv');
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            console.error('Error exporting leads:', error);
         }
     };
 
@@ -65,6 +82,22 @@ const Leads = () => {
                 <div className="flex items-center space-x-3">
                     <div className="bg-slate-900 border border-slate-800 rounded-lg p-1 flex">
                         <button
+                            onClick={() => setShowImportModal(true)}
+                            className="p-2 text-slate-400 hover:text-white transition-colors"
+                            title="Import Leads"
+                        >
+                            <Upload size={20} />
+                        </button>
+                        <button
+                            onClick={handleExport}
+                            className="p-2 text-slate-400 hover:text-white transition-colors"
+                            title="Export Leads"
+                        >
+                            <Download size={20} />
+                        </button>
+                    </div>
+                    <div className="bg-slate-900 border border-slate-800 rounded-lg p-1 flex">
+                        <button
                             onClick={() => setViewMode('pipeline')}
                             className={`p-2 rounded ${viewMode === 'pipeline' ? 'bg-slate-800 text-teal-400 shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
                         >
@@ -94,6 +127,15 @@ const Leads = () => {
                     <LeadsList leads={leads} />
                 )}
             </div>
+
+            <DataImportModal
+                isOpen={showImportModal}
+                onClose={() => setShowImportModal(false)}
+                endpoint="/api/leads/import"
+                onSuccess={fetchLeads}
+                title="Import Leads"
+                templateFields={['firstName', 'lastName', 'email']}
+            />
 
             {/* Add Lead Modal */}
             {showModal && (

@@ -10,18 +10,43 @@ const router = Router();
 // Get recent communication history (global)
 router.get('/recent', requireAuth, async (req: Request, res: Response) => {
     try {
+        const isMockMode = !process.env.SIGNALWIRE_PROJECT_ID;
+
         const recentCalls = await db.select().from(calls).orderBy(desc(calls.createdAt)).limit(20);
         const recentSms = await db.select().from(smsMessages).orderBy(desc(smsMessages.createdAt)).limit(20);
-        const recentVoicemails = await db.select().from(voicemails).orderBy(desc(voicemails.createdAt)).limit(20); // Assuming voicemails table exists and is imported
+        const recentVoicemails = await db.select().from(voicemails).orderBy(desc(voicemails.createdAt)).limit(20);
+
+        // If mock mode and no data, return some fake data for the UI
+        if (isMockMode && recentCalls.length === 0 && recentSms.length === 0) {
+            return res.json({
+                isMockMode: true,
+                calls: [
+                    { id: 1, direction: 'inbound', status: 'completed', createdAt: new Date().toISOString(), duration: 120, leadId: 1 },
+                    { id: 2, direction: 'outbound', status: 'no-answer', createdAt: new Date(Date.now() - 86400000).toISOString(), duration: 0, leadId: 1 }
+                ],
+                sms: [
+                    { id: 1, direction: 'inbound', message: 'I am interested in the offer', createdAt: new Date().toISOString(), leadId: 1 },
+                    { id: 2, direction: 'outbound', message: 'Hi, just following up on the property', createdAt: new Date(Date.now() - 3600000).toISOString(), leadId: 1 }
+                ],
+                voicemail: []
+            });
+        }
 
         res.json({
+            isMockMode,
             calls: recentCalls,
             sms: recentSms,
             voicemail: recentVoicemails
         });
     } catch (error) {
         console.error('Error fetching recent communication:', error);
-        res.status(500).json({ message: 'Error fetching recent communication' });
+        // Return empty structure on error to prevent frontend crash
+        res.status(500).json({ 
+            message: 'Error fetching recent communication',
+            calls: [],
+            sms: [],
+            voicemail: []
+        });
     }
 });
 

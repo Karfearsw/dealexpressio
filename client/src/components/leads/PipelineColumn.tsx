@@ -7,9 +7,10 @@ interface PipelineColumnProps {
     id: string;
     title: string;
     leads: Lead[];
+    onLeadClick?: (lead: Lead) => void;
 }
 
-const PipelineColumn: React.FC<PipelineColumnProps> = ({ id, title, leads }) => {
+const PipelineColumn: React.FC<PipelineColumnProps> = ({ id, title, leads, onLeadClick }) => {
     const { setNodeRef } = useDroppable({
         id,
     });
@@ -30,7 +31,9 @@ const PipelineColumn: React.FC<PipelineColumnProps> = ({ id, title, leads }) => 
                 className="flex-1 bg-slate-900/50 rounded-xl p-3 border border-slate-800/50 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent"
             >
                 {leads.map((lead) => (
-                    <LeadCard key={lead.id} lead={lead} />
+                    <div key={lead.id} onClick={() => onLeadClick && onLeadClick(lead)}>
+                        <LeadCard lead={lead} />
+                    </div>
                 ))}
                 {leads.length === 0 && (
                     <div className="h-full flex items-center justify-center border-2 border-dashed border-slate-800 rounded-lg opacity-50">

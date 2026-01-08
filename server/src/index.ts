@@ -67,6 +67,7 @@ const sessionOptions: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || 'secret',
     resave: false,
     saveUninitialized: false,
+    rolling: true, // Reset cookie expiration on every response
     cookie: {
         maxAge: 30 * 24 * 60 * 60 * 1000,
         secure: process.env.NODE_ENV === 'production',

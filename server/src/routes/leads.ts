@@ -3,8 +3,80 @@ import { db } from '../db';
 import { leads } from '../db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { requireAuth } from '../middleware/auth';
+import multer from 'multer';
+import csv from 'csv-parser';
+import fs from 'fs';
 
 const router = Router();
+const upload = multer({ dest: 'uploads/' });
+
+// Import leads from CSV
+router.post('/import', requireAuth, upload.single('file'), async (req: Request, res: Response) => {
+    if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    const results: any[] = [];
+    fs.createReadStream(req.file.path)
+        .pipe(csv())
+        .on('data', (data) => results.push(data))
+        .on('end', async () => {
+            try {
+                // Delete file after processing
+                fs.unlinkSync(req.file!.path);
+
+                const validLeads = results
+                    .filter(row => row.firstName && row.lastName && row.email)
+                    .map(row => ({
+                        firstName: row.firstName,
+                        lastName: row.lastName,
+                        email: row.email,
+                        phone: row.phone || null,
+                        source: row.source || 'Imported',
+                        status: 'New Lead',
+                        assignedTo: req.session.userId,
+                    }));
+
+                if (validLeads.length === 0) {
+                    return res.status(400).json({ message: 'No valid leads found in CSV' });
+                }
+
+                await db.insert(leads).values(validLeads);
+                res.json({ message: `Successfully imported ${validLeads.length} leads` });
+            } catch (error) {
+                console.error('Error importing leads:', error);
+                res.status(500).json({ message: 'Error processing CSV file' });
+            }
+        });
+});
+
+// Export leads to CSV
+router.get('/export', requireAuth, async (req: Request, res: Response) => {
+    try {
+        const allLeads = await db.select().from(leads).orderBy(desc(leads.createdAt));
+        
+        const csvHeader = 'ID,First Name,Last Name,Email,Phone,Status,Source,Created At\n';
+        const csvRows = allLeads.map(lead => {
+            return [
+                lead.id,
+                `"${lead.firstName}"`,
+                `"${lead.lastName}"`,
+                `"${lead.email || ''}"`,
+                `"${lead.phone || ''}"`,
+                `"${lead.status}"`,
+                `"${lead.source || ''}"`,
+                `"${lead.createdAt.toISOString()}"`
+            ].join(',');
+        }).join('\n');
+
+        res.header('Content-Type', 'text/csv');
+        res.attachment('leads-export.csv');
+        res.send(csvHeader + csvRows);
+    } catch (error) {
+        console.error('Error exporting leads:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
 
 // Get all leads
 router.get('/', requireAuth, async (req: Request, res: Response) => {

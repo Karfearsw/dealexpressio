@@ -13,10 +13,16 @@ const Analytics = () => {
 
     const fetchAnalytics = async () => {
         try {
-            const res = await axios.get('/analytics/dashboard');
+            const res = await axios.get('/api/analytics/dashboard');
             setData(res.data);
         } catch (error) {
             console.error('Error fetching analytics:', error);
+            // Set mock data if API fails
+            setData({
+                metrics: { totalLeads: 0, activeDeals: 0, revenue: 0, callsMade: 0 },
+                pipeline: [],
+                revenue: []
+            });
         } finally {
             setLoading(false);
         }

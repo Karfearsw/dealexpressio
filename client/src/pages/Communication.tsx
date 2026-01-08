@@ -5,22 +5,53 @@ import axios from 'axios';
 
 const Communication = () => {
     const [activeTab, setActiveTab] = useState<'calls' | 'sms' | 'voicemail'>('calls');
-    const [history, setHistory] = useState<{ calls: any[], sms: any[], voicemail: any[] }>({ calls: [], sms: [], voicemail: [] });
+    const [history, setHistory] = useState<{ calls: any[], sms: any[], voicemail: any[], notConfigured?: boolean }>({ calls: [], sms: [], voicemail: [] });
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchHistory = async () => {
             try {
                 const res = await axios.get('/api/communication/recent');
                 setHistory(res.data);
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Failed to fetch communication history", error);
+                // If the backend returns a specific error structure (as we added), use it
+                if (error.response?.data?.calls) {
+                    setHistory(error.response.data);
+                } else {
+                    setError("Failed to load communication history.");
+                }
             } finally {
                 setLoading(false);
             }
         };
         fetchHistory();
     }, []);
+
+    if (history.notConfigured) {
+        return (
+            <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center p-8">
+                <div className="bg-slate-800 p-4 rounded-full mb-4">
+                    <Phone size={48} className="text-slate-500" />
+                </div>
+                <h2 className="text-2xl font-bold text-slate-100 mb-2">Communication Hub Not Configured</h2>
+                <p className="text-slate-400 max-w-md mb-6">
+                    The communication features (Calling, SMS, Voicemail) require SignalWire integration. 
+                    Please contact the administrator to configure the necessary credentials.
+                </p>
+                <div className="p-4 bg-slate-900 border border-slate-800 rounded-lg text-left">
+                    <h3 className="text-sm font-bold text-slate-300 mb-2">Required Environment Variables:</h3>
+                    <ul className="text-xs text-slate-500 space-y-1 font-mono">
+                        <li>SIGNALWIRE_PROJECT_ID</li>
+                        <li>SIGNALWIRE_TOKEN</li>
+                        <li>SIGNALWIRE_SPACE_URL</li>
+                        <li>SIGNALWIRE_PHONE_NUMBER</li>
+                    </ul>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex h-full gap-6">
@@ -65,7 +96,7 @@ const Communication = () => {
                     ) : (
                         <>
                             {activeTab === 'calls' && (
-                                history.calls.length === 0 ? (
+                                !history.calls || history.calls.length === 0 ? (
                                     <div className="text-center m-auto">
                                         <Phone size={48} className="mx-auto mb-4 opacity-50" />
                                         <h3 className="text-lg font-medium text-slate-300">Call History</h3>
@@ -117,7 +148,7 @@ const Communication = () => {
                                 )
                             )}
                             {activeTab === 'voicemail' && (
-                                history.voicemail.length === 0 ? (
+                                !history.voicemail || history.voicemail.length === 0 ? (
                                     <div className="text-center m-auto">
                                         <Voicemail size={48} className="mx-auto mb-4 opacity-50" />
                                         <h3 className="text-lg font-medium text-slate-300">Voicemails</h3>

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Property, Lead } from '@/types';
 import axios from 'axios';
-import { MapPin, DollarSign, Home, Plus, X } from 'lucide-react';
+import { MapPin, DollarSign, Home, Plus, X, Upload, Download } from 'lucide-react';
+import DataImportModal from '@/components/common/DataImportModal';
 
 import { Link } from 'wouter';
 
@@ -11,6 +12,7 @@ const Properties: React.FC<PropertiesProps> = () => {
     const [properties, setProperties] = useState<Property[]>([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+    const [showImportModal, setShowImportModal] = useState(false);
     const [leads, setLeads] = useState<Lead[]>([]);
     const [newProperty, setNewProperty] = useState({
         leadId: '',
@@ -36,6 +38,21 @@ const Properties: React.FC<PropertiesProps> = () => {
             console.error('Error fetching properties:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleExport = async () => {
+        try {
+            const response = await axios.get('/properties/export', { responseType: 'blob' });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'properties-export.csv');
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            console.error('Error exporting properties:', error);
         }
     };
 
@@ -81,13 +98,31 @@ const Properties: React.FC<PropertiesProps> = () => {
                     <h1 className="text-2xl font-bold text-slate-100">Properties</h1>
                     <p className="text-slate-400">Track and analyze potential deals.</p>
                 </div>
-                <button 
-                    onClick={() => setShowModal(true)}
-                    className="bg-teal-600 hover:bg-teal-500 text-white px-4 py-2 rounded-lg flex items-center font-medium transition-colors"
-                >
-                    <Plus size={20} className="mr-2" />
-                    Add Property
-                </button>
+                <div className="flex items-center space-x-3">
+                    <div className="bg-slate-900 border border-slate-800 rounded-lg p-1 flex">
+                        <button
+                            onClick={() => setShowImportModal(true)}
+                            className="p-2 text-slate-400 hover:text-white transition-colors"
+                            title="Import Properties"
+                        >
+                            <Upload size={20} />
+                        </button>
+                        <button
+                            onClick={handleExport}
+                            className="p-2 text-slate-400 hover:text-white transition-colors"
+                            title="Export Properties"
+                        >
+                            <Download size={20} />
+                        </button>
+                    </div>
+                    <button 
+                        onClick={() => setShowModal(true)}
+                        className="bg-teal-600 hover:bg-teal-500 text-white px-4 py-2 rounded-lg flex items-center font-medium transition-colors"
+                    >
+                        <Plus size={20} className="mr-2" />
+                        Add Property
+                    </button>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -254,6 +289,15 @@ const Properties: React.FC<PropertiesProps> = () => {
                     </div>
                 </div>
             )}
+
+            <DataImportModal
+                isOpen={showImportModal}
+                onClose={() => setShowImportModal(false)}
+                endpoint="/api/properties/import"
+                onSuccess={fetchProperties}
+                title="Import Properties"
+                templateFields={['leadId', 'address', 'city', 'state', 'zip']}
+            />
         </div>
     );
 };
