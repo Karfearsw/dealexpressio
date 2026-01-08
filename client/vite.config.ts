@@ -22,6 +22,17 @@ export default defineConfig({
       }
     }
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'wouter'],
+          ui: ['lucide-react', 'framer-motion', 'clsx', 'tailwind-merge', '@radix-ui/react-dialog', '@radix-ui/react-slot', '@radix-ui/react-toast'],
+          charts: ['recharts']
+        }
+      }
+    }
+  },
   test: {
     globals: true,
     environment: 'jsdom',
