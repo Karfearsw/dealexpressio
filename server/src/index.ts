@@ -96,7 +96,7 @@ app.get('/health', (req: express.Request, res: express.Response) => {
 // The "catchall" handler: for any request that doesn't
 // match one above, send back React's index.html file.
 if (process.env.NODE_ENV === 'production' || process.env.SERVE_CLIENT === 'true') {
-    app.get('*', (req, res) => {
+    app.get('/{*splat}', (req, res) => {
         res.sendFile(path.join(__dirname, '../../client/dist/index.html'));
     });
 }
