@@ -14,6 +14,12 @@ let db: any;
 if (process.env.DB_DRIVER === 'neon_http') {
     const sql = neon(process.env.DATABASE_URL!);
     db = drizzleNeon(sql, { schema });
+    
+    // Even with HTTP driver, we need a Pool for connect-pg-simple sessions
+    pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false }
+    });
 } else {
     pool = new Pool({
         connectionString: process.env.DATABASE_URL,
