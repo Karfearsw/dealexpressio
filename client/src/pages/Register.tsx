@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useLocation, Link } from 'wouter';
-import { Lock, Mail, User } from 'lucide-react';
+import { Lock, Mail, User, CreditCard } from 'lucide-react';
 
 const Register = () => {
     const [email, setEmail] = useState('');
@@ -9,6 +9,7 @@ const Register = () => {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [accessCode, setAccessCode] = useState('');
+    const [subscriptionTier, setSubscriptionTier] = useState('basic');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const { register } = useAuth();
