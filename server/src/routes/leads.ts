@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { db } from '../db';
-import { leads } from '../db/schema';
+import { leads, type Lead } from '../db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { requireAuth, requireSubscription } from '../middleware/auth';
 import multer from 'multer';
@@ -56,7 +56,7 @@ router.get('/export', requireAuth, requireSubscription('pro'), async (req: Reque
         const allLeads = await db.select().from(leads).orderBy(desc(leads.createdAt));
         
         const csvHeader = 'ID,First Name,Last Name,Email,Phone,Status,Source,Created At\n';
-        const csvRows = allLeads.map(lead => {
+        const csvRows = allLeads.map((lead: Lead) => {
             return [
                 lead.id,
                 `"${lead.firstName}"`,

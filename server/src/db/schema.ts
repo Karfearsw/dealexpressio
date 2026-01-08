@@ -1,5 +1,5 @@
 import { pgTable, serial, text, timestamp, integer, boolean, decimal, jsonb } from 'drizzle-orm/pg-core';
-import { relations, one, type InferSelectModel, type InferInsertModel } from 'drizzle-orm';
+import { relations, type InferSelectModel, type InferInsertModel } from 'drizzle-orm';
 
 export const users = pgTable('users', {
     id: serial('id').primaryKey(),
@@ -172,7 +172,7 @@ export const contactSubmissions = pgTable('contact_submissions', {
 });
 
 // Relations
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ one, many }) => ({
     leads: many(leads),
     notifications: many(notifications),
     timesheets: many(timesheets),
