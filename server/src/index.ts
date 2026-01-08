@@ -40,6 +40,8 @@ app.use(cors({
         const allowedOrigins = [
             'http://localhost:5173',
             'http://localhost:3000',
+            'https://www.dealexpress.io',
+            'https://dealexpress.io',
             process.env.VITE_API_URL // Your production URL if set
         ];
         
