@@ -65,7 +65,7 @@ const Pricing = () => {
     useEffect(() => {
         const loadPricing = async () => {
             try {
-                const res = await axios.get('/api/marketing/pricing-tiers');
+                const res = await axios.get('/marketing/pricing-tiers');
                 const apiTiers = res.data.map((t: any) => ({
                     name: t.name,
                     price: String(t.price),
@@ -114,7 +114,7 @@ const Pricing = () => {
         setIsLoading(tier.name);
 
         try {
-            const { data } = await axios.post('/api/payments/create-checkout-session', {
+            const { data } = await axios.post('/payments/create-checkout-session', {
                 priceId: tier.priceId
             });
             window.location.href = data.url;

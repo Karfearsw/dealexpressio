@@ -14,8 +14,8 @@ const Marketing = () => {
     const fetchData = async () => {
         try {
             const [signupsRes, statsRes] = await Promise.all([
-                axios.get('/api/marketing/beta-signups'),
-                axios.get('/api/marketing/stats')
+                axios.get('/marketing/beta-signups'),
+                axios.get('/marketing/stats')
             ]);
             setSignups(signupsRes.data);
             setStats(statsRes.data);

@@ -28,7 +28,7 @@ const Timesheets = () => {
 
     const fetchStatus = async () => {
         try {
-            const res = await axios.get('/api/timesheets/status');
+            const res = await axios.get('/timesheets/status');
             if (res.data.active) {
                 setStatus('active');
                 setCurrentSession(res.data.timesheet);
@@ -65,7 +65,7 @@ const Timesheets = () => {
 
     const handleClockOut = async () => {
         try {
-            await axios.post('/api/timesheets/clock-out');
+            await axios.post('/timesheets/clock-out');
             setStatus('idle');
             setCurrentSession(null);
             setElapsed(0);

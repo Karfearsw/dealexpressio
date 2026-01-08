@@ -15,7 +15,7 @@ const BuyersList = () => {
 
     const fetchBuyers = async () => {
         try {
-            const res = await axios.get('/api/buyers');
+            const res = await axios.get('/buyers');
             setBuyers(res.data);
         } catch (error) {
             console.error("Failed to fetch buyers", error);
