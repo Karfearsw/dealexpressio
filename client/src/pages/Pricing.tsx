@@ -114,13 +114,14 @@ const Pricing = () => {
         setIsLoading(tier.name);
 
         try {
-            const { data } = await axios.post('/payments/create-checkout-session', {
-                priceId: tier.priceId
+            const { data } = await axios.post('/api/payments/create-checkout', {
+                tier: tier.name.toLowerCase(),
+                crypto: 'ethereum'
             });
-            window.location.href = data.url;
+            window.location.href = data.checkoutUrl;
         } catch (error) {
             console.error('Subscription error:', error);
-            alert("Failed to start checkout session. Please try again.");
+            alert("Failed to start checkout. Please try again.");
             setIsLoading(null);
         }
     };
