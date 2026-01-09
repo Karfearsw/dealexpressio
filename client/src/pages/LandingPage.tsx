@@ -269,13 +269,14 @@ const LandingPage = () => {
                 </section>
 
                 {/* Social Proof / Stats */}
-                <section className="py-20 border-y border-slate-900 bg-slate-950/50">
-                    <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-                        {[
+                <div className="min-h-screen flex items-center justify-center">
+                    <section className="py-20 border-y border-slate-900 bg-slate-950/50">
+                        <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                            {[
                             { value: "1000+", label: "Monthly Leads", color: "text-teal-400" },
                             { value: "$11M", label: "Tracked Volume", color: "text-blue-400" },
                             { value: "24/7", label: "Support", color: "text-teal-500" }
-                        ].map((stat, i) => (
+                            ].map((stat, i) => (
                             <motion.div
                                 key={i}
                                 initial={{ opacity: 0, scale: 0.5 }}
@@ -286,9 +287,10 @@ const LandingPage = () => {
                                 <div className={`text-4xl font-extrabold ${stat.color} mb-1`}>{stat.value}</div>
                                 <div className="text-xs uppercase tracking-widest text-slate-500 font-bold">{stat.label}</div>
                             </motion.div>
-                        ))}
-                    </div>
-                </section>
+                            ))}
+                        </div>
+                    </section>
+                </div>
 
                 {/* CTA Section */}
                 <section className="py-24 px-4 overflow-hidden">

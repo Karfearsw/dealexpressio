@@ -36,3 +36,5 @@ Thumbs.db
 *.sln
 *.sw?
 
+# Trae workspace metadata
+.trae/

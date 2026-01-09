@@ -17,7 +17,14 @@ interface AuthContextType {
     user: User | null;
     loading: boolean;
     login: (data: any) => Promise<void>;
-    register: (email: string, password: string, firstName: string, lastName: string, accessCode?: string) => Promise<void>;
+    register: (
+        email: string,
+        password: string,
+        firstName: string,
+        lastName: string,
+        accessCode?: string,
+        subscriptionTier?: string
+    ) => Promise<void>;
     logout: () => Promise<void>;
     checkAuth: () => Promise<void>;
     requires2FA: boolean;
