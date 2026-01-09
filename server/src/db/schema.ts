@@ -86,6 +86,13 @@ export const properties = pgTable('properties', {
     city: text('city'),
     state: text('state'),
     zip: text('zip'),
+    purchasePrice: decimal('purchase_price', { precision: 12, scale: 2 }),
+    beds: integer('beds'),
+    baths: decimal('baths', { precision: 3, scale: 1 }),
+    sqft: integer('sqft'),
+    yearBuilt: integer('year_built'),
+    occupancyStatus: text('occupancy_status'),
+    motivationDetails: jsonb('motivation_details'),
     arv: decimal('arv', { precision: 12, scale: 2 }),
     mao: decimal('mao', { precision: 12, scale: 2 }),
     repairCost: decimal('repair_cost', { precision: 12, scale: 2 }),
@@ -161,6 +168,16 @@ export const timesheets = pgTable('timesheets', {
     clockOut: timestamp('clock_out'),
     duration: integer('duration'), // seconds (calculated on clock out)
     status: text('status').default('active'), // active, completed
+});
+
+export const dealActivities = pgTable('deal_activities', {
+    id: serial('id').primaryKey(),
+    propertyId: integer('property_id').references(() => properties.id).notNull(),
+    stage: text('stage').notNull(),
+    details: text('details'),
+    nextActions: jsonb('next_actions'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    userId: integer('user_id').references(() => users.id),
 });
 
 export const contactSubmissions = pgTable('contact_submissions', {

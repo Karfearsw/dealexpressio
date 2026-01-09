@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, Users, DollarSign, Phone, CheckCircle, Percent, PieChart as PieIcon } from 'lucide-react';
+import { TrendingUp, Users, DollarSign, Phone, CheckCircle, Percent, PieChart as PieIcon, Lock } from 'lucide-react';
 import axios from 'axios';
+import { useAuth } from '@/context/AuthContext';
+import { Link } from 'wouter';
 
 const Analytics = () => {
+    const { user } = useAuth();
     const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+
+    // No strict access control here as user requested it to be "open",
+    // but we can show different states if needed.
+    // For now, it behaves as a basic accessible page.
 
     useEffect(() => {
         fetchAnalytics();

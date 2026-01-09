@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Download, X } from 'lucide-react';
+import { FileText, Download, X, Lock } from 'lucide-react';
 import axios from 'axios';
+import { useAuth } from '@/context/AuthContext';
+import { Link } from 'wouter';
 
 const Contracts = () => {
+    const { user } = useAuth();
+    const isLocked = !user || (user.subscriptionTier !== 'pro' && user.subscriptionTier !== 'enterprise');
+
     const [templates, setTemplates] = useState<any[]>([]);
     const [recentContracts, setRecentContracts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -18,6 +23,11 @@ const Contracts = () => {
     const [generating, setGenerating] = useState(false);
 
     useEffect(() => {
+        if (isLocked) {
+            setLoading(false);
+            return;
+        }
+
         const fetchData = async () => {
             try {
                 const [templatesRes, recentRes] = await Promise.all([
@@ -35,7 +45,24 @@ const Contracts = () => {
             }
         };
         fetchData();
-    }, []);
+    }, [isLocked]);
+
+    if (isLocked) {
+        return (
+            <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center p-8">
+                <div className="bg-slate-800 p-4 rounded-full mb-4">
+                    <Lock size={48} className="text-teal-500" />
+                </div>
+                <h2 className="text-2xl font-bold text-slate-100 mb-2">Contracts Feature Locked</h2>
+                <p className="text-slate-400 max-w-md mb-6">
+                    Upgrade to the Pro plan to access automated contract generation and management.
+                </p>
+                <Link href="/settings" className="px-6 py-3 bg-teal-600 hover:bg-teal-500 text-white rounded-lg font-bold transition-colors">
+                    Upgrade to Pro
+                </Link>
+            </div>
+        );
+    }
 
     const openGenerator = (template: any) => {
         if (!template.active) return;
