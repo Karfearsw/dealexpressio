@@ -6,13 +6,14 @@ import { requireAuth, requireSubscription } from '../middleware/auth';
 import multer from 'multer';
 import csv from 'csv-parser';
 import fs from 'fs';
+import os from 'os';
 
 interface MulterRequest extends Request {
     file?: Express.Multer.File;
 }
 
 const router = Router();
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: os.tmpdir() });
 
 // Import leads from CSV (Pro feature)
 router.post('/import', requireAuth, requireSubscription('pro'), upload.single('file'), async (req: Request, res: Response) => {
