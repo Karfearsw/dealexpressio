@@ -32,7 +32,7 @@ const Sidebar = () => {
     const navItems = [
         { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, minTier: 'basic' },
         { name: 'Leads', path: '/leads', icon: Users, minTier: 'basic' },
-        { name: 'Properties', path: '/properties', icon: Home, minTier: 'basic' },
+        { name: 'Deals', path: '/deals', icon: Home, minTier: 'basic' },
         { name: 'Communication', path: '/communication', icon: MessageSquare, minTier: 'pro' },
         { name: 'Contracts', path: '/contracts', icon: FileText, minTier: 'basic' },
         { name: 'Analytics', path: '/analytics', icon: BarChart, minTier: 'pro' },

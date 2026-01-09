@@ -85,7 +85,7 @@ app.use(session(sessionOptions));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/leads', leadsRoutes);
-app.use('/api/properties', propertiesRoutes);
+app.use('/api/deals', propertiesRoutes);
 app.use('/api/communication', communicationRoutes);
 app.use('/api/contracts', contractsRoutes);
 app.use('/api/analytics', analyticsRoutes);

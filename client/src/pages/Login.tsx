@@ -21,7 +21,9 @@ const Login = () => {
             await login({ email, password });
             setLocation('/dashboard');
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Login failed');
+            console.error("Login Error:", err);
+            const msg = err.response?.data?.message || 'Login failed. Please check your credentials.';
+            setError(msg);
         }
     };
 

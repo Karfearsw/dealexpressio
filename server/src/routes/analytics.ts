@@ -10,10 +10,10 @@ router.get('/dashboard', requireAuth, async (req: Request, res: Response) => {
     try {
         // Real data aggregation
         const [leadsCount] = await db.select({ count: sql<number>`cast(count(*) as int)` }).from(leads);
-        const [propertiesCount] = await db.select({ count: sql<number>`cast(count(*) as int)` }).from(properties);
+        const [dealsCount] = await db.select({ count: sql<number>`cast(count(*) as int)` }).from(properties);
         const [callsCount] = await db.select({ count: sql<number>`cast(count(*) as int)` }).from(calls);
 
-        // Pipeline Stats (Leads by Status)
+        // Pipeline Stats (Leads by Status) - Conversion Funnel
         const pipelineRaw = await db
             .select({
                 status: leads.status,
@@ -22,34 +22,61 @@ router.get('/dashboard', requireAuth, async (req: Request, res: Response) => {
             .from(leads)
             .groupBy(leads.status);
 
+        // Map to standard funnel order if possible, or just return all
         const pipelineStats = pipelineRaw.map((p: { status: string; count: number }) => ({ name: p.status, value: p.count }));
 
-        // Revenue (Sum of assignment fees for Closed properties)
+        // YTD Revenue (Sum of assignment fees for 'Closed Deal' properties created this year)
+        // Note: Ideally we use a 'closedAt' date, but using 'createdAt' or just status check for now
+        const currentYear = new Date().getFullYear();
+        const startOfYear = new Date(currentYear, 0, 1).toISOString();
+
         const [revenueResult] = await db
             .select({
-                total: sql<number>`cast(sum(${properties.assignmentFee}) as float)`
+                total: sql<number>`cast(sum(${properties.assignmentFee}) as float)`,
+                count: sql<number>`cast(count(*) as int)`
             })
             .from(properties)
-            .where(sql`${properties.status} = 'Closed'`);
+            .where(sql`${properties.status} = 'Closed Deal'`); // Removed year filter for now to show all data, can add AND created_at >= ${startOfYear}
 
         const totalRevenue = revenueResult?.total || 0;
+        const dealsClosed = revenueResult?.count || 0;
+        const avgDealSize = dealsClosed > 0 ? totalRevenue / dealsClosed : 0;
+        const totalLeads = leadsCount.count || 0;
+        const conversionRate = totalLeads > 0 ? (dealsClosed / totalLeads) * 100 : 0;
 
-        // "Contracts Out" estimation (Properties with status 'Under Contract')
-        const [contractsOutCount] = await db
+        // "Contracts Out" estimation (Properties with status 'Open Deal')
+        const [activeDealsCount] = await db
             .select({ count: sql<number>`cast(count(*) as int)` })
             .from(properties)
-            .where(sql`${properties.status} = 'Under Contract'`);
+            .where(sql`${properties.status} = 'Open Deal'`);
+
+        // Monthly Performance (Mock or real if dates available)
+        // For now returning empty or basic
+        
+        // Lead Source Distribution
+        const sourcesRaw = await db
+            .select({
+                source: leads.source,
+                count: sql<number>`cast(count(*) as int)`
+            })
+            .from(leads)
+            .groupBy(leads.source);
+            
+        const sourceDistribution = sourcesRaw.map((s: { source: string; count: number }) => ({ name: s.source || 'Unknown', value: s.count }));
 
         res.json({
             metrics: {
-                totalLeads: leadsCount.count,
-                activeDeals: propertiesCount.count,
+                totalLeads,
+                activeDeals: activeDealsCount.count,
                 callsMade: callsCount.count,
-                contractsOut: contractsOutCount.count,
-                revenue: totalRevenue
+                revenue: totalRevenue,
+                dealsClosed,
+                avgDealSize,
+                conversionRate
             },
             pipeline: pipelineStats,
-            revenue: [] // TODO: Implement revenue over time aggregation based on property closed dates
+            sources: sourceDistribution,
+            revenue: [] // TODO: Implement monthly revenue
         });
 
     } catch (error) {

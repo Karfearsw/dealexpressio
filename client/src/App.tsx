@@ -15,8 +15,8 @@ import Success from './pages/Success';
 import Community from './components/layout/Community';
 import Dashboard from './pages/Dashboard';
 import Leads from './pages/Leads';
-import Properties from './pages/Properties';
-import PropertyDetail from './pages/PropertyDetail';
+import Deals from './pages/Deals';
+import DealDetail from './pages/DealDetail';
 import Communication from './pages/Communication';
 import Analytics from './pages/Analytics';
 import Contracts from './pages/Contracts';
@@ -52,8 +52,8 @@ const AppRoutes = () => {
                 <Switch>
                   <Route path="/dashboard" component={Dashboard} />
                   <Route path="/leads" component={Leads} />
-                  <Route path="/properties" component={Properties} />
-                  <Route path="/properties/:id" component={PropertyDetail} />
+                  <Route path="/deals" component={Deals} />
+                  <Route path="/deals/:id" component={DealDetail} />
                   <Route path="/communication" component={Communication} />
                   <Route path="/analytics" component={Analytics} />
                   <Route path="/contracts" component={Contracts} />

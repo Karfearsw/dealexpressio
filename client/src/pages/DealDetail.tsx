@@ -5,8 +5,8 @@ import axios from 'axios';
 import { MapPin, DollarSign, Home, Save, ArrowLeft, FileText, Download } from 'lucide-react';
 import { Link } from 'wouter';
 
-const PropertyDetail = () => {
-    const [, params] = useRoute('/properties/:id');
+const DealDetail = () => {
+    const [, params] = useRoute('/deals/:id');
     const id = params?.id;
     const [property, setProperty] = useState<Property | null>(null);
     const [loading, setLoading] = useState(true);
@@ -71,7 +71,7 @@ const PropertyDetail = () => {
     return (
         <div className="space-y-6">
             <div className="flex items-center space-x-4 mb-6">
-                <Link href="/properties" className="p-2 hover:bg-slate-800 rounded-full text-slate-400 transition-colors">
+                <Link href="/deals" className="p-2 hover:bg-slate-800 rounded-full text-slate-400 transition-colors">
                     <ArrowLeft size={20} />
                 </Link>
                 <div className="flex-1">
@@ -261,4 +261,4 @@ const PropertyDetail = () => {
     );
 };
 
-export default PropertyDetail;
+export default DealDetail;

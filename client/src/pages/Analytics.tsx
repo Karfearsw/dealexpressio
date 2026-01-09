@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, Users, DollarSign, Phone } from 'lucide-react';
+import { TrendingUp, Users, DollarSign, Phone, CheckCircle, Percent, PieChart as PieIcon } from 'lucide-react';
 import axios from 'axios';
 
 const Analytics = () => {
@@ -19,8 +19,9 @@ const Analytics = () => {
             console.error('Error fetching analytics:', error);
             // Set mock data if API fails
             setData({
-                metrics: { totalLeads: 0, activeDeals: 0, revenue: 0, callsMade: 0 },
+                metrics: { totalLeads: 0, activeDeals: 0, revenue: 0, callsMade: 0, dealsClosed: 0, avgDealSize: 0, conversionRate: 0 },
                 pipeline: [],
+                sources: [],
                 revenue: []
             });
         } finally {
@@ -36,64 +37,71 @@ const Analytics = () => {
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-2xl font-bold text-slate-100">Analytics Dashboard</h1>
-                <p className="text-slate-400">Performance metrics and KPIs.</p>
+                <h1 className="text-2xl font-bold text-slate-100">Analytics</h1>
+                <p className="text-slate-400">Key metrics and performance insights for your wholesaling business.</p>
             </div>
 
-            {/* Metrics Cards */}
+            {/* Key Metrics Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl flex items-center">
-                    <div className="p-3 bg-blue-500/20 rounded-lg mr-4">
-                        <Users className="text-blue-500" size={24} />
-                    </div>
-                    <div>
-                        <div className="text-2xl font-bold text-slate-100">{data.metrics.totalLeads}</div>
-                        <div className="text-xs text-slate-500 font-bold uppercase">Total Leads</div>
-                    </div>
-                </div>
-                <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl flex items-center">
-                    <div className="p-3 bg-teal-500/20 rounded-lg mr-4">
-                        <TrendingUp className="text-teal-500" size={24} />
-                    </div>
-                    <div>
-                        <div className="text-2xl font-bold text-slate-100">{data.metrics.activeDeals}</div>
-                        <div className="text-xs text-slate-500 font-bold uppercase">Active Deals</div>
-                    </div>
-                </div>
                 <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl flex items-center">
                     <div className="p-3 bg-green-500/20 rounded-lg mr-4">
                         <DollarSign className="text-green-500" size={24} />
                     </div>
                     <div>
                         <div className="text-2xl font-bold text-slate-100">${data.metrics.revenue.toLocaleString()}</div>
-                        <div className="text-xs text-slate-500 font-bold uppercase">Revenue YTD</div>
+                        <div className="text-xs text-slate-500 font-bold uppercase">YTD Revenue</div>
+                        <div className="text-[10px] text-slate-600">From closed deals</div>
                     </div>
                 </div>
+                
                 <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl flex items-center">
-                    <div className="p-3 bg-purple-500/20 rounded-lg mr-4">
-                        <Phone className="text-purple-500" size={24} />
+                    <div className="p-3 bg-blue-500/20 rounded-lg mr-4">
+                        <CheckCircle className="text-blue-500" size={24} />
                     </div>
                     <div>
-                        <div className="text-2xl font-bold text-slate-100">{data.metrics.callsMade}</div>
-                        <div className="text-xs text-slate-500 font-bold uppercase">Calls Made</div>
+                        <div className="text-2xl font-bold text-slate-100">{data.metrics.dealsClosed}</div>
+                        <div className="text-xs text-slate-500 font-bold uppercase">Deals Closed</div>
+                        <div className="text-[10px] text-slate-600">This year</div>
+                    </div>
+                </div>
+
+                <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl flex items-center">
+                    <div className="p-3 bg-teal-500/20 rounded-lg mr-4">
+                        <DollarSign className="text-teal-500" size={24} />
+                    </div>
+                    <div>
+                        <div className="text-2xl font-bold text-slate-100">${Math.round(data.metrics.avgDealSize).toLocaleString()}</div>
+                        <div className="text-xs text-slate-500 font-bold uppercase">Avg Deal Size</div>
+                        <div className="text-[10px] text-slate-600">Per transaction</div>
+                    </div>
+                </div>
+
+                <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl flex items-center">
+                    <div className="p-3 bg-purple-500/20 rounded-lg mr-4">
+                        <Percent className="text-purple-500" size={24} />
+                    </div>
+                    <div>
+                        <div className="text-2xl font-bold text-slate-100">{data.metrics.conversionRate.toFixed(1)}%</div>
+                        <div className="text-xs text-slate-500 font-bold uppercase">Conv. Rate</div>
+                        <div className="text-[10px] text-slate-600">Lead to close</div>
                     </div>
                 </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Pipeline Funnel */}
+                {/* Conversion Funnel */}
                 <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
-                    <h3 className="text-lg font-bold text-slate-100 mb-6">Pipeline Health</h3>
+                    <h3 className="text-lg font-bold text-slate-100 mb-6">Conversion Funnel</h3>
                     <div className="h-64">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart
                                 data={data.pipeline}
                                 layout="vertical"
-                                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                                margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
                             >
                                 <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
                                 <XAxis type="number" stroke="#64748b" />
-                                <YAxis dataKey="name" type="category" width={100} stroke="#64748b" />
+                                <YAxis dataKey="name" type="category" width={100} stroke="#64748b" fontSize={12} />
                                 <Tooltip
                                     contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', color: '#f1f5f9' }}
                                     itemStyle={{ color: '#f1f5f9' }}
@@ -104,26 +112,39 @@ const Analytics = () => {
                     </div>
                 </div>
 
-                {/* Revenue Trend */}
+                {/* Lead Source Distribution */}
                 <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
-                    <h3 className="text-lg font-bold text-slate-100 mb-6">Revenue Trend</h3>
-                    <div className="h-64">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart
-                                data={data.revenue}
-                                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                                <XAxis dataKey="name" stroke="#64748b" />
-                                <YAxis stroke="#64748b" />
-                                <Tooltip
-                                    contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', color: '#f1f5f9' }}
-                                    itemStyle={{ color: '#f1f5f9' }}
+                    <h3 className="text-lg font-bold text-slate-100 mb-6">Lead Source Distribution</h3>
+                    <div className="h-64 flex justify-center">
+                         <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={data.sources}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={60}
+                                    outerRadius={80}
+                                    paddingAngle={5}
+                                    dataKey="value"
+                                >
+                                    {data.sources.map((entry: any, index: number) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip 
+                                     contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', color: '#f1f5f9' }}
                                 />
-                                <Bar dataKey="revenue" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                            </BarChart>
+                                <Legend />
+                            </PieChart>
                         </ResponsiveContainer>
                     </div>
+                </div>
+            </div>
+            
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
+                <h3 className="text-lg font-bold text-slate-100 mb-4">Monthly Performance</h3>
+                 <div className="h-48 flex items-center justify-center text-slate-500">
+                    <p>No contract data available for monthly breakdown yet.</p>
                 </div>
             </div>
         </div>

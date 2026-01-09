@@ -15,11 +15,15 @@ export const LEAD_STAGES = [
     'Contacted',
     'Warm',
     'Offer Sent',
-    'Contract Signed',
-    'Closed'
+    'Contract Signed'
 ] as const;
 
-export interface Property {
+export const DEAL_STAGES = [
+    'Open Deal',
+    'Closed Deal'
+] as const;
+
+export interface Deal {
     id: number;
     leadId: number;
     address: string;

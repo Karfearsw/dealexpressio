@@ -34,10 +34,19 @@ router.post('/generate/assignment', requireAuth, async (req: Request, res: Respo
 
     try {
         const [property] = await db.select().from(properties).where(eq(properties.id, propertyId));
-        if (!property) return res.status(404).json({ message: 'Property not found' });
+        if (!property) return res.status(404).json({ message: 'Deal not found' });
 
         const [lead] = await db.select().from(leads).where(eq(leads.id, property.leadId));
         if (!lead) return res.status(404).json({ message: 'Lead not found' });
+
+        // Update Statuses
+        await db.update(leads)
+            .set({ status: 'Contract Signed' })
+            .where(eq(leads.id, lead.id));
+        
+        await db.update(properties)
+            .set({ status: 'Open Deal' })
+            .where(eq(properties.id, property.id));
 
         const pdfBuffer = await generateAssignmentContract({
             property,

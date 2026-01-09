@@ -147,16 +147,16 @@ const Contracts = () => {
                         
                         <form onSubmit={handleGenerate} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-slate-400 mb-1">Property ID (Temporary)</label>
+                                <label className="block text-sm font-medium text-slate-400 mb-1">Deal ID (Temporary)</label>
                                 <input 
                                     type="number" 
                                     required
                                     className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-teal-500"
                                     value={formData.propertyId}
                                     onChange={(e) => setFormData({...formData, propertyId: e.target.value})}
-                                    placeholder="Enter Property ID (e.g., 1)"
+                                    placeholder="Enter Deal ID (e.g., 1)"
                                 />
-                                <p className="text-xs text-slate-500 mt-1">Check Properties page for ID.</p>
+                                <p className="text-xs text-slate-500 mt-1">Check Deals page for ID.</p>
                             </div>
                             
                             <div>

@@ -7,22 +7,29 @@ import multer from 'multer';
 import csv from 'csv-parser';
 import fs from 'fs';
 
+interface MulterRequest extends Request {
+    file?: Express.Multer.File;
+}
+
 const router = Router();
 const upload = multer({ dest: 'uploads/' });
 
 // Import properties from CSV (Pro feature)
 router.post('/import', requireAuth, requireSubscription('pro'), upload.single('file'), async (req: Request, res: Response) => {
-    if (!req.file) {
+    const multerReq = req as MulterRequest;
+    if (!multerReq.file) {
         return res.status(400).json({ message: 'No file uploaded' });
     }
 
     const results: any[] = [];
-    fs.createReadStream(req.file.path)
+    fs.createReadStream(multerReq.file.path)
         .pipe(csv())
         .on('data', (data) => results.push(data))
         .on('end', async () => {
             try {
-                fs.unlinkSync(req.file!.path);
+                if (multerReq.file) {
+                    fs.unlinkSync(multerReq.file.path);
+                }
 
                 // For properties, we need a leadId. 
                 // This simple import assumes leadId is provided in the CSV.
