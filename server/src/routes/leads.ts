@@ -6,9 +6,11 @@ import { requireAuth, requireSubscription } from '../middleware/auth';
 import multer from 'multer';
 import csv from 'csv-parser';
 import fs from 'fs';
+import os from 'os';
+import path from 'path';
 
 const router = Router();
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: path.join(os.tmpdir(), 'uploads/') });
 
 // Import leads from CSV (Pro feature)
 router.post('/import', requireAuth, requireSubscription('pro'), upload.single('file'), async (req: Request, res: Response) => {
@@ -54,7 +56,7 @@ router.post('/import', requireAuth, requireSubscription('pro'), upload.single('f
 router.get('/export', requireAuth, requireSubscription('pro'), async (req: Request, res: Response) => {
     try {
         const allLeads = await db.select().from(leads).orderBy(desc(leads.createdAt));
-        
+
         const csvHeader = 'ID,First Name,Last Name,Email,Phone,Status,Source,Created At\n';
         const csvRows = allLeads.map((lead: Lead) => {
             return [
@@ -126,7 +128,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
     } catch (error: any) {
         console.error('Error creating lead:', error);
         if (error.code === '23503') {
-             return res.status(400).json({ message: 'Invalid user session. Please log in again.' });
+            return res.status(400).json({ message: 'Invalid user session. Please log in again.' });
         }
         res.status(500).json({ message: 'Internal server error: ' + (error.message || 'Unknown error') });
     }

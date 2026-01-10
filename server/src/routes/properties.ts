@@ -6,9 +6,11 @@ import { requireAuth, requireSubscription } from '../middleware/auth';
 import multer from 'multer';
 import csv from 'csv-parser';
 import fs from 'fs';
+import os from 'os';
+import path from 'path';
 
 const router = Router();
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: path.join(os.tmpdir(), 'uploads/') });
 
 // Import properties from CSV (Pro feature)
 router.post('/import', requireAuth, requireSubscription('pro'), upload.single('file'), async (req: Request, res: Response) => {
@@ -61,7 +63,7 @@ router.post('/import', requireAuth, requireSubscription('pro'), upload.single('f
 router.get('/export', requireAuth, requireSubscription('pro'), async (req: Request, res: Response) => {
     try {
         const allProperties = await db.select().from(properties).orderBy(desc(properties.createdAt));
-        
+
         const csvHeader = 'ID,Lead ID,Address,City,State,Zip,ARV,MAO,Status,Notes\n';
         const csvRows = allProperties.map((p: Property) => {
             return [

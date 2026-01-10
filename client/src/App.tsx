@@ -1,6 +1,6 @@
 import { Route, Switch, Redirect } from 'wouter';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { ProtectedRoute } from './components/ProtectedRoute';
+import { ProtectedRoute, RequireTier } from './components/ProtectedRoute';
 import AppShell from './components/layout/AppShell';
 import ErrorBoundary from './components/ErrorBoundary';
 // Pages
@@ -55,11 +55,26 @@ const AppRoutes = () => {
                   <Route path="/properties" component={Deals} />
                   <Route path="/properties/:id" component={DealDetail} />
                   <Route path="/communication" component={Communication} />
-                  <Route path="/analytics" component={Analytics} />
-                  <Route path="/contracts" component={Contracts} />
+
+                  {/* Pro Tier Routes */}
+                  <Route path="/analytics">
+                    <RequireTier tier="pro">
+                      <Analytics />
+                    </RequireTier>
+                  </Route>
+                  <Route path="/contracts">
+                    <RequireTier tier="pro">
+                      <Contracts />
+                    </RequireTier>
+                  </Route>
+                  <Route path="/buyers">
+                    <RequireTier tier="pro">
+                      <BuyersList />
+                    </RequireTier>
+                  </Route>
+
                   <Route path="/devtools" component={DevTools} />
                   <Route path="/settings" component={Settings} />
-                  <Route path="/buyers" component={BuyersList} />
                   <Route path="/calculator" component={DealCalculator} />
 
                   {/* Fallback for unknown protected routes */}
