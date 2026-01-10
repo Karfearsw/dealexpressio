@@ -1,42 +1,79 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useLocation, Redirect } from 'wouter';
+import { Redirect } from 'wouter'; // Removed useLocation
+import { hasAccess, getRequiredTier, getUpgradeOptions } from '../utils/accessControl';
+import { UpgradeModal } from './UpgradeModal';
+import { Lock } from 'lucide-react';
 
-export const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface ProtectedRouteProps {
+    children: React.ReactNode;
+    requiredFeature?: string;
+}
+
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+    children,
+    requiredFeature
+}) => {
     const { user, loading } = useAuth();
-    const [location] = useLocation();
+    // const [location] = useLocation(); // Removed unused location
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
+    // Handle authentication check
     if (loading) {
-        return <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-400">Loading...</div>;
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-slate-950">
+                <div className="text-teal-400">Loading...</div>
+            </div>
+        );
     }
 
     if (!user) {
         return <Redirect to="/login" />;
     }
 
-    return <>{children}</>;
-};
+    // Handle feature access check
+    if (requiredFeature) {
+        // Pass user.email to check for specific bypasses
+        const userHasAccess = hasAccess(user.subscriptionTier, requiredFeature, user.email);
 
-// Helper: Check if user tier meets requirement
-export const checkTierAccess = (userTier: string = 'basic', requiredTier: string = 'basic'): boolean => {
-    const levels: Record<string, number> = { 'basic': 1, 'pro': 2, 'enterprise': 3 };
-    const userLevel = levels[userTier] || 1;
-    const requiredLevel = levels[requiredTier] || 1;
-    return userLevel >= requiredLevel;
-};
+        if (!userHasAccess) {
+            const requiredTier = getRequiredTier(requiredFeature);
+            const upgradeOptions = getUpgradeOptions(user.subscriptionTier);
 
-// Component: Enforce Tier Access
-export const RequireTier: React.FC<{ tier: 'basic' | 'pro' | 'enterprise'; children: React.ReactNode }> = ({ tier, children }) => {
-    const { user, loading } = useAuth();
+            return (
+                <>
+                    {/* Show a placeholder page with locked state */}
+                    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+                        <div className="text-center max-w-md">
+                            <div className="w-20 h-20 bg-orange-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <Lock className="w-10 h-10 text-orange-500" />
+                            </div>
+                            <h1 className="text-3xl font-bold text-slate-100 mb-3">
+                                Feature Locked
+                            </h1>
+                            <p className="text-slate-400 mb-6">
+                                This feature requires a {requiredTier?.name} plan or higher.
+                            </p>
+                            <button
+                                onClick={() => setShowUpgradeModal(true)}
+                                className="px-6 py-3 bg-teal-600 hover:bg-teal-500 text-white rounded-lg font-medium transition-colors"
+                            >
+                                View Upgrade Options
+                            </button>
+                        </div>
+                    </div>
 
-    if (loading) return null; // Parent ProtectedRoute usually handles loading
-
-    // Double check user exists (should be wrapped in ProtectedRoute)
-    if (!user) return <Redirect to="/login" />;
-
-    if (!checkTierAccess(user.subscriptionTier, tier)) {
-        // Redirect to pricing with a subtle query param or just simple redirect
-        return <Redirect to="/pricing" />;
+                    <UpgradeModal
+                        isOpen={showUpgradeModal}
+                        onClose={() => setShowUpgradeModal(false)}
+                        featureName={requiredFeature.replace('-', ' ')}
+                        requiredTier={requiredTier!}
+                        upgradeOptions={upgradeOptions}
+                        currentTier={user.subscriptionTier || 'Basic'}
+                    />
+                </>
+            );
+        }
     }
 
     return <>{children}</>;

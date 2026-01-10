@@ -7,9 +7,10 @@ import LeadDetailModal from './LeadDetailModal';
 interface PipelineProps {
     leads: Lead[];
     onLeadUpdate: (leadId: number, newStatus: Lead['status']) => void;
+    onConvertToDeal?: (leadId: number) => void;
 }
 
-const Pipeline: React.FC<PipelineProps> = ({ leads, onLeadUpdate }) => {
+const Pipeline: React.FC<PipelineProps> = ({ leads, onLeadUpdate, onConvertToDeal }) => {
     const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
     const handleDragEnd = (event: DragEndEvent) => {
@@ -47,6 +48,7 @@ const Pipeline: React.FC<PipelineProps> = ({ leads, onLeadUpdate }) => {
                     lead={selectedLead}
                     isOpen={!!selectedLead}
                     onClose={() => setSelectedLead(null)}
+                    onConvertToDeal={onConvertToDeal ? () => onConvertToDeal(selectedLead.id) : undefined}
                 />
             )}
         </>

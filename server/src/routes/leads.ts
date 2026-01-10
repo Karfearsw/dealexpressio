@@ -174,4 +174,40 @@ router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
     }
 });
 
+// Convert lead to deal
+router.post('/:id/convert-to-deal', async (req, res) => {
+    try {
+        if (!req.user) return res.status(401).send('Unauthorized');
+        const { id } = req.params;
+        const userId = req.user.id;
+
+        // Get lead data
+        const [lead] = await db
+            .select()
+            .from(leads)
+            .where(and(eq(leads.id, parseInt(id)), eq(leads.assignedTo, userId)));
+
+        if (!lead) {
+            return res.status(404).json({ error: 'Lead not found' });
+        }
+
+        // Create deal from lead
+        const [deal] = await db.insert(properties).values({
+            leadId: lead.id,
+            address: 'TBD', // Placeholder as leads table doesn't have address column in schema provided
+            status: 'New',
+        }).returning();
+
+        // Update lead status
+        await db.update(leads)
+            .set({ status: 'Converted' })
+            .where(eq(leads.id, lead.id));
+
+        res.json(deal);
+    } catch (error) {
+        console.error('Error converting lead to deal:', error);
+        res.status(500).json({ error: 'Failed to convert lead' });
+    }
+});
+
 export default router;

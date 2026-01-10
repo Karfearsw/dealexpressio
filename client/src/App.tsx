@@ -1,6 +1,6 @@
 import { Route, Switch, Redirect } from 'wouter';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { ProtectedRoute, RequireTier } from './components/ProtectedRoute';
+import { ProtectedRoute } from './components/ProtectedRoute'; // Removed RequireTier
 import AppShell from './components/layout/AppShell';
 import ErrorBoundary from './components/ErrorBoundary';
 // Pages
@@ -50,32 +50,58 @@ const AppRoutes = () => {
             <AppShell>
               <ErrorBoundary>
                 <Switch>
-                  <Route path="/dashboard" component={Dashboard} />
-                  <Route path="/leads" component={Leads} />
-                  <Route path="/properties" component={Deals} />
-                  <Route path="/properties/:id" component={DealDetail} />
-                  <Route path="/communication" component={Communication} />
+                  <Route path="/dashboard">
+                    <ProtectedRoute requiredFeature="dashboard">
+                      <Dashboard />
+                    </ProtectedRoute>
+                  </Route>
+                  <Route path="/leads">
+                    <ProtectedRoute requiredFeature="leads">
+                      <Leads />
+                    </ProtectedRoute>
+                  </Route>
+                  {/* Fixed Deals Route */}
+                  <Route path="/deals">
+                    <ProtectedRoute requiredFeature="deals">
+                      <Deals />
+                    </ProtectedRoute>
+                  </Route>
+                  {/* Backward compatibility / Detail view */}
+                  <Route path="/properties/:id">
+                    <ProtectedRoute requiredFeature="deals">
+                      <DealDetail />
+                    </ProtectedRoute>
+                  </Route>
+                  <Route path="/communication">
+                    <ProtectedRoute requiredFeature="communication">
+                      <Communication />
+                    </ProtectedRoute>
+                  </Route>
 
-                  {/* Pro Tier Routes */}
+                  {/* Pro/Enterprise Tier Routes with Upgrade Modal */}
                   <Route path="/analytics">
-                    <RequireTier tier="pro">
+                    <ProtectedRoute requiredFeature="analytics">
                       <Analytics />
-                    </RequireTier>
+                    </ProtectedRoute>
                   </Route>
                   <Route path="/contracts">
-                    <RequireTier tier="pro">
+                    <ProtectedRoute requiredFeature="contracts">
                       <Contracts />
-                    </RequireTier>
+                    </ProtectedRoute>
                   </Route>
                   <Route path="/buyers">
-                    <RequireTier tier="pro">
+                    <ProtectedRoute requiredFeature="buyers-list">
                       <BuyersList />
-                    </RequireTier>
+                    </ProtectedRoute>
                   </Route>
 
                   <Route path="/devtools" component={DevTools} />
                   <Route path="/settings" component={Settings} />
-                  <Route path="/calculator" component={DealCalculator} />
+                  <Route path="/calculator">
+                    <ProtectedRoute requiredFeature="deal-calculator">
+                      <DealCalculator />
+                    </ProtectedRoute>
+                  </Route>
 
                   {/* Fallback for unknown protected routes */}
                   <Route component={NotFound} />

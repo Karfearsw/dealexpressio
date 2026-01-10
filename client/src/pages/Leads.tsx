@@ -5,6 +5,7 @@ import { Plus, Columns, List, X, Upload, Download } from 'lucide-react';
 import { Lead } from '@/types';
 import axios from 'axios';
 import DataImportModal from '@/components/common/DataImportModal';
+import { useLocation } from 'wouter';
 
 const Leads = () => {
     const [viewMode, setViewMode] = useState<'pipeline' | 'list'>('pipeline');
@@ -13,6 +14,7 @@ const Leads = () => {
     const [showModal, setShowModal] = useState(false);
     const [showImportModal, setShowImportModal] = useState(false);
     const [newLead, setNewLead] = useState({ firstName: '', lastName: '', email: '', phone: '', source: 'Manual', status: 'New Lead' });
+    const [, setLocation] = useLocation();
 
     useEffect(() => {
         fetchLeads();
@@ -55,6 +57,17 @@ const Leads = () => {
         } catch (error) {
             console.error('Error updating lead status:', error);
             fetchLeads(); // Revert on error
+        }
+    };
+
+    const handleConvertToDeal = async (leadId: number) => {
+        try {
+            await axios.post(`/leads/${leadId}/convert-to-deal`);
+            // Show success message if we had toast
+            setLocation('/deals');
+        } catch (error) {
+            console.error('Failed to convert lead to deal', error);
+            alert('Failed to convert lead to deal');
         }
     };
 
@@ -110,7 +123,7 @@ const Leads = () => {
                             <List size={20} />
                         </button>
                     </div>
-                    <button 
+                    <button
                         onClick={() => setShowModal(true)}
                         className="bg-teal-600 hover:bg-teal-500 text-white px-4 py-2 rounded-lg flex items-center font-medium transition-colors"
                     >
@@ -122,9 +135,16 @@ const Leads = () => {
 
             <div className="flex-1 min-h-0">
                 {viewMode === 'pipeline' ? (
-                    <Pipeline leads={leads} onLeadUpdate={handleLeadUpdate} />
+                    <Pipeline
+                        leads={leads}
+                        onLeadUpdate={handleLeadUpdate}
+                        onConvertToDeal={handleConvertToDeal}
+                    />
                 ) : (
-                    <LeadsList leads={leads} />
+                    <LeadsList
+                        leads={leads}
+                        onConvertToDeal={handleConvertToDeal}
+                    />
                 )}
             </div>
 
@@ -211,10 +231,9 @@ const Leads = () => {
                                 </button>
                                 <button
                                     type="submit"
-                                    disabled={isCreating}
-                                    className={`px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg font-medium transition-colors ${isCreating ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    className="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg font-medium transition-colors"
                                 >
-                                    {isCreating ? 'Creating...' : 'Create Lead'}
+                                    Create Lead
                                 </button>
                             </div>
                         </form>

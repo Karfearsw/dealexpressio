@@ -4,9 +4,10 @@ import { Phone, Mail, Calendar } from 'lucide-react';
 
 interface LeadsListProps {
     leads: Lead[];
+    onConvertToDeal?: (leadId: number) => void;
 }
 
-const LeadsList: React.FC<LeadsListProps> = ({ leads }) => {
+const LeadsList: React.FC<LeadsListProps> = ({ leads, onConvertToDeal }) => {
     return (
         <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
             <div className="overflow-x-auto">
@@ -18,6 +19,7 @@ const LeadsList: React.FC<LeadsListProps> = ({ leads }) => {
                             <th className="p-4 font-medium">Contact</th>
                             <th className="p-4 font-medium">Source</th>
                             <th className="p-4 font-medium">Created</th>
+                            <th className="p-4 font-medium">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-800">
@@ -58,6 +60,19 @@ const LeadsList: React.FC<LeadsListProps> = ({ leads }) => {
                                         <Calendar size={14} className="mr-2" />
                                         {new Date(lead.createdAt).toLocaleDateString()}
                                     </div>
+                                </td>
+                                <td className="p-4">
+                                    {onConvertToDeal && (
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onConvertToDeal(lead.id);
+                                            }}
+                                            className="px-3 py-1 bg-teal-600 hover:bg-teal-500 text-white text-sm rounded transition-colors"
+                                        >
+                                            Convert
+                                        </button>
+                                    )}
                                 </td>
                             </tr>
                         ))}
