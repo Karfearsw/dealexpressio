@@ -23,26 +23,6 @@ export const DEAL_STAGES = [
     'Closed Deal'
 ] as const;
 
-export interface MotivationDetails {
-    factors: string[]; // e.g., ['Vacant', 'Out of State']
-    score: number;
-}
-
-export interface NextAction {
-    text: string;
-    completed: boolean;
-}
-
-export interface DealActivity {
-    id: number;
-    propertyId: number;
-    stage: string;
-    details: string | null;
-    nextActions: NextAction[] | null;
-    createdAt: string;
-    userId: number | null;
-}
-
 export interface Deal {
     id: number;
     leadId: number;
@@ -59,18 +39,7 @@ export interface Deal {
     photos: any[];
     notes: string | null;
     createdAt: string;
-    
-    // Extended fields
-    purchasePrice: string | null;
-    beds: number | null;
-    baths: string | null; // decimal as string from JSON/API usually, or number
-    sqft: number | null;
-    yearBuilt: number | null;
-    occupancyStatus: string | null;
-    motivationDetails: MotivationDetails | null;
 }
-
-export type Property = Deal;
 
 export interface Call {
     id: number;

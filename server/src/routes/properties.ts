@@ -6,31 +6,23 @@ import { requireAuth, requireSubscription } from '../middleware/auth';
 import multer from 'multer';
 import csv from 'csv-parser';
 import fs from 'fs';
-import os from 'os';
-
-interface MulterRequest extends Request {
-    file?: Express.Multer.File;
-}
 
 const router = Router();
-const upload = multer({ dest: os.tmpdir() });
+const upload = multer({ dest: 'uploads/' });
 
 // Import properties from CSV (Pro feature)
 router.post('/import', requireAuth, requireSubscription('pro'), upload.single('file'), async (req: Request, res: Response) => {
-    const multerReq = req as MulterRequest;
-    if (!multerReq.file) {
+    if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded' });
     }
 
     const results: any[] = [];
-    fs.createReadStream(multerReq.file.path)
+    fs.createReadStream(req.file.path)
         .pipe(csv())
         .on('data', (data) => results.push(data))
         .on('end', async () => {
             try {
-                if (multerReq.file) {
-                    fs.unlinkSync(multerReq.file.path);
-                }
+                fs.unlinkSync(req.file!.path);
 
                 // For properties, we need a leadId. 
                 // This simple import assumes leadId is provided in the CSV.
@@ -120,21 +112,11 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
 // Get single property
 router.get('/:id', requireAuth, async (req: Request, res: Response) => {
     try {
-        const result = await db.select({
-            property: properties,
-            lead: leads
-        })
-        .from(properties)
-        .leftJoin(leads, eq(properties.leadId, leads.id))
-        .where(eq(properties.id, parseInt(req.params.id)));
-        
-        if (result.length === 0) {
+        const [property] = await db.select().from(properties).where(eq(properties.id, parseInt(req.params.id)));
+        if (!property) {
             return res.status(404).json({ message: 'Property not found' });
         }
-        
-        const { property, lead } = result[0];
-        // Combine them or return nested
-        res.json({ ...property, lead });
+        res.json(property);
     } catch (error) {
         console.error('Error fetching property:', error);
         res.status(500).json({ message: 'Internal server error' });
@@ -143,12 +125,7 @@ router.get('/:id', requireAuth, async (req: Request, res: Response) => {
 
 // Create property
 router.post('/', requireAuth, async (req: Request, res: Response) => {
-    const { 
-        leadId, address, city, state, zip, 
-        arv, mao, repairCost, assignmentFee, projectedSpread, 
-        status, notes,
-        purchasePrice, beds, baths, sqft, yearBuilt, occupancyStatus, motivationDetails
-    } = req.body;
+    const { leadId, address, city, state, zip, arv, mao, repairCost, assignmentFee, projectedSpread, status, notes } = req.body;
 
     try {
         const [newProperty] = await db.insert(properties).values({
@@ -164,13 +141,6 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
             projectedSpread: projectedSpread ? projectedSpread.toString() : null,
             status: status || 'Analyzing',
             notes,
-            purchasePrice: purchasePrice ? purchasePrice.toString() : null,
-            beds: beds ? parseInt(beds) : null,
-            baths: baths ? baths.toString() : null,
-            sqft: sqft ? parseInt(sqft) : null,
-            yearBuilt: yearBuilt ? parseInt(yearBuilt) : null,
-            occupancyStatus,
-            motivationDetails
         }).returning();
 
         res.status(201).json(newProperty);
@@ -182,12 +152,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
 
 // Update property
 router.put('/:id', requireAuth, async (req: Request, res: Response) => {
-    const { 
-        address, city, state, zip, 
-        arv, mao, repairCost, assignmentFee, projectedSpread, 
-        status, notes,
-        purchasePrice, beds, baths, sqft, yearBuilt, occupancyStatus, motivationDetails
-    } = req.body;
+    const { address, city, state, zip, arv, mao, repairCost, assignmentFee, projectedSpread, status, notes } = req.body;
 
     try {
         const [updatedProperty] = await db.update(properties)
@@ -203,13 +168,6 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
                 projectedSpread: projectedSpread ? projectedSpread.toString() : null,
                 status,
                 notes,
-                purchasePrice: purchasePrice ? purchasePrice.toString() : null,
-                beds: beds ? parseInt(beds) : null,
-                baths: baths ? baths.toString() : null,
-                sqft: sqft ? parseInt(sqft) : null,
-                yearBuilt: yearBuilt ? parseInt(yearBuilt) : null,
-                occupancyStatus,
-                motivationDetails
             })
             .where(eq(properties.id, parseInt(req.params.id)))
             .returning();
@@ -221,43 +179,6 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
         res.json(updatedProperty);
     } catch (error) {
         console.error('Error updating property:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-});
-
-// Get property activities
-router.get('/:id/activities', requireAuth, async (req: Request, res: Response) => {
-    try {
-        const activities = await db.select()
-            .from(dealActivities)
-            .where(eq(dealActivities.propertyId, parseInt(req.params.id)))
-            .orderBy(asc(dealActivities.createdAt));
-        
-        res.json(activities);
-    } catch (error) {
-        console.error('Error fetching activities:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-});
-
-// Add property activity
-router.post('/:id/activities', requireAuth, async (req: Request, res: Response) => {
-    const { stage, details, nextActions } = req.body;
-    // @ts-ignore - User is added by requireAuth
-    const userId = req.user?.id;
-
-    try {
-        const [newActivity] = await db.insert(dealActivities).values({
-            propertyId: parseInt(req.params.id),
-            stage,
-            details,
-            nextActions,
-            userId
-        }).returning();
-
-        res.status(201).json(newActivity);
-    } catch (error) {
-        console.error('Error creating activity:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });

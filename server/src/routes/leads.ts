@@ -6,32 +6,24 @@ import { requireAuth, requireSubscription } from '../middleware/auth';
 import multer from 'multer';
 import csv from 'csv-parser';
 import fs from 'fs';
-import os from 'os';
-
-interface MulterRequest extends Request {
-    file?: Express.Multer.File;
-}
 
 const router = Router();
-const upload = multer({ dest: os.tmpdir() });
+const upload = multer({ dest: 'uploads/' });
 
 // Import leads from CSV (Pro feature)
 router.post('/import', requireAuth, requireSubscription('pro'), upload.single('file'), async (req: Request, res: Response) => {
-    const multerReq = req as MulterRequest;
-    if (!multerReq.file) {
+    if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded' });
     }
 
     const results: any[] = [];
-    fs.createReadStream(multerReq.file.path)
+    fs.createReadStream(req.file.path)
         .pipe(csv())
         .on('data', (data) => results.push(data))
         .on('end', async () => {
             try {
                 // Delete file after processing
-                if (multerReq.file) {
-                    fs.unlinkSync(multerReq.file.path);
-                }
+                fs.unlinkSync(req.file!.path);
 
                 const validLeads = results
                     .filter(row => row.firstName && row.lastName && row.email)

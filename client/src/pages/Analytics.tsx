@@ -1,18 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, Users, DollarSign, Phone, CheckCircle, Percent, PieChart as PieIcon, Lock } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
+import { DollarSign, CheckCircle, Percent } from 'lucide-react';
 import axios from 'axios';
-import { useAuth } from '@/context/AuthContext';
-import { Link } from 'wouter';
 
 const Analytics = () => {
-    const { user } = useAuth();
     const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-
-    // No strict access control here as user requested it to be "open",
-    // but we can show different states if needed.
-    // For now, it behaves as a basic accessible page.
 
     useEffect(() => {
         fetchAnalytics();
@@ -29,7 +22,11 @@ const Analytics = () => {
                 metrics: { totalLeads: 0, activeDeals: 0, revenue: 0, callsMade: 0, dealsClosed: 0, avgDealSize: 0, conversionRate: 0 },
                 pipeline: [],
                 sources: [],
-                revenue: []
+                revenue: [
+                    { name: 'Jan', revenue: 0, deals: 0 },
+                    { name: 'Feb', revenue: 0, deals: 0 },
+                    { name: 'Mar', revenue: 0, deals: 0 }
+                ]
             });
         } finally {
             setLoading(false);
@@ -60,7 +57,7 @@ const Analytics = () => {
                         <div className="text-[10px] text-slate-600">From closed deals</div>
                     </div>
                 </div>
-                
+
                 <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl flex items-center">
                     <div className="p-3 bg-blue-500/20 rounded-lg mr-4">
                         <CheckCircle className="text-blue-500" size={24} />
@@ -123,7 +120,7 @@ const Analytics = () => {
                 <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
                     <h3 className="text-lg font-bold text-slate-100 mb-6">Lead Source Distribution</h3>
                     <div className="h-64 flex justify-center">
-                         <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                                 <Pie
                                     data={data.sources}
@@ -134,12 +131,12 @@ const Analytics = () => {
                                     paddingAngle={5}
                                     dataKey="value"
                                 >
-                                    {data.sources.map((entry: any, index: number) => (
+                                    {data.sources.map((_: any, index: number) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                     ))}
                                 </Pie>
-                                <Tooltip 
-                                     contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', color: '#f1f5f9' }}
+                                <Tooltip
+                                    contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', color: '#f1f5f9' }}
                                 />
                                 <Legend />
                             </PieChart>
@@ -147,14 +144,36 @@ const Analytics = () => {
                     </div>
                 </div>
             </div>
-            
+
             <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
                 <h3 className="text-lg font-bold text-slate-100 mb-4">Monthly Performance</h3>
-                 <div className="h-48 flex items-center justify-center text-slate-500">
-                    <p>No contract data available for monthly breakdown yet.</p>
+                <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart
+                            data={data.revenue}
+                            margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                        >
+                            <defs>
+                                <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
+                                    <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+                                </linearGradient>
+                            </defs>
+                            <XAxis dataKey="name" stroke="#64748b" />
+                            <YAxis stroke="#64748b" />
+                            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                            <Tooltip
+                                contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', color: '#f1f5f9' }}
+                                itemStyle={{ color: '#f1f5f9' }}
+                                formatter={(value: any) => [`$${value.toLocaleString()}`, 'Revenue']}
+                            />
+                            <Area type="monotone" dataKey="revenue" stroke="#8884d8" fillOpacity={1} fill="url(#colorRevenue)" />
+                        </AreaChart>
+                    </ResponsiveContainer>
                 </div>
+
             </div>
-        </div>
+        </div >
     );
 };
 

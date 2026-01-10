@@ -52,8 +52,8 @@ const AppRoutes = () => {
                 <Switch>
                   <Route path="/dashboard" component={Dashboard} />
                   <Route path="/leads" component={Leads} />
-                  <Route path="/deals" component={Deals} />
-                  <Route path="/deals/:id" component={DealDetail} />
+                  <Route path="/properties" component={Deals} />
+                  <Route path="/properties/:id" component={DealDetail} />
                   <Route path="/communication" component={Communication} />
                   <Route path="/analytics" component={Analytics} />
                   <Route path="/contracts" component={Contracts} />

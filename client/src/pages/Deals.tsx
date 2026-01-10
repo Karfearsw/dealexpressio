@@ -129,7 +129,7 @@ const Deals: React.FC<DealsProps> = () => {
                 {deals.map((deal) => (
                     <Link 
                         key={deal.id} 
-                        href={`/deals/${deal.id}`}
+                        href={`/properties/${deal.id}`}
                         className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-teal-500/30 transition-all block"
                     >
                         <div className="h-48 bg-slate-800 relative">
@@ -148,26 +148,7 @@ const Deals: React.FC<DealsProps> = () => {
                                     {deal.city}, {deal.state} {deal.zip}
                                 </div>
 
-                                <div className="flex items-center space-x-4 text-sm text-slate-400 mb-4 border-b border-slate-800 pb-4">
-                                    <div className="flex items-center">
-                                        <span className="font-bold text-slate-200 mr-1">{deal.beds || '-'}</span> Beds
-                                    </div>
-                                    <div className="flex items-center">
-                                        <span className="font-bold text-slate-200 mr-1">{deal.baths || '-'}</span> Baths
-                                    </div>
-                                    <div className="flex items-center">
-                                        <span className="font-bold text-slate-200 mr-1">{deal.sqft?.toLocaleString() || '-'}</span> Sqft
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <div className="text-xs text-slate-500 mb-1">Purchase Price</div>
-                                        <div className="text-sm font-bold text-slate-200 flex items-center">
-                                            <DollarSign size={12} className="mr-0.5 text-slate-500" />
-                                            {parseFloat(deal.purchasePrice || '0').toLocaleString()}
-                                        </div>
-                                    </div>
+                                <div className="grid grid-cols-2 gap-4 border-t border-slate-800 pt-4">
                                     <div>
                                         <div className="text-xs text-slate-500 mb-1">ARV</div>
                                         <div className="text-sm font-bold text-slate-200 flex items-center">
@@ -176,16 +157,11 @@ const Deals: React.FC<DealsProps> = () => {
                                         </div>
                                     </div>
                                     <div>
-                                        <div className="text-xs text-slate-500 mb-1">Est. Repairs</div>
-                                        <div className="text-sm font-bold text-slate-200 flex items-center">
-                                            <DollarSign size={12} className="mr-0.5 text-slate-500" />
-                                            {parseFloat(deal.repairCost || '0').toLocaleString()}
+                                        <div className="text-xs text-slate-500 mb-1">Spread</div>
+                                        <div className="text-sm font-bold text-green-400 flex items-center">
+                                            <DollarSign size={12} className="mr-0.5" />
+                                            {parseFloat(deal.projectedSpread || '0').toLocaleString()}
                                         </div>
-                                    </div>
-                                    <div className="col-span-2 mt-2">
-                                        <span className="block w-full text-center py-2 bg-slate-800 hover:bg-slate-700 rounded text-sm text-teal-400 font-medium transition-colors">
-                                            View Details
-                                        </span>
                                     </div>
                                 </div>
                         </div>

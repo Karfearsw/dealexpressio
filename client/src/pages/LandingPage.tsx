@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowRight, Users, Search, Calculator, Database, CheckCircle2, FileText, MessageSquare } from 'lucide-react';
+import { ArrowRight, Users, Search, Calculator, Database, CheckCircle2 } from 'lucide-react';
 import PublicLayout from '@/components/layout/PublicLayout';
 const LandingPage = () => {
     const { scrollY } = useScroll();
@@ -264,76 +264,6 @@ const LandingPage = () => {
                                     <p className="text-slate-400 text-sm leading-relaxed">{feature.description}</p>
                                 </motion.div>
                             ))}
-                        </div>
-                    </div>
-                </section>
-
-                {/* Coming Soon Features */}
-                <section className="py-24 px-4 bg-slate-900 border-y border-slate-800">
-                    <div className="max-w-7xl mx-auto">
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            className="text-center mb-16 space-y-4"
-                        >
-                            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-wider mb-2">
-                                <span>Coming Soon</span>
-                            </div>
-                            <h2 className="text-4xl font-bold tracking-tight text-white">The Future of Deal Express</h2>
-                            <p className="text-slate-400 max-w-xl mx-auto">We're constantly building. Here's what's dropping in the next update.</p>
-                        </motion.div>
-
-                        <div className="grid md:grid-cols-2 gap-8">
-                            {/* Contracts Feature */}
-                            <motion.div
-                                initial={{ opacity: 0, x: -20 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
-                                className="relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-950 p-8 md:p-12 group"
-                            >
-                                <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-                                    <FileText size={200} />
-                                </div>
-                                <div className="relative z-10 space-y-6">
-                                    <div className="w-16 h-16 rounded-2xl bg-blue-500/20 flex items-center justify-center text-blue-400">
-                                        <FileText size={32} />
-                                    </div>
-                                    <h3 className="text-3xl font-bold text-white">Smart Contracts</h3>
-                                    <p className="text-slate-400 text-lg leading-relaxed">
-                                        Auto-generate assignment contracts, purchase agreements, and addendums populated with your deal data. E-sign directly within the platform.
-                                    </p>
-                                    <div className="flex items-center space-x-2 text-sm text-blue-400 font-bold uppercase tracking-wider">
-                                        <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
-                                        <span>In Development</span>
-                                    </div>
-                                </div>
-                            </motion.div>
-
-                            {/* Communication Feature */}
-                            <motion.div
-                                initial={{ opacity: 0, x: 20 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
-                                className="relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-950 p-8 md:p-12 group"
-                            >
-                                <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-                                    <MessageSquare size={200} />
-                                </div>
-                                <div className="relative z-10 space-y-6">
-                                    <div className="w-16 h-16 rounded-2xl bg-teal-500/20 flex items-center justify-center text-teal-400">
-                                        <MessageSquare size={32} />
-                                    </div>
-                                    <h3 className="text-3xl font-bold text-white">Unified Comms</h3>
-                                    <p className="text-slate-400 text-lg leading-relaxed">
-                                        Built-in dialer, SMS marketing, and voicemail drops. Keep all your seller conversations in one timeline attached to the lead.
-                                    </p>
-                                    <div className="flex items-center space-x-2 text-sm text-teal-400 font-bold uppercase tracking-wider">
-                                        <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
-                                        <span>In Development</span>
-                                    </div>
-                                </div>
-                            </motion.div>
                         </div>
                     </div>
                 </section>

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
 import { Upload, Download, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 
 interface ImportResult {
@@ -14,7 +13,6 @@ interface ImportResult {
 }
 
 const ImportExport: React.FC = () => {
-  const { user } = useAuth();
   const [file, setFile] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -63,7 +61,7 @@ const ImportExport: React.FC = () => {
           body: JSON.stringify({
             file: fileData,
             format: importFormat,
-            userId: user?.id,
+            userId: localStorage.getItem('userId'), // Adjust based on your auth implementation
           }),
         });
 
@@ -102,8 +100,10 @@ const ImportExport: React.FC = () => {
     setError(null);
 
     try {
+      const userId = localStorage.getItem('userId'); // Adjust based on your auth implementation
+      
       const response = await fetch(
-        `/api/import-export/export?format=${exportFormat}&userId=${user?.id}`,
+        `/api/import-export/export?format=${exportFormat}&userId=${userId}`,
         {
           method: 'GET',
         }

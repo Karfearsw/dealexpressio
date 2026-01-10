@@ -23,3 +23,6 @@ I will implement the DealExpress payment integration with Poof.io as requested.
 
 ### **Environment Variables**:
 You provided `POOF_API_KEY=_G8J-YAVKjw3wQrnnlCDsA`. I will ensure the code is set up to use this key from the environment. I recommend adding this to your `.env` file locally and in your Vercel project settings.
+
+
+
