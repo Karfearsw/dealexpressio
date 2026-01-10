@@ -8,6 +8,7 @@ import csv from 'csv-parser';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { logEvent, AuditAction } from '../utils/auditLog';
 
 const router = Router();
 const upload = multer({ dest: path.join(os.tmpdir(), 'uploads/') });
@@ -124,6 +125,13 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
             assignedTo: req.session.userId,
         }).returning();
 
+        await logEvent({
+            userId: req.session.userId,
+            action: AuditAction.LEAD_CREATE,
+            resource: `leads:${newLead.id}`,
+            req
+        });
+
         res.status(201).json(newLead);
     } catch (error: any) {
         console.error('Error creating lead:', error);
@@ -156,6 +164,13 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
             return res.status(404).json({ message: 'Lead not found' });
         }
 
+        await logEvent({
+            userId: req.session.userId,
+            action: AuditAction.LEAD_UPDATE,
+            resource: `leads:${updatedLead.id}`,
+            req
+        });
+
         res.json(updatedLead);
     } catch (error) {
         console.error('Error updating lead:', error);
@@ -167,6 +182,14 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
 router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
     try {
         await db.delete(leads).where(eq(leads.id, parseInt(req.params.id)));
+
+        await logEvent({
+            userId: req.session.userId,
+            action: AuditAction.LEAD_DELETE,
+            resource: `leads:${req.params.id}`,
+            req
+        });
+
         res.json({ message: 'Lead deleted' });
     } catch (error) {
         console.error('Error deleting lead:', error);

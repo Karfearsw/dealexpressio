@@ -17,6 +17,7 @@ export const users = pgTable('users', {
     failedLoginAttempts: integer('failed_login_attempts').default(0),
     lockUntil: timestamp('lock_until'),
     tokenVersion: integer('token_version').default(0).notNull(),
+    lastLogin: timestamp('last_login'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
@@ -224,6 +225,21 @@ export const refreshTokens = pgTable('refresh_tokens', {
     token: text('token').notNull(),
     expiresAt: timestamp('expires_at').notNull(),
     revoked: boolean('revoked').default(false).notNull(),
+    userAgent: text('user_agent'),
+    ipAddress: text('ip_address'),
+    lastUsedAt: timestamp('last_used_at').defaultNow(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const auditLogs = pgTable('audit_logs', {
+    id: serial('id').primaryKey(),
+    userId: integer('user_id').references(() => users.id),
+    action: text('action').notNull(), // e.g., 'auth.login', 'lead.delete'
+    resource: text('resource'), // e.g., 'leads', 'deals:123'
+    status: text('status').default('success'), // success, failure
+    details: jsonb('details'),
+    ipAddress: text('ip_address'),
+    userAgent: text('user_agent'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
@@ -238,6 +254,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
     }),
     payments: many(payments),
     refreshTokens: many(refreshTokens),
+    auditLogs: many(auditLogs),
 }));
 
 export const subscriptionsRelations = relations(subscriptions, ({ one, many }) => ({
@@ -262,6 +279,13 @@ export const paymentsRelations = relations(payments, ({ one }) => ({
 export const refreshTokensRelations = relations(refreshTokens, ({ one }) => ({
     user: one(users, {
         fields: [refreshTokens.userId],
+        references: [users.id],
+    }),
+}));
+
+export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
+    user: one(users, {
+        fields: [auditLogs.userId],
         references: [users.id],
     }),
 }));
@@ -303,3 +327,6 @@ export type Lead = InferSelectModel<typeof leads>;
 export type NewLead = InferInsertModel<typeof leads>;
 export type Property = InferSelectModel<typeof properties>;
 export type NewProperty = InferInsertModel<typeof properties>;
+export type User = InferSelectModel<typeof users>;
+export type RefreshToken = InferSelectModel<typeof refreshTokens>;
+export type AuditLog = InferSelectModel<typeof auditLogs>;

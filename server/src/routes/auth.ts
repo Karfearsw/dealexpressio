@@ -8,13 +8,14 @@ import speakeasy from 'speakeasy';
 import QRCode from 'qrcode';
 import rateLimit from 'express-rate-limit';
 import { isEmailValid, isPasswordValid, isNameValid, sanitize } from '../utils/validation';
+import { logEvent, AuditAction } from '../utils/auditLog';
 
 const router = Router();
 
 const registerLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 50 });
 const loginLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 100 });
 
-async function createRefreshToken(userId: number, payload: TokenPayload) {
+async function createRefreshToken(userId: number, payload: TokenPayload, req?: Request) {
     const token = generateRefreshToken(payload);
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
@@ -22,6 +23,8 @@ async function createRefreshToken(userId: number, payload: TokenPayload) {
         userId,
         token,
         expiresAt,
+        userAgent: req?.headers['user-agent'] || null,
+        ipAddress: req?.ip || req?.headers['x-forwarded-for']?.toString() || null,
     });
 
     return token;
@@ -78,12 +81,26 @@ router.post('/register', registerLimiter, async (req: Request, res: Response) =>
         };
 
         const accessToken = generateAccessToken(payload);
-        const refreshToken = await createRefreshToken(newUser.id, payload);
+        const refreshToken = await createRefreshToken(newUser.id, payload, req);
 
         setAuthCookies(res, accessToken, refreshToken);
 
+        await logEvent({
+            userId: newUser.id,
+            action: AuditAction.LOGIN_SUCCESS,
+            status: 'success',
+            details: { method: 'register', email: newUser.email },
+            req
+        });
+
         res.status(201).json({ user: { id: newUser.id, email: newUser.email, role: newUser.role, subscriptionTier: newUser.subscriptionTier } });
     } catch (error: any) {
+        await logEvent({
+            action: AuditAction.LOGIN_FAILURE,
+            status: 'failure',
+            details: { method: 'register', error: error.message },
+            req
+        });
         console.error('Register error:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
@@ -136,9 +153,19 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
         };
 
         const accessToken = generateAccessToken(payload);
-        const refreshToken = await createRefreshToken(user.id, payload);
+        const refreshToken = await createRefreshToken(user.id, payload, req);
 
         setAuthCookies(res, accessToken, refreshToken);
+
+        await db.update(users).set({ lastLogin: new Date() }).where(eq(users.id, user.id));
+
+        await logEvent({
+            userId: user.id,
+            action: AuditAction.LOGIN_SUCCESS,
+            status: 'success',
+            details: { mfaRequired: user.twoFactorEnabled },
+            req
+        });
 
         res.json({
             user: { id: user.id, email: user.email, role: user.role, twoFactorEnabled: user.twoFactorEnabled, subscriptionTier: user.subscriptionTier },
@@ -160,6 +187,11 @@ router.post('/logout', async (req: Request, res: Response) => {
     }
 
     clearAuthCookies(res);
+    await logEvent({
+        userId: req.session.userId,
+        action: AuditAction.LOGOUT,
+        req
+    });
     req.session.destroy(() => {
         res.json({ message: 'Logged out successfully' });
     });
@@ -208,8 +240,15 @@ router.post('/2fa/verify', async (req: Request, res: Response) => {
             tokenVersion: user.tokenVersion || 0
         };
         const accessToken = generateAccessToken(payload);
-        const refreshTokenToken = await createRefreshToken(user.id, payload);
+        const refreshTokenToken = await createRefreshToken(user.id, payload, req);
         setAuthCookies(res, accessToken, refreshTokenToken);
+
+        await logEvent({
+            userId: user.id,
+            action: AuditAction.MFA_VERIFY,
+            status: 'success',
+            req
+        });
 
         req.session.is2FAVerified = true;
         res.json({ message: '2FA verified' });
@@ -266,8 +305,15 @@ router.post('/change-password', async (req: Request, res: Response) => {
             tokenVersion: newTokenVersion
         };
         const accessToken = generateAccessToken(payload);
-        const refreshTokenToken = await createRefreshToken(user.id, payload);
+        const refreshTokenToken = await createRefreshToken(user.id, payload, req);
         setAuthCookies(res, accessToken, refreshTokenToken);
+
+        await logEvent({
+            userId: user.id,
+            action: AuditAction.PASSWORD_CHANGE,
+            status: 'success',
+            req
+        });
 
         res.json({ message: 'Password updated successfully' });
     } catch (error) {

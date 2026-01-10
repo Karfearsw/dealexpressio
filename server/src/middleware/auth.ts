@@ -59,7 +59,16 @@ export const requireAuth: any = async (req: Request, res: Response, next: NextFu
         };
         const newAccessToken = generateAccessToken(freshPayload);
 
-        // 6. Set Cookies & Proceed
+        // 6. Update Token Metadata
+        await db.update(refreshTokens)
+            .set({
+                lastUsedAt: new Date(),
+                userAgent: req.headers['user-agent'] || null,
+                ipAddress: req.ip || req.headers['x-forwarded-for']?.toString() || null
+            })
+            .where(eq(refreshTokens.id, tokenRow.id));
+
+        // 7. Set Cookies & Proceed
         setAuthCookies(res, newAccessToken, refreshToken);
         populateSession(req, freshPayload);
         next();

@@ -3,6 +3,7 @@ import { db } from '../db';
 import { deals, leads } from '../db/schema';
 import { eq, desc, and } from 'drizzle-orm';
 import { requireAuth } from '../middleware/auth';
+import { logEvent, AuditAction } from '../utils/auditLog';
 
 const router = Router();
 
@@ -67,6 +68,13 @@ router.post('/', requireAuth, async (req, res) => {
             repairs: repairs ? repairs.toString() : null,
             status: status || 'analyzing'
         }).returning();
+
+        await logEvent({
+            userId: req.session.userId,
+            action: AuditAction.DEAL_CREATE,
+            resource: `deals:${newDeal.id}`,
+            req
+        });
 
         res.json(newDeal);
     } catch (error) {
@@ -154,6 +162,13 @@ router.put('/:id', requireAuth, async (req, res) => {
             .returning();
 
         if (!updated) return res.status(404).json({ message: 'Deal not found' });
+
+        await logEvent({
+            userId: req.session.userId,
+            action: AuditAction.DEAL_UPDATE,
+            resource: `deals:${updated.id}`,
+            req
+        });
 
         res.json(updated);
     } catch (error) {
