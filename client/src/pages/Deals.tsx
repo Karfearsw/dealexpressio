@@ -21,7 +21,8 @@ const Deals: React.FC<DealsProps> = () => {
         state: '',
         zip: '',
         arv: '',
-        repairCost: '',
+        repairs: '',
+        purchasePrice: '',
         status: 'Analyzing'
     });
 
@@ -32,7 +33,7 @@ const Deals: React.FC<DealsProps> = () => {
 
     const fetchDeals = async () => {
         try {
-            const res = await axios.get('/deals');
+            const res = await axios.get('/api/deals');
             setDeals(res.data);
         } catch (error) {
             console.error('Error fetching deals:', error);
@@ -43,7 +44,7 @@ const Deals: React.FC<DealsProps> = () => {
 
     const handleExport = async () => {
         try {
-            const response = await axios.get('/deals/export', { responseType: 'blob' });
+            const response = await axios.get('/api/deals/export', { responseType: 'blob' });
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
@@ -58,7 +59,7 @@ const Deals: React.FC<DealsProps> = () => {
 
     const fetchLeads = async () => {
         try {
-            const res = await axios.get('/leads');
+            const res = await axios.get('/api/leads');
             setLeads(res.data);
         } catch (error) {
             console.error('Error fetching leads for deal creation:', error);
@@ -68,7 +69,7 @@ const Deals: React.FC<DealsProps> = () => {
     const handleCreateDeal = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const res = await axios.post('/deals', {
+            const res = await axios.post('/api/deals', {
                 ...newDeal,
                 leadId: parseInt(newDeal.leadId)
             });
@@ -81,7 +82,8 @@ const Deals: React.FC<DealsProps> = () => {
                 state: '',
                 zip: '',
                 arv: '',
-                repairCost: '',
+                repairs: '',
+                purchasePrice: '',
                 status: 'Analyzing'
             });
         } catch (error) {
@@ -115,7 +117,7 @@ const Deals: React.FC<DealsProps> = () => {
                             <Download size={20} />
                         </button>
                     </div>
-                    <button 
+                    <button
                         onClick={() => setShowModal(true)}
                         className="bg-teal-600 hover:bg-teal-500 text-white px-4 py-2 rounded-lg flex items-center font-medium transition-colors"
                     >
@@ -127,43 +129,43 @@ const Deals: React.FC<DealsProps> = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {deals.map((deal) => (
-                    <Link 
-                        key={deal.id} 
+                    <Link
+                        key={deal.id}
                         href={`/properties/${deal.id}`}
                         className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-teal-500/30 transition-all block"
                     >
                         <div className="h-48 bg-slate-800 relative">
-                                {/* Placeholder for photo */}
-                                <div className="absolute inset-0 flex items-center justify-center text-slate-600">
-                                    <Home size={48} />
+                            {/* Placeholder for photo */}
+                            <div className="absolute inset-0 flex items-center justify-center text-slate-600">
+                                <Home size={48} />
+                            </div>
+                            <div className="absolute top-2 right-2 bg-slate-950/80 px-2 py-1 rounded text-xs font-bold text-teal-400">
+                                {deal.status || 'Analyzing'}
+                            </div>
+                        </div>
+                        <div className="p-5">
+                            <h3 className="text-lg font-bold text-slate-100 mb-1 truncate">{deal.address}</h3>
+                            <div className="flex items-center text-slate-400 text-sm mb-4">
+                                <MapPin size={14} className="mr-1" />
+                                {deal.city}, {deal.state} {deal.zip}
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4 border-t border-slate-800 pt-4">
+                                <div>
+                                    <div className="text-xs text-slate-500 mb-1">ARV</div>
+                                    <div className="text-sm font-bold text-slate-200 flex items-center">
+                                        <DollarSign size={12} className="mr-0.5 text-teal-500" />
+                                        {deal.arv ? parseFloat(deal.arv.toString()).toLocaleString() : '0'}
+                                    </div>
                                 </div>
-                                <div className="absolute top-2 right-2 bg-slate-950/80 px-2 py-1 rounded text-xs font-bold text-teal-400">
-                                    {deal.status || 'Analyzing'}
+                                <div>
+                                    <div className="text-xs text-slate-500 mb-1">Price</div>
+                                    <div className="text-sm font-bold text-green-400 flex items-center">
+                                        <DollarSign size={12} className="mr-0.5" />
+                                        {deal.purchasePrice ? parseFloat(deal.purchasePrice.toString()).toLocaleString() : '0'}
+                                    </div>
                                 </div>
                             </div>
-                            <div className="p-5">
-                                <h3 className="text-lg font-bold text-slate-100 mb-1 truncate">{deal.address}</h3>
-                                <div className="flex items-center text-slate-400 text-sm mb-4">
-                                    <MapPin size={14} className="mr-1" />
-                                    {deal.city}, {deal.state} {deal.zip}
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-4 border-t border-slate-800 pt-4">
-                                    <div>
-                                        <div className="text-xs text-slate-500 mb-1">ARV</div>
-                                        <div className="text-sm font-bold text-slate-200 flex items-center">
-                                            <DollarSign size={12} className="mr-0.5 text-teal-500" />
-                                            {parseFloat(deal.arv || '0').toLocaleString()}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div className="text-xs text-slate-500 mb-1">Spread</div>
-                                        <div className="text-sm font-bold text-green-400 flex items-center">
-                                            <DollarSign size={12} className="mr-0.5" />
-                                            {parseFloat(deal.projectedSpread || '0').toLocaleString()}
-                                        </div>
-                                    </div>
-                                </div>
                         </div>
                     </Link>
                 ))}
@@ -204,7 +206,7 @@ const Deals: React.FC<DealsProps> = () => {
                                     ))}
                                 </select>
                             </div>
-                            
+
                             <div>
                                 <label className="block text-sm font-medium text-slate-400 mb-1">Address</label>
                                 <input
@@ -249,7 +251,7 @@ const Deals: React.FC<DealsProps> = () => {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-3 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-slate-400 mb-1">Est. ARV</label>
                                     <input
@@ -257,15 +259,27 @@ const Deals: React.FC<DealsProps> = () => {
                                         value={newDeal.arv}
                                         onChange={e => setNewDeal({ ...newDeal, arv: e.target.value })}
                                         className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none"
+                                        placeholder="0.00"
                                     />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-slate-400 mb-1">Est. Repairs</label>
                                     <input
                                         type="number"
-                                        value={newDeal.repairCost}
-                                        onChange={e => setNewDeal({ ...newDeal, repairCost: e.target.value })}
+                                        value={newDeal.repairs}
+                                        onChange={e => setNewDeal({ ...newDeal, repairs: e.target.value })}
                                         className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none"
+                                        placeholder="0.00"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-400 mb-1">Purchase Price</label>
+                                    <input
+                                        type="number"
+                                        value={newDeal.purchasePrice}
+                                        onChange={e => setNewDeal({ ...newDeal, purchasePrice: e.target.value })}
+                                        className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none"
+                                        placeholder="0.00"
                                     />
                                 </div>
                             </div>

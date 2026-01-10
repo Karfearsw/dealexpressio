@@ -1,5 +1,5 @@
 import { db } from '../db';
-import { leads, properties, calls } from '../db/schema';
+import { leads, deals, calls } from '../db/schema';
 import { sql, eq, and, gte, lte } from 'drizzle-orm';
 
 export class AnalyticsService {
@@ -8,15 +8,17 @@ export class AnalyticsService {
         // Total Leads
         const [leadsResult] = await db.select({ count: sql<number>`cast(count(*) as int)` }).from(leads);
 
-        // Active Deals (Status = 'Open Deal' or similar)
+        // Active Deals (Status = 'under_contract')
         const [activeDealsResult] = await db
             .select({ count: sql<number>`cast(count(*) as int)` })
-            .from(properties)
-            .where(sql`${properties.status} = 'Open Deal'`);
+            .from(deals)
+            .where(eq(deals.status, 'under_contract'));
 
-        // Contracts Out (Status = 'Negotiation' or similar) -- Adjust status as per actual usage
-        // For now, let's assume 'Negotiation' maps to contracts out or just use a placeholder status query
-        // If status isn't strictly defined, we can rely on active deals logic
+        // Contracts Out (Status = 'negotiation')
+        const [contractsOutResult] = await db
+            .select({ count: sql<number>`cast(count(*) as int)` })
+            .from(deals)
+            .where(eq(deals.status, 'negotiation'));
 
         // Calls Made
         const [callsResult] = await db.select({ count: sql<number>`cast(count(*) as int)` }).from(calls);
@@ -24,11 +26,11 @@ export class AnalyticsService {
         // Revenue & Closed Deals
         const [revenueResult] = await db
             .select({
-                total: sql<number>`cast(sum(${properties.assignmentFee}) as float)`,
+                total: sql<number>`cast(sum(${deals.assignmentFee}) as float)`,
                 count: sql<number>`cast(count(*) as int)`
             })
-            .from(properties)
-            .where(sql`${properties.status} = 'Closed Deal'`);
+            .from(deals)
+            .where(eq(deals.status, 'closed'));
 
         const totalLeads = leadsResult?.count || 0;
         const totalRevenue = revenueResult?.total || 0;
@@ -39,7 +41,7 @@ export class AnalyticsService {
         return {
             totalLeads,
             activeDeals: activeDealsResult?.count || 0,
-            contractsOut: 0, // Placeholder if no specific status
+            contractsOut: contractsOutResult?.count || 0,
             revenue: totalRevenue,
             callsMade: callsResult?.count || 0,
             dealsClosed,
@@ -73,16 +75,13 @@ export class AnalyticsService {
     }
 
     static async getMonthlyPerformance() {
-        // Group properties closed by month for the current year
-        // Postgres date_trunc('month', created_at)
-
         const result = await db.execute(sql`
             SELECT
                 TO_CHAR(created_at, 'Mon') as name,
                 SUM(assignment_fee) as revenue,
                 COUNT(*) as deals
-            FROM properties
-            WHERE status = 'Closed Deal'
+            FROM deals
+            WHERE status = 'closed'
             AND created_at >= DATE_TRUNC('year', CURRENT_DATE)
             GROUP BY TO_CHAR(created_at, 'Mon'), DATE_TRUNC('month', created_at)
             ORDER BY DATE_TRUNC('month', created_at)

@@ -51,46 +51,46 @@ const AppRoutes = () => {
               <ErrorBoundary>
                 <Switch>
                   <Route path="/dashboard">
-                    <ProtectedRoute requiredFeature="dashboard">
+                    <ProtectedRoute>
                       <Dashboard />
                     </ProtectedRoute>
                   </Route>
                   <Route path="/leads">
-                    <ProtectedRoute requiredFeature="leads">
+                    <ProtectedRoute>
                       <Leads />
                     </ProtectedRoute>
                   </Route>
                   {/* Fixed Deals Route */}
                   <Route path="/deals">
-                    <ProtectedRoute requiredFeature="deals">
+                    <ProtectedRoute>
                       <Deals />
                     </ProtectedRoute>
                   </Route>
                   {/* Backward compatibility / Detail view */}
                   <Route path="/properties/:id">
-                    <ProtectedRoute requiredFeature="deals">
+                    <ProtectedRoute>
                       <DealDetail />
                     </ProtectedRoute>
                   </Route>
                   <Route path="/communication">
-                    <ProtectedRoute requiredFeature="communication">
+                    <ProtectedRoute requireCommunicationAccess={true}>
                       <Communication />
                     </ProtectedRoute>
                   </Route>
 
-                  {/* Pro/Enterprise Tier Routes with Upgrade Modal */}
+                  {/* Analytics, Contracts, Buyers List - Now Unlocked for Everyone */}
                   <Route path="/analytics">
-                    <ProtectedRoute requiredFeature="analytics">
+                    <ProtectedRoute>
                       <Analytics />
                     </ProtectedRoute>
                   </Route>
                   <Route path="/contracts">
-                    <ProtectedRoute requiredFeature="contracts">
+                    <ProtectedRoute>
                       <Contracts />
                     </ProtectedRoute>
                   </Route>
                   <Route path="/buyers">
-                    <ProtectedRoute requiredFeature="buyers-list">
+                    <ProtectedRoute>
                       <BuyersList />
                     </ProtectedRoute>
                   </Route>
@@ -98,7 +98,7 @@ const AppRoutes = () => {
                   <Route path="/devtools" component={DevTools} />
                   <Route path="/settings" component={Settings} />
                   <Route path="/calculator">
-                    <ProtectedRoute requiredFeature="deal-calculator">
+                    <ProtectedRoute>
                       <DealCalculator />
                     </ProtectedRoute>
                   </Route>
@@ -106,15 +106,15 @@ const AppRoutes = () => {
                   {/* Fallback for unknown protected routes */}
                   <Route component={NotFound} />
                 </Switch>
-              </ErrorBoundary>
-            </AppShell>
-          </ProtectedRoute>
+              </ErrorBoundary >
+            </AppShell >
+          </ProtectedRoute >
         )}
-      </Route>
+      </Route >
 
       {/* Global 404 */}
-      <Route component={NotFound} />
-    </Switch>
+      < Route component={NotFound} />
+    </Switch >
   );
 };
 

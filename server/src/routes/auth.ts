@@ -1,19 +1,31 @@
 import { Router, Request, Response } from 'express';
 import { db } from '../db';
-import { users } from '../db/schema';
-import { eq } from 'drizzle-orm';
 import { hashPassword, comparePassword } from '../utils/auth';
+import { generateAccessToken, generateRefreshToken, setAuthCookies, clearAuthCookies, TokenPayload } from '../utils/jwt';
+import { refreshTokens, users } from '../db/schema';
+import { eq, and } from 'drizzle-orm';
 import speakeasy from 'speakeasy';
 import QRCode from 'qrcode';
 import rateLimit from 'express-rate-limit';
 import { isEmailValid, isPasswordValid, isNameValid, sanitize } from '../utils/validation';
-import { SubscriptionTier } from '../config/tiers';
 
 const router = Router();
 
-
 const registerLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 50 });
 const loginLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 100 });
+
+async function createRefreshToken(userId: number, payload: TokenPayload) {
+    const token = generateRefreshToken(payload);
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+
+    await db.insert(refreshTokens).values({
+        userId,
+        token,
+        expiresAt,
+    });
+
+    return token;
+}
 
 router.post('/register', registerLimiter, async (req: Request, res: Response) => {
     const { email, password, firstName, lastName, accessCode, subscriptionTier } = req.body;
@@ -32,7 +44,6 @@ router.post('/register', registerLimiter, async (req: Request, res: Response) =>
             return res.status(400).json({ message: 'First and last name are required' });
         }
 
-        // Pre-check for existing user to return a clean 409 instead of generic 500
         const [existing] = await db.select().from(users).where(eq(users.email, sEmail));
         if (existing) {
             return res.status(409).json({ message: 'User already exists' });
@@ -47,7 +58,8 @@ router.post('/register', registerLimiter, async (req: Request, res: Response) =>
             role: 'user',
             subscriptionStatus: 'active',
             subscriptionTier: subscriptionTier || 'basic',
-            twoFactorEnabled: false
+            twoFactorEnabled: false,
+            tokenVersion: 0
         }).onConflictDoNothing({ target: users.email }).returning();
 
         if (!inserted || inserted.length === 0) {
@@ -56,30 +68,22 @@ router.post('/register', registerLimiter, async (req: Request, res: Response) =>
 
         const newUser = inserted[0];
 
-        req.session.userId = newUser.id;
-        req.session.role = newUser.role;
-        req.session.subscriptionTier = newUser.subscriptionTier || 'basic';
-        req.session.is2FAVerified = false;
+        const payload: TokenPayload = {
+            userId: newUser.id,
+            email: newUser.email,
+            role: newUser.role,
+            subscriptionTier: newUser.subscriptionTier || 'basic',
+            is2FAVerified: false,
+            tokenVersion: 0
+        };
+
+        const accessToken = generateAccessToken(payload);
+        const refreshToken = await createRefreshToken(newUser.id, payload);
+
+        setAuthCookies(res, accessToken, refreshToken);
 
         res.status(201).json({ user: { id: newUser.id, email: newUser.email, role: newUser.role, subscriptionTier: newUser.subscriptionTier } });
     } catch (error: any) {
-        // Handle duplicate constraint gracefully across drivers
-        const msg = String(error?.message || '');
-        if (
-            error?.code === '23505' ||
-            msg.includes('duplicate key value') ||
-            msg.includes('violates unique constraint') ||
-            msg.includes('already exists')
-        ) {
-            return res.status(409).json({ message: 'User already exists' });
-        }
-        // As a fallback, check if user now exists and return 409
-        try {
-            const [exists] = await db.select().from(users).where(eq(users.email, sEmail));
-            if (exists) {
-                return res.status(409).json({ message: 'User already exists' });
-            }
-        } catch {}
         console.error('Register error:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
@@ -100,7 +104,7 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
         }
 
         if (user.lockUntil && new Date(user.lockUntil).getTime() > Date.now()) {
-            return res.status(429).json({ message: 'Account temporarily locked due to too many failed attempts. Try again later.' });
+            return res.status(429).json({ message: 'Account temporarily locked. Try again later.' });
         }
 
         const isValid = await comparePassword(password, user.passwordHash);
@@ -122,10 +126,19 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
                 .where(eq(users.id, user.id));
         }
 
-        req.session.userId = user.id;
-        req.session.role = user.role;
-        req.session.subscriptionTier = user.subscriptionTier || 'basic';
-        req.session.is2FAVerified = !user.twoFactorEnabled; // If 2FA not enabled, considered verified
+        const payload: TokenPayload = {
+            userId: user.id,
+            email: user.email,
+            role: user.role,
+            subscriptionTier: user.subscriptionTier || 'basic',
+            is2FAVerified: !user.twoFactorEnabled,
+            tokenVersion: user.tokenVersion || 0
+        };
+
+        const accessToken = generateAccessToken(payload);
+        const refreshToken = await createRefreshToken(user.id, payload);
+
+        setAuthCookies(res, accessToken, refreshToken);
 
         res.json({
             user: { id: user.id, email: user.email, role: user.role, twoFactorEnabled: user.twoFactorEnabled, subscriptionTier: user.subscriptionTier },
@@ -137,12 +150,17 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
     }
 });
 
-router.post('/logout', (req: Request, res: Response) => {
-    req.session.destroy((err) => {
-        if (err) {
-            return res.status(500).json({ message: 'Could not log out' });
-        }
-        res.clearCookie('connect.sid');
+router.post('/logout', async (req: Request, res: Response) => {
+    const refreshToken = req.cookies.refreshToken;
+    if (refreshToken) {
+        // Revoke the refresh token in DB
+        await db.update(refreshTokens)
+            .set({ revoked: true })
+            .where(eq(refreshTokens.token, refreshToken));
+    }
+
+    clearAuthCookies(res);
+    req.session.destroy(() => {
         res.json({ message: 'Logged out successfully' });
     });
 });
@@ -179,6 +197,20 @@ router.post('/2fa/verify', async (req: Request, res: Response) => {
         if (!user.twoFactorEnabled) {
             await db.update(users).set({ twoFactorEnabled: true }).where(eq(users.id, user.id));
         }
+
+        // Issue new tokens with verified status
+        const payload: TokenPayload = {
+            userId: user.id,
+            email: user.email,
+            role: user.role,
+            subscriptionTier: user.subscriptionTier || 'basic',
+            is2FAVerified: true,
+            tokenVersion: user.tokenVersion || 0
+        };
+        const accessToken = generateAccessToken(payload);
+        const refreshTokenToken = await createRefreshToken(user.id, payload);
+        setAuthCookies(res, accessToken, refreshTokenToken);
+
         req.session.is2FAVerified = true;
         res.json({ message: '2FA verified' });
     } else {
@@ -210,7 +242,32 @@ router.post('/change-password', async (req: Request, res: Response) => {
         }
 
         const newPasswordHash = await hashPassword(newPassword);
-        await db.update(users).set({ passwordHash: newPasswordHash }).where(eq(users.id, user.id));
+        const newTokenVersion = (user.tokenVersion || 0) + 1;
+
+        await db.update(users)
+            .set({
+                passwordHash: newPasswordHash,
+                tokenVersion: newTokenVersion
+            })
+            .where(eq(users.id, user.id));
+
+        // Revoke all existing refresh tokens for this user
+        await db.update(refreshTokens)
+            .set({ revoked: true })
+            .where(eq(refreshTokens.userId, user.id));
+
+        // Issue new tokens for the current session
+        const payload: TokenPayload = {
+            userId: user.id,
+            email: user.email,
+            role: user.role,
+            subscriptionTier: user.subscriptionTier || 'basic',
+            is2FAVerified: req.session.is2FAVerified || false,
+            tokenVersion: newTokenVersion
+        };
+        const accessToken = generateAccessToken(payload);
+        const refreshTokenToken = await createRefreshToken(user.id, payload);
+        setAuthCookies(res, accessToken, refreshTokenToken);
 
         res.json({ message: 'Password updated successfully' });
     } catch (error) {

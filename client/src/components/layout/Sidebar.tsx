@@ -30,15 +30,20 @@ const Sidebar = () => {
     const currentLevel = tierLevels[userTier] || 1;
 
     const navItems = [
-        { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, minTier: 'basic' },
-        { name: 'Leads', path: '/leads', icon: Users, minTier: 'basic' },
-        { name: 'Deals', path: '/deals', icon: Home, minTier: 'basic' },
-        { name: 'Communication', path: '/communication', icon: MessageSquare, minTier: 'pro' },
-        { name: 'Contracts', path: '/contracts', icon: FileText, minTier: 'basic' },
-        { name: 'Analytics', path: '/analytics', icon: BarChart, minTier: 'pro' },
-        { name: 'Buyers List', path: '/buyers', icon: Users, minTier: 'basic' },
-        { name: 'Deal Calculator', path: '/calculator', icon: Calculator, minTier: 'basic' },
-        { name: 'Settings', path: '/settings', icon: Settings, minTier: 'basic' },
+        { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+        { name: 'Leads', path: '/leads', icon: Users },
+        { name: 'Deals', path: '/deals', icon: Home },
+        {
+            name: 'Communication',
+            path: '/communication',
+            icon: MessageSquare,
+            locked: !['business@kevnbenestate.org', 'sk@dealexpress.io', 'enterprise_test@example.com'].includes(user?.email || '')
+        },
+        { name: 'Contracts', path: '/contracts', icon: FileText },
+        { name: 'Analytics', path: '/analytics', icon: BarChart },
+        { name: 'Buyers List', path: '/buyers', icon: Users },
+        { name: 'Deal Calculator', path: '/calculator', icon: Calculator },
+        { name: 'Settings', path: '/settings', icon: Settings },
     ];
 
     return (
@@ -61,16 +66,20 @@ const Sidebar = () => {
                     {!collapsed && <div className="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Core Tools</div>}
                     {navItems.map((item) => {
                         const isActive = location === item.path;
-                        const isLocked = currentLevel < tierLevels[item.minTier as SubscriptionTier];
-                        
+                        // const isLocked = false; // Everyone has access except specific locked items
+                        const isLocked = (item as any).locked;
+
                         return (
                             <Link
                                 key={item.path}
-                                href={isLocked ? '/pricing' : item.path}
+                                href={isLocked ? '/dashboard' : item.path} // Redirect locked to dashboard or stay (link disabled effectively)
+                                onClick={(e) => {
+                                    if (isLocked) e.preventDefault();
+                                }}
                                 className={cn(
                                     "flex items-center px-4 py-3 text-sm font-medium transition-colors hover:bg-slate-800/50 relative group",
                                     isActive ? "text-teal-400 border-r-2 border-teal-400 bg-slate-800/30" : "text-slate-400 hover:text-slate-100",
-                                    isLocked && "opacity-50 hover:opacity-100"
+                                    isLocked && "opacity-50 hover:opacity-100 cursor-not-allowed"
                                 )}
                             >
                                 <item.icon size={20} className={cn("shrink-0", collapsed ? "mx-auto" : "mr-3")} />

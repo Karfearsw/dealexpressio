@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { db } from '../db';
-import { leads, type Lead } from '../db/schema';
-import { eq, desc } from 'drizzle-orm';
+import { leads, deals, properties, type Lead } from '../db/schema';
+import { eq, desc, and } from 'drizzle-orm';
 import { requireAuth, requireSubscription } from '../middleware/auth';
 import multer from 'multer';
 import csv from 'csv-parser';
@@ -177,9 +177,9 @@ router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
 // Convert lead to deal
 router.post('/:id/convert-to-deal', async (req, res) => {
     try {
-        if (!req.user) return res.status(401).send('Unauthorized');
+        if (!req.session.userId) return res.status(401).send('Unauthorized');
         const { id } = req.params;
-        const userId = req.user.id;
+        const userId = req.session.userId;
 
         // Get lead data
         const [lead] = await db
@@ -207,6 +207,68 @@ router.post('/:id/convert-to-deal', async (req, res) => {
     } catch (error) {
         console.error('Error converting lead to deal:', error);
         res.status(500).json({ error: 'Failed to convert lead' });
+    }
+});
+
+// Update lead status and auto-convert if contract signed
+router.patch('/:id/status', requireAuth, async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+        const userId = req.session.userId;
+
+        if (!userId) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        // Update lead
+        const [updatedLead] = await db
+            .update(leads)
+            .set({
+                status,
+                contractSignedAt: status === 'contract_signed' ? new Date() : undefined,
+                updatedAt: new Date()
+            })
+            .where(and(eq(leads.id, parseInt(id)), eq(leads.assignedTo, userId)))
+            .returning();
+
+        if (!updatedLead) {
+            return res.status(404).json({ error: 'Lead not found' });
+        }
+
+        // If contract signed, automatically create deal
+        if (status === 'contract_signed' && !updatedLead.convertedToDealId) {
+
+            // Try to find property address
+            const [property] = await db.select().from(properties).where(eq(properties.leadId, parseInt(id)));
+
+            const [newDeal] = await db.insert(deals).values({
+                userId,
+                leadId: parseInt(id),
+                address: property?.address || 'TBD',
+                city: property?.city || null,
+                state: property?.state || null,
+                zip: property?.zip || null,
+                status: 'under_contract'
+            }).returning();
+
+            // Link lead to deal
+            await db
+                .update(leads)
+                .set({ convertedToDealId: newDeal.id, status: 'converted' })
+                .where(eq(leads.id, parseInt(id)));
+
+            return res.json({
+                lead: updatedLead,
+                deal: newDeal,
+                message: 'Lead converted to deal successfully'
+            });
+        }
+
+        res.json({ lead: updatedLead });
+    } catch (error) {
+        console.error('Error updating lead:', error);
+        res.status(500).json({ error: 'Failed to update lead' });
     }
 });
 

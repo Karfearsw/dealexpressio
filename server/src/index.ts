@@ -4,10 +4,13 @@ import connectPgSimple from 'connect-pg-simple';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
+import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth';
 import leadsRoutes from './routes/leads';
 import propertiesRoutes from './routes/properties';
+import dealsRoutes from './routes/deals';
 import communicationRoutes from './routes/communication';
 import contractsRoutes from './routes/contracts';
 import analyticsRoutes from './routes/analytics';
@@ -30,15 +33,44 @@ app.set('trust proxy', 1);
 
 const PgSession = connectPgSimple(session);
 
+// Rate Limiting
+const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 1000, // Limit each IP to 1000 requests per window
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: 'Too many requests from this IP, please try again after 15 minutes'
+});
+
 app.use(helmet({
-    contentSecurityPolicy: false, // Disable CSP for development ease, enable and configure in production
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            imgSrc: ["'self'", "data:", "https:"],
+            connectSrc: ["'self'", "https://*.vercel.app", "https://*.poof.io", "https://api.stripe.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            objectSrc: ["'none'"],
+            mediaSrc: ["'self'"],
+            frameSrc: ["'self'", "https://checkout.stripe.com"]
+        }
+    },
+    crossOriginEmbedderPolicy: false,
+    hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true
+    }
 }));
+
 app.use(morgan('dev'));
+app.use('/api/', apiLimiter);
 app.use(cors({
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
         // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
-        
+
         // Allow localhost and Vercel deployments
         const allowedOrigins = [
             'http://localhost:5173',
@@ -47,7 +79,7 @@ app.use(cors({
             'https://dealexpress.io',
             process.env.VITE_API_URL // Your production URL if set
         ];
-        
+
         // Also allow any Vercel preview URLs
         if (origin.endsWith('.vercel.app') || allowedOrigins.includes(origin)) {
             callback(null, true);
@@ -59,6 +91,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Serve static files from the React app in production
 if (process.env.NODE_ENV === 'production' || process.env.SERVE_CLIENT === 'true') {
@@ -85,7 +118,8 @@ app.use(session(sessionOptions));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/leads', leadsRoutes);
-app.use('/api/deals', propertiesRoutes);
+app.use('/api/deals', dealsRoutes);
+app.use('/api/properties', propertiesRoutes);
 app.use('/api/communication', communicationRoutes);
 app.use('/api/contracts', contractsRoutes);
 app.use('/api/analytics', analyticsRoutes);

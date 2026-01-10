@@ -16,6 +16,7 @@ export const users = pgTable('users', {
     subscriptionTier: text('subscription_tier'),
     failedLoginAttempts: integer('failed_login_attempts').default(0),
     lockUntil: timestamp('lock_until'),
+    tokenVersion: integer('token_version').default(0).notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
@@ -73,11 +74,57 @@ export const leads = pgTable('leads', {
     lastName: text('last_name').notNull(),
     email: text('email'),
     phone: text('phone'),
-    status: text('status').default('New Lead').notNull(),
+    status: text('status').default('new').notNull(), // new, contacted, qualified, contract_signed, converted
     source: text('source'),
     assignedTo: integer('assigned_to').references(() => users.id),
+    contractSignedAt: timestamp('contract_signed_at'),
+    convertedToDealId: integer('converted_to_deal_id'), // To be referenced after deals defined or use lazy
     createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow(),
 });
+
+export const deals = pgTable('deals', {
+    id: serial('id').primaryKey(),
+    userId: integer('user_id').notNull().references(() => users.id),
+    leadId: integer('lead_id').references(() => leads.id),
+    address: text('address').notNull(),
+    city: text('city'),
+    state: text('state'),
+    zip: text('zip'),
+
+    // Financial data
+    purchasePrice: decimal('purchase_price', { precision: 12, scale: 2 }),
+    arv: decimal('arv', { precision: 12, scale: 2 }),
+    repairs: decimal('repairs', { precision: 12, scale: 2 }),
+    assignmentFee: decimal('assignment_fee', { precision: 12, scale: 2 }),
+    projectedProfit: decimal('projected_profit', { precision: 12, scale: 2 }),
+
+    // Property details
+    bedrooms: integer('bedrooms'),
+    bathrooms: integer('bathrooms'),
+    squareFeet: integer('square_feet'),
+
+    // Deal status
+    status: text('status').default('analyzing'), // analyzing, negotiation, under_contract, closed, dead
+
+    closedAt: timestamp('closed_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Add foreign key constraint for leads.convertedToDealId separately or use string reference if lazy evaluation matches
+// in Drizzle cyclic ref can be tricky.
+// Better to use relations for valid ORM usage, but for schema definition:
+// Drizzle supports lazy refs: references(() => deals.id)
+// But defined order matters for variables.
+// I will keep leads definition as is above but I need to handle the cyclic ref if I use `leads` before `deals`.
+// `convertedToDealId` tries to ref `deals.id`.
+// I will resolve this by defining `deals` first? No `deals` refs `leads`.
+// Drizzle recommends: `convertedToDealId: integer('converted_to_deal_id').references(() => deals.id)` works if `deals` is defined later? 
+// No, const `deals` must exist.
+// Typescript hoisting doesn't work for const.
+// I can remove the `.references` from one side in the DDL definition in TS and rely on DB foreign key or `relations`.
+// Or let's see current content.
 
 export const properties = pgTable('properties', {
     id: serial('id').primaryKey(),
@@ -171,6 +218,15 @@ export const contactSubmissions = pgTable('contact_submissions', {
     createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+export const refreshTokens = pgTable('refresh_tokens', {
+    id: serial('id').primaryKey(),
+    userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+    token: text('token').notNull(),
+    expiresAt: timestamp('expires_at').notNull(),
+    revoked: boolean('revoked').default(false).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
     leads: many(leads),
@@ -181,6 +237,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
         references: [subscriptions.userId],
     }),
     payments: many(payments),
+    refreshTokens: many(refreshTokens),
 }));
 
 export const subscriptionsRelations = relations(subscriptions, ({ one, many }) => ({
@@ -202,15 +259,37 @@ export const paymentsRelations = relations(payments, ({ one }) => ({
     }),
 }));
 
+export const refreshTokensRelations = relations(refreshTokens, ({ one }) => ({
+    user: one(users, {
+        fields: [refreshTokens.userId],
+        references: [users.id],
+    }),
+}));
+
 export const leadsRelations = relations(leads, ({ one, many }) => ({
     assignedUser: one(users, {
         fields: [leads.assignedTo],
         references: [users.id],
     }),
+    convertedDeal: one(deals, {
+        fields: [leads.convertedToDealId],
+        references: [deals.id],
+    }),
     properties: many(properties),
     calls: many(calls),
     smsMessages: many(smsMessages),
     voicemails: many(voicemails),
+}));
+
+export const dealsRelations = relations(deals, ({ one }) => ({
+    user: one(users, {
+        fields: [deals.userId],
+        references: [users.id],
+    }),
+    lead: one(leads, {
+        fields: [deals.leadId],
+        references: [leads.id],
+    }),
 }));
 
 export const timesheetsRelations = relations(timesheets, ({ one }) => ({
