@@ -23,7 +23,7 @@ if (process.env.DB_DRIVER === 'neon_http') {
 } else {
     pool = new Pool({
         connectionString: process.env.DATABASE_URL,
-        ssl: { rejectUnauthorized: false }
+        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
     });
     db = drizzlePg(pool, { schema });
 }
