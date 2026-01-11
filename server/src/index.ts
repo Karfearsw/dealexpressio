@@ -78,14 +78,15 @@ app.use(cors({
         // Allow localhost and Vercel deployments
         const allowedOrigins = [
             'http://localhost:5173',
+            'http://localhost:5000',
             'http://localhost:3000',
             'https://www.dealexpress.io',
             'https://dealexpress.io',
             process.env.VITE_API_URL // Your production URL if set
         ];
 
-        // Also allow any Vercel preview URLs
-        if (origin.endsWith('.vercel.app') || allowedOrigins.includes(origin)) {
+        // Also allow any Vercel preview URLs and Replit domains
+        if (origin.endsWith('.vercel.app') || origin.endsWith('.replit.dev') || origin.endsWith('.replit.app') || origin.endsWith('.repl.co') || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
             callback(new Error('Not allowed by CORS'));
