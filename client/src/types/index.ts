@@ -6,6 +6,7 @@ export interface Lead {
     phone: string | null;
     address: string | null;
     city: string | null;
+    state: string | null;
     zip: string | null;
     status: 'New Lead' | 'Contacted' | 'Offer Sent' | 'Contract Signed';
     source: string | null;

@@ -123,7 +123,7 @@ router.get('/:id', requireAuth, async (req: Request, res: Response) => {
 
 // Create new lead
 router.post('/', requireAuth, async (req: Request, res: Response) => {
-    const { firstName, lastName, email, phone, address, city, zip, source, status } = req.body;
+    const { firstName, lastName, email, phone, address, city, state, zip, source, status } = req.body;
 
     try {
         if (!req.session.userId) return res.status(401).json({ message: 'Unauthorized' });
@@ -139,6 +139,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
             phone,
             address,
             city,
+            state,
             zip,
             source,
             status: status || 'New Lead',
@@ -164,7 +165,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
 
 // Update lead (status, info, etc)
 router.put('/:id', requireAuth, async (req: Request, res: Response) => {
-    const { firstName, lastName, email, phone, address, city, zip, source, status, assignedTo } = req.body;
+    const { firstName, lastName, email, phone, address, city, state, zip, source, status, assignedTo } = req.body;
     const userId = req.session.userId;
 
     try {
@@ -179,6 +180,7 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
         if (phone !== undefined) updateData.phone = phone;
         if (address !== undefined) updateData.address = address;
         if (city !== undefined) updateData.city = city;
+        if (state !== undefined) updateData.state = state;
         if (zip !== undefined) updateData.zip = zip;
         if (source !== undefined) updateData.source = source;
         if (status !== undefined) updateData.status = status;
@@ -211,7 +213,7 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
                 leadId: parseInt(req.params.id),
                 address: updatedLead.address || property?.address || 'TBD',
                 city: updatedLead.city || property?.city || null,
-                state: property?.state || null,
+                state: updatedLead.state || property?.state || null,
                 zip: updatedLead.zip || property?.zip || null,
                 status: 'Under Contract'
             }).returning();
@@ -335,7 +337,7 @@ router.patch('/:id/status', requireAuth, async (req: Request, res: Response) => 
                 leadId: parseInt(id),
                 address: updatedLead.address || property?.address || 'TBD',
                 city: updatedLead.city || property?.city || null,
-                state: property?.state || null,
+                state: updatedLead.state || property?.state || null,
                 zip: updatedLead.zip || property?.zip || null,
                 status: 'Under Contract'
             }).returning();

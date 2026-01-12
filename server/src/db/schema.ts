@@ -108,6 +108,7 @@ export const leads = pgTable('leads', {
     phone: text('phone'),
     address: text('address'),
     city: text('city'),
+    state: text('state'),
     zip: text('zip'),
     status: text('status').default('new').notNull(),
     source: text('source'),

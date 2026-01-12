@@ -19,6 +19,14 @@ const Pipeline: React.FC<PipelineProps> = ({ leads, onLeadUpdate, onConvertToDea
         if (over && active.id !== over.id) {
             const leadId = parseInt(active.id.toString());
             const newStatus = over.id as Lead['status'];
+            
+            // Find the lead to check its current status
+            const lead = leads.find(l => l.id === leadId);
+            if (lead?.status === 'Contract Signed') {
+                alert('Leads in "Contract Signed" are now Deals and cannot be moved back to previous stages.');
+                return;
+            }
+
             onLeadUpdate(leadId, newStatus);
         }
     };
