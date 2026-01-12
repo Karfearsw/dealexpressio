@@ -85,6 +85,10 @@ const Leads = () => {
         }
     };
 
+    const handleLeadDelete = (leadId: number) => {
+        setLeads(prev => prev.filter(l => l.id !== leadId));
+    };
+
     if (loading) return <div className="p-8 text-center text-slate-400">Loading leads...</div>;
 
     return (
@@ -141,6 +145,7 @@ const Leads = () => {
                         leads={leads}
                         onLeadUpdate={handleLeadUpdate}
                         onConvertToDeal={handleConvertToDeal}
+                        onLeadDelete={handleLeadDelete}
                     />
                 ) : (
                     <LeadsList

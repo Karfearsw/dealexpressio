@@ -8,9 +8,10 @@ interface PipelineProps {
     leads: Lead[];
     onLeadUpdate: (leadId: number, newStatus: Lead['status']) => void;
     onConvertToDeal?: (leadId: number) => void;
+    onLeadDelete?: (id: number) => void;
 }
 
-const Pipeline: React.FC<PipelineProps> = ({ leads, onLeadUpdate, onConvertToDeal }) => {
+const Pipeline: React.FC<PipelineProps> = ({ leads, onLeadUpdate, onConvertToDeal, onLeadDelete }) => {
     const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
     const handleDragEnd = (event: DragEndEvent) => {
@@ -46,6 +47,7 @@ const Pipeline: React.FC<PipelineProps> = ({ leads, onLeadUpdate, onConvertToDea
                             title={stage}
                             leads={leads.filter(lead => lead.status === stage)}
                             onLeadClick={handleLeadClick}
+                            onLeadDelete={onLeadDelete}
                         />
                     ))}
                 </div>

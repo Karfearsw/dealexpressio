@@ -310,8 +310,20 @@ const Deals: React.FC<DealsProps> = () => {
                                 <div className="absolute inset-0 flex items-center justify-center text-slate-600">
                                     <Home size={48} />
                                 </div>
-                                <div className={`absolute top-2 right-2 px-2 py-1 rounded text-xs font-bold border ${getStatusColor(deal.status)}`}>
-                                    {deal.status || 'Analyzing'}
+                                <div className={`absolute top-2 right-2 flex items-center gap-1`}>
+                                    <div className={`px-2 py-1 rounded text-xs font-bold border ${getStatusColor(deal.status)}`}>
+                                        {deal.status || 'Analyzing'}
+                                    </div>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDeleteDeal(deal.id);
+                                        }}
+                                        className="p-1 bg-slate-900/80 hover:bg-red-500/20 text-slate-400 hover:text-red-400 rounded-md border border-slate-700 transition-colors"
+                                        title="Delete Deal"
+                                    >
+                                        <Trash2 size={14} />
+                                    </button>
                                 </div>
                                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-900 to-transparent h-16" />
                             </div>
