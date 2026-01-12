@@ -1,0 +1,90 @@
+19:35:43.880 Running build in Washington, D.C., USA (East) – iad1
+19:35:43.882 Build machine configuration: 2 cores, 8 GB
+19:35:44.226 Cloning github.com/Karfearsw/dealexpressio (Branch: main, Commit: 28ebded)
+19:35:46.445 Cloning completed: 2.218s
+19:35:46.710 Restored build cache from previous deployment (98BLXDHFSDDkP2PXPFqzAgZwKh7K)
+19:35:47.733 Running "vercel build"
+19:35:48.212 Vercel CLI 50.1.6
+19:35:48.982 Installing dependencies...
+19:35:50.345 
+19:35:50.346 up to date in 1s
+19:35:50.347 
+19:35:50.347 88 packages are looking for funding
+19:35:50.347   run `npm fund` for details
+19:35:52.263 npm warn deprecated scmp@2.1.0: Just use Node.js's crypto.timingSafeEqual()
+19:35:52.286 npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+19:35:52.522 npm warn deprecated npmlog@5.0.1: This package is no longer supported.
+19:35:52.558 npm warn deprecated q@2.0.3: You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
+19:35:52.558 npm warn deprecated
+19:35:52.559 npm warn deprecated (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
+19:35:52.743 npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+19:35:53.113 npm warn deprecated gauge@3.0.2: This package is no longer supported.
+19:35:53.421 npm warn deprecated are-we-there-yet@2.0.0: This package is no longer supported.
+19:35:53.609 npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+19:35:53.611 npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+19:35:53.638 npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+19:35:58.041 
+19:35:58.042 added 438 packages, and audited 439 packages in 8s
+19:35:58.042 
+19:35:58.042 53 packages are looking for funding
+19:35:58.042   run `npm fund` for details
+19:35:58.064 
+19:35:58.064 4 moderate severity vulnerabilities
+19:35:58.064 
+19:35:58.064 To address all issues (including breaking changes), run:
+19:35:58.064   npm audit fix --force
+19:35:58.064 
+19:35:58.065 Run `npm audit` for details.
+19:35:59.100 
+19:35:59.100 up to date, audited 451 packages in 965ms
+19:35:59.101 
+19:35:59.101 64 packages are looking for funding
+19:35:59.101   run `npm fund` for details
+19:35:59.102 
+19:35:59.102 found 0 vulnerabilities
+19:35:59.219 
+19:35:59.220 > build
+19:35:59.220 > npm run client:build && npm run server:build
+19:35:59.220 
+19:35:59.324 
+19:35:59.324 > client:build
+19:35:59.324 > npm --prefix client run build
+19:35:59.325 
+19:35:59.430 
+19:35:59.430 > client@0.0.0 build
+19:35:59.431 > vite build
+19:35:59.431 
+19:35:59.913 [36mvite v7.3.0 [32mbuilding client environment for production...[36m[39m
+19:36:00.007 transforming...
+19:36:05.640 [32m✓[39m 2828 modules transformed.
+19:36:06.136 rendering chunks...
+19:36:06.529 computing gzip size...
+19:36:06.555 [2mdist/[22m[32mindex.html                                        [39m[1m[2m  1.76 kB[22m[1m[22m[2m │ gzip:   0.60 kB[22m
+19:36:06.555 [2mdist/[22m[2massets/[22m[32mlogo-white-D9G9TCRq.png                    [39m[1m[2m262.77 kB[22m[1m[22m
+19:36:06.556 [2mdist/[22m[2massets/[22m[32micon-feature-buyers-list-BtS7n9tz.png      [39m[1m[2m861.44 kB[22m[1m[22m
+19:36:06.556 [2mdist/[22m[2massets/[22m[32micon-feature-lead-management-87qekt6R.png  [39m[1m[2m924.19 kB[22m[1m[22m
+19:36:06.556 [2mdist/[22m[2massets/[22m[35mindex-C3Vv20De.css                         [39m[1m[2m 63.70 kB[22m[1m[22m[2m │ gzip:  10.27 kB[22m
+19:36:06.556 [2mdist/[22m[2massets/[22m[36mvendor-CPUiMCxt.js                         [39m[1m[2m 16.83 kB[22m[1m[22m[2m │ gzip:   6.50 kB[22m
+19:36:06.557 [2mdist/[22m[2massets/[22m[36mui-4vzF4zWS.js                             [39m[1m[2m158.53 kB[22m[1m[22m[2m │ gzip:  52.69 kB[22m
+19:36:06.557 [2mdist/[22m[2massets/[22m[36mcharts-nTHUPnI6.js                         [39m[1m[2m378.88 kB[22m[1m[22m[2m │ gzip: 111.81 kB[22m
+19:36:06.557 [2mdist/[22m[2massets/[22m[36mindex-B9nwhDPH.js                          [39m[1m[2m420.23 kB[22m[1m[22m[2m │ gzip: 121.92 kB[22m
+19:36:06.557 [32m✓ built in 6.61s[39m
+19:36:06.716 
+19:36:06.717 > server:build
+19:36:06.717 > npm --prefix server run build
+19:36:06.717 
+19:36:06.824 
+19:36:06.825 > dealexpress-server@1.0.0 build
+19:36:06.825 > tsc
+19:36:06.825 
+19:36:11.662 Using TypeScript 5.9.3 (local user-provided)
+19:36:16.371 Using TypeScript 5.9.3 (local user-provided)
+19:36:17.912 Using TypeScript 5.9.3 (local user-provided)
+19:36:28.606 Build Completed in /vercel/output [40s]
+19:36:28.938 Deploying outputs...
+19:36:31.167 Warning: Provided `memory` setting in `vercel.json` is ignored on Active CPU billing. You can safely remove this setting from your configuration. Learn more: https://vercel.com/docs/fluid-compute/pricing
+19:36:36.304 Deployment completed
+19:36:37.226 Creating build cache...
+19:37:47.133 Created build cache: 1:09.902 (m:ss.mmm)
+19:37:47.134 Uploading build cache [120.31 MB]
+19:37:49.459 Build cache uploaded: 2.329s
