@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'wouter';
 import { CheckCircle, Mail, ArrowRight } from 'lucide-react';
 
