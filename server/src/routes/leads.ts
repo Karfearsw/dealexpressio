@@ -145,18 +145,25 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
 // Update lead (status, info, etc)
 router.put('/:id', requireAuth, async (req: Request, res: Response) => {
     const { firstName, lastName, email, phone, source, status, assignedTo } = req.body;
+    const userId = req.session.userId;
 
     try {
+        // Check if contract signed (support both formats)
+        const isContractSigned = status === 'Contract Signed' || status === 'contract_signed';
+
+        // Build update object with only provided fields to avoid overwriting with undefined
+        const updateData: Record<string, any> = { updatedAt: new Date() };
+        if (firstName !== undefined) updateData.firstName = firstName;
+        if (lastName !== undefined) updateData.lastName = lastName;
+        if (email !== undefined) updateData.email = email;
+        if (phone !== undefined) updateData.phone = phone;
+        if (source !== undefined) updateData.source = source;
+        if (status !== undefined) updateData.status = status;
+        if (assignedTo !== undefined) updateData.assignedTo = assignedTo;
+        if (isContractSigned) updateData.contractSignedAt = new Date();
+
         const [updatedLead] = await db.update(leads)
-            .set({
-                firstName,
-                lastName,
-                email,
-                phone,
-                source,
-                status,
-                assignedTo
-            })
+            .set(updateData)
             .where(eq(leads.id, parseInt(req.params.id)))
             .returning();
 
@@ -170,6 +177,35 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
             resource: `leads:${updatedLead.id}`,
             req
         });
+
+        // If contract signed and not already converted, automatically create deal
+        if (isContractSigned && !updatedLead.convertedToDealId && userId) {
+            // Try to find property address
+            const [property] = await db.select().from(properties).where(eq(properties.leadId, parseInt(req.params.id)));
+
+            const [newDeal] = await db.insert(deals).values({
+                userId,
+                leadId: parseInt(req.params.id),
+                address: property?.address || 'TBD',
+                city: property?.city || null,
+                state: property?.state || null,
+                zip: property?.zip || null,
+                status: 'under_contract'
+            }).returning();
+
+            // Link lead to deal and mark as converted
+            const [convertedLead] = await db
+                .update(leads)
+                .set({ convertedToDealId: newDeal.id, status: 'Converted' })
+                .where(eq(leads.id, parseInt(req.params.id)))
+                .returning();
+
+            return res.json({
+                ...convertedLead,
+                deal: newDeal,
+                message: 'Lead converted to deal successfully'
+            });
+        }
 
         res.json(updatedLead);
     } catch (error) {
@@ -244,12 +280,15 @@ router.patch('/:id/status', requireAuth, async (req: Request, res: Response) => 
             return res.status(401).json({ error: 'Unauthorized' });
         }
 
+        // Check if contract signed (support both formats)
+        const isContractSigned = status === 'Contract Signed' || status === 'contract_signed';
+
         // Update lead
         const [updatedLead] = await db
             .update(leads)
             .set({
                 status,
-                contractSignedAt: status === 'contract_signed' ? new Date() : undefined,
+                contractSignedAt: isContractSigned ? new Date() : undefined,
                 updatedAt: new Date()
             })
             .where(and(eq(leads.id, parseInt(id)), eq(leads.assignedTo, userId)))
@@ -260,7 +299,7 @@ router.patch('/:id/status', requireAuth, async (req: Request, res: Response) => 
         }
 
         // If contract signed, automatically create deal
-        if (status === 'contract_signed' && !updatedLead.convertedToDealId) {
+        if (isContractSigned && !updatedLead.convertedToDealId) {
 
             // Try to find property address
             const [property] = await db.select().from(properties).where(eq(properties.leadId, parseInt(id)));
@@ -275,14 +314,15 @@ router.patch('/:id/status', requireAuth, async (req: Request, res: Response) => 
                 status: 'under_contract'
             }).returning();
 
-            // Link lead to deal
-            await db
+            // Link lead to deal and get fresh data
+            const [convertedLead] = await db
                 .update(leads)
-                .set({ convertedToDealId: newDeal.id, status: 'converted' })
-                .where(eq(leads.id, parseInt(id)));
+                .set({ convertedToDealId: newDeal.id, status: 'Converted' })
+                .where(eq(leads.id, parseInt(id)))
+                .returning();
 
             return res.json({
-                lead: updatedLead,
+                lead: convertedLead,
                 deal: newDeal,
                 message: 'Lead converted to deal successfully'
             });

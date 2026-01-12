@@ -4,9 +4,10 @@ export interface Lead {
     lastName: string;
     email: string | null;
     phone: string | null;
-    status: 'New Lead' | 'Contacted' | 'Warm' | 'Offer Sent' | 'Contract Signed' | 'Closed';
+    status: 'New Lead' | 'Contacted' | 'Warm' | 'Offer Sent' | 'Contract Signed' | 'Converted' | 'Closed';
     source: string | null;
     assignedTo: number | null;
+    convertedToDealId?: number | null;
     createdAt: string;
 }
 
@@ -15,7 +16,8 @@ export const LEAD_STAGES = [
     'Contacted',
     'Warm',
     'Offer Sent',
-    'Contract Signed'
+    'Contract Signed',
+    'Converted'
 ] as const;
 
 export const DEAL_STAGES = [

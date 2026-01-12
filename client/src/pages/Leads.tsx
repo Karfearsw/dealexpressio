@@ -78,8 +78,10 @@ const Leads = () => {
             setLeads(prev => [res.data, ...prev]);
             setShowModal(false);
             setNewLead({ firstName: '', lastName: '', email: '', phone: '', source: 'Manual', status: 'New Lead' });
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error creating lead:', error);
+            const message = error.response?.data?.message || error.message || 'Failed to create lead';
+            alert(message);
         }
     };
 
