@@ -11,6 +11,134 @@ function generateTeamCode(): string {
     return crypto.randomBytes(4).toString('hex').toUpperCase();
 }
 
+// Get user's primary team with full details
+router.get('/my-team', requireAuth, async (req: Request, res: Response) => {
+    try {
+        if (!req.session.userId) return res.status(401).json({ message: 'Unauthorized' });
+
+        const [membership] = await db.select({
+            teamId: teamMembers.teamId,
+            role: teamMembers.role,
+        })
+            .from(teamMembers)
+            .where(eq(teamMembers.userId, req.session.userId))
+            .limit(1);
+
+        if (!membership) {
+            return res.status(404).json({ message: 'Not a member of any team' });
+        }
+
+        const [team] = await db.select().from(teams).where(eq(teams.id, membership.teamId));
+        
+        const members = await db.select({
+            id: teamMembers.id,
+            userId: teamMembers.userId,
+            role: teamMembers.role,
+            joinedAt: teamMembers.joinedAt,
+            user: {
+                email: users.email,
+            }
+        })
+            .from(teamMembers)
+            .innerJoin(users, eq(teamMembers.userId, users.id))
+            .where(eq(teamMembers.teamId, membership.teamId));
+
+        const codes = await db.select().from(teamCodes)
+            .where(and(eq(teamCodes.teamId, membership.teamId), eq(teamCodes.isActive, true)));
+
+        res.json({ ...team, members, codes });
+    } catch (error) {
+        console.error('Error fetching my team:', error);
+        res.status(500).json({ message: 'Error fetching team' });
+    }
+});
+
+// Deactivate team code
+router.delete('/:id/codes/:codeId', requireAuth, async (req: Request, res: Response) => {
+    try {
+        if (!req.session.userId) return res.status(401).json({ message: 'Unauthorized' });
+
+        const teamId = parseInt(req.params.id);
+        const codeId = parseInt(req.params.codeId);
+
+        const [membership] = await db.select().from(teamMembers)
+            .where(and(eq(teamMembers.teamId, teamId), eq(teamMembers.userId, req.session.userId)));
+
+        if (!membership || !['owner', 'admin'].includes(membership.role)) {
+            return res.status(403).json({ message: 'Only team owners and admins can deactivate codes' });
+        }
+
+        await db.update(teamCodes)
+            .set({ isActive: false })
+            .where(and(eq(teamCodes.id, codeId), eq(teamCodes.teamId, teamId)));
+
+        res.json({ message: 'Code deactivated' });
+    } catch (error) {
+        console.error('Error deactivating code:', error);
+        res.status(500).json({ message: 'Error deactivating code' });
+    }
+});
+
+// Leave team (delete own membership)
+router.delete('/:id/members', requireAuth, async (req: Request, res: Response) => {
+    try {
+        if (!req.session.userId) return res.status(401).json({ message: 'Unauthorized' });
+
+        const teamId = parseInt(req.params.id);
+
+        const [membership] = await db.select().from(teamMembers)
+            .where(and(eq(teamMembers.teamId, teamId), eq(teamMembers.userId, req.session.userId)));
+
+        if (!membership) {
+            return res.status(404).json({ message: 'You are not a member of this team' });
+        }
+
+        if (membership.role === 'owner') {
+            return res.status(400).json({ message: 'Owner cannot leave team. Transfer ownership first.' });
+        }
+
+        await db.delete(teamMembers)
+            .where(and(eq(teamMembers.teamId, teamId), eq(teamMembers.userId, req.session.userId)));
+
+        res.json({ message: 'Successfully left team' });
+    } catch (error) {
+        console.error('Error leaving team:', error);
+        res.status(500).json({ message: 'Error leaving team' });
+    }
+});
+
+// Update member role
+router.put('/:id/members/:memberId/role', requireAuth, async (req: Request, res: Response) => {
+    try {
+        if (!req.session.userId) return res.status(401).json({ message: 'Unauthorized' });
+
+        const teamId = parseInt(req.params.id);
+        const memberId = parseInt(req.params.memberId);
+        const { role } = req.body;
+
+        if (!['admin', 'member'].includes(role)) {
+            return res.status(400).json({ message: 'Invalid role' });
+        }
+
+        const [currentUserMembership] = await db.select().from(teamMembers)
+            .where(and(eq(teamMembers.teamId, teamId), eq(teamMembers.userId, req.session.userId)));
+
+        if (!currentUserMembership || !['owner', 'admin'].includes(currentUserMembership.role)) {
+            return res.status(403).json({ message: 'Only team owners and admins can change member roles' });
+        }
+
+        const [updated] = await db.update(teamMembers)
+            .set({ role })
+            .where(and(eq(teamMembers.id, memberId), eq(teamMembers.teamId, teamId)))
+            .returning();
+
+        res.json(updated);
+    } catch (error) {
+        console.error('Error updating member role:', error);
+        res.status(500).json({ message: 'Error updating member role' });
+    }
+});
+
 // Get user's teams
 router.get('/', requireAuth, async (req: Request, res: Response) => {
     try {

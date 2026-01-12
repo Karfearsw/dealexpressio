@@ -24,6 +24,7 @@ import DevTools from './pages/DevTools';
 import Settings from './pages/Settings';
 import BuyersList from './pages/BuyersList';
 import DealCalculator from './pages/DealCalculator';
+import Teams from './pages/Teams';
 import NotFound from './pages/NotFound';
 
 const AppRoutes = () => {
@@ -97,6 +98,11 @@ const AppRoutes = () => {
 
                   <Route path="/devtools" component={DevTools} />
                   <Route path="/settings" component={Settings} />
+                  <Route path="/teams">
+                    <ProtectedRoute>
+                      <Teams />
+                    </ProtectedRoute>
+                  </Route>
                   <Route path="/calculator">
                     <ProtectedRoute>
                       <DealCalculator />

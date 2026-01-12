@@ -12,7 +12,8 @@ import {
     ChevronRight,
     LogOut,
     Calculator,
-    Lock
+    Lock,
+    UsersRound
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
@@ -43,6 +44,7 @@ const Sidebar = () => {
         { name: 'Analytics', path: '/analytics', icon: BarChart },
         { name: 'Buyers List', path: '/buyers', icon: Users },
         { name: 'Deal Calculator', path: '/calculator', icon: Calculator },
+        { name: 'Team', path: '/teams', icon: UsersRound },
         { name: 'Settings', path: '/settings', icon: Settings },
     ];
 
