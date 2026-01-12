@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { db } from '../db';
 import { properties, leads, type Property } from '../db/schema';
-import { eq, desc } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 import { requireAuth, requireSubscription } from '../middleware/auth';
 import multer from 'multer';
 import csv from 'csv-parser';
@@ -17,7 +17,11 @@ router.post('/import', requireAuth, requireSubscription('pro'), upload.single('f
     if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded' });
     }
+    if (!req.session.userId) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
 
+    const userId = req.session.userId;
     const results: any[] = [];
     fs.createReadStream(req.file.path)
         .pipe(csv())
@@ -26,12 +30,10 @@ router.post('/import', requireAuth, requireSubscription('pro'), upload.single('f
             try {
                 fs.unlinkSync(req.file!.path);
 
-                // For properties, we need a leadId. 
-                // This simple import assumes leadId is provided in the CSV.
-                // In a real app, you might look up leads by address or email.
                 const validProperties = results
                     .filter(row => row.leadId && row.address)
                     .map(row => ({
+                        userId,
                         leadId: parseInt(row.leadId),
                         address: row.address,
                         city: row.city || null,
@@ -62,7 +64,11 @@ router.post('/import', requireAuth, requireSubscription('pro'), upload.single('f
 // Export properties to CSV (Pro feature)
 router.get('/export', requireAuth, requireSubscription('pro'), async (req: Request, res: Response) => {
     try {
-        const allProperties = await db.select().from(properties).orderBy(desc(properties.createdAt));
+        if (!req.session.userId) return res.status(401).json({ message: 'Unauthorized' });
+        
+        const allProperties = await db.select().from(properties)
+            .where(eq(properties.userId, req.session.userId))
+            .orderBy(desc(properties.createdAt));
 
         const csvHeader = 'ID,Lead ID,Address,City,State,Zip,ARV,MAO,Status,Notes\n';
         const csvRows = allProperties.map((p: Property) => {
@@ -89,9 +95,11 @@ router.get('/export', requireAuth, requireSubscription('pro'), async (req: Reque
     }
 });
 
-// Get all properties
+// Get all properties for the current user
 router.get('/', requireAuth, async (req: Request, res: Response) => {
     try {
+        if (!req.session.userId) return res.status(401).json({ message: 'Unauthorized' });
+        
         const allProperties = await db.select({
             property: properties,
             lead: {
@@ -102,6 +110,7 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
         })
             .from(properties)
             .leftJoin(leads, eq(properties.leadId, leads.id))
+            .where(eq(properties.userId, req.session.userId))
             .orderBy(desc(properties.createdAt));
 
         res.json(allProperties);
@@ -114,7 +123,10 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
 // Get single property
 router.get('/:id', requireAuth, async (req: Request, res: Response) => {
     try {
-        const [property] = await db.select().from(properties).where(eq(properties.id, parseInt(req.params.id)));
+        if (!req.session.userId) return res.status(401).json({ message: 'Unauthorized' });
+        
+        const [property] = await db.select().from(properties)
+            .where(and(eq(properties.id, parseInt(req.params.id)), eq(properties.userId, req.session.userId)));
         if (!property) {
             return res.status(404).json({ message: 'Property not found' });
         }
@@ -130,7 +142,10 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
     const { leadId, address, city, state, zip, arv, mao, repairCost, assignmentFee, projectedSpread, status, notes } = req.body;
 
     try {
+        if (!req.session.userId) return res.status(401).json({ message: 'Unauthorized' });
+        
         const [newProperty] = await db.insert(properties).values({
+            userId: req.session.userId,
             leadId,
             address,
             city,
@@ -157,6 +172,8 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
     const { address, city, state, zip, arv, mao, repairCost, assignmentFee, projectedSpread, status, notes } = req.body;
 
     try {
+        if (!req.session.userId) return res.status(401).json({ message: 'Unauthorized' });
+        
         const [updatedProperty] = await db.update(properties)
             .set({
                 address,
@@ -171,7 +188,7 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
                 status,
                 notes,
             })
-            .where(eq(properties.id, parseInt(req.params.id)))
+            .where(and(eq(properties.id, parseInt(req.params.id)), eq(properties.userId, req.session.userId)))
             .returning();
 
         if (!updatedProperty) {
@@ -181,6 +198,26 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
         res.json(updatedProperty);
     } catch (error) {
         console.error('Error updating property:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Delete property
+router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
+    try {
+        if (!req.session.userId) return res.status(401).json({ message: 'Unauthorized' });
+        
+        const [deleted] = await db.delete(properties)
+            .where(and(eq(properties.id, parseInt(req.params.id)), eq(properties.userId, req.session.userId)))
+            .returning();
+
+        if (!deleted) {
+            return res.status(404).json({ message: 'Property not found' });
+        }
+
+        res.json({ message: 'Property deleted' });
+    } catch (error) {
+        console.error('Error deleting property:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });

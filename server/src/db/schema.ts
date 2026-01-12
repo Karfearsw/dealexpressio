@@ -1,5 +1,34 @@
-import { pgTable, serial, text, timestamp, integer, boolean, decimal, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, timestamp, integer, boolean, decimal, jsonb, uniqueIndex } from 'drizzle-orm/pg-core';
 import { relations, type InferSelectModel, type InferInsertModel } from 'drizzle-orm';
+
+export const teams = pgTable('teams', {
+    id: serial('id').primaryKey(),
+    name: text('name').notNull(),
+    ownerId: integer('owner_id').references(() => users.id).notNull(),
+    description: text('description'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const teamMembers = pgTable('team_members', {
+    id: serial('id').primaryKey(),
+    teamId: integer('team_id').references(() => teams.id, { onDelete: 'cascade' }).notNull(),
+    userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+    role: text('role').default('member').notNull(),
+    joinedAt: timestamp('joined_at').defaultNow().notNull(),
+});
+
+export const teamCodes = pgTable('team_codes', {
+    id: serial('id').primaryKey(),
+    teamId: integer('team_id').references(() => teams.id, { onDelete: 'cascade' }).notNull(),
+    code: text('code').unique().notNull(),
+    createdBy: integer('created_by').references(() => users.id).notNull(),
+    expiresAt: timestamp('expires_at'),
+    maxUses: integer('max_uses'),
+    usedCount: integer('used_count').default(0).notNull(),
+    isActive: boolean('is_active').default(true).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+});
 
 export const users = pgTable('users', {
     id: serial('id').primaryKey(),
@@ -71,15 +100,17 @@ export const betaSignups = pgTable('beta_signups', {
 
 export const leads = pgTable('leads', {
     id: serial('id').primaryKey(),
+    userId: integer('user_id').references(() => users.id).notNull(),
+    teamId: integer('team_id').references(() => teams.id),
     firstName: text('first_name').notNull(),
     lastName: text('last_name').notNull(),
     email: text('email'),
     phone: text('phone'),
-    status: text('status').default('new').notNull(), // new, contacted, qualified, contract_signed, converted
+    status: text('status').default('new').notNull(),
     source: text('source'),
     assignedTo: integer('assigned_to').references(() => users.id),
     contractSignedAt: timestamp('contract_signed_at'),
-    convertedToDealId: integer('converted_to_deal_id'), // To be referenced after deals defined or use lazy
+    convertedToDealId: integer('converted_to_deal_id'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow(),
 });
@@ -87,26 +118,24 @@ export const leads = pgTable('leads', {
 export const deals = pgTable('deals', {
     id: serial('id').primaryKey(),
     userId: integer('user_id').notNull().references(() => users.id),
+    teamId: integer('team_id').references(() => teams.id),
     leadId: integer('lead_id').references(() => leads.id),
     address: text('address').notNull(),
     city: text('city'),
     state: text('state'),
     zip: text('zip'),
 
-    // Financial data
     purchasePrice: decimal('purchase_price', { precision: 12, scale: 2 }),
     arv: decimal('arv', { precision: 12, scale: 2 }),
     repairs: decimal('repairs', { precision: 12, scale: 2 }),
     assignmentFee: decimal('assignment_fee', { precision: 12, scale: 2 }),
     projectedProfit: decimal('projected_profit', { precision: 12, scale: 2 }),
 
-    // Property details
     bedrooms: integer('bedrooms'),
     bathrooms: integer('bathrooms'),
     squareFeet: integer('square_feet'),
 
-    // Deal status
-    status: text('status').default('analyzing'), // analyzing, negotiation, under_contract, closed, dead
+    status: text('status').default('analyzing'),
 
     closedAt: timestamp('closed_at'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -129,6 +158,8 @@ export const deals = pgTable('deals', {
 
 export const properties = pgTable('properties', {
     id: serial('id').primaryKey(),
+    userId: integer('user_id').references(() => users.id).notNull(),
+    teamId: integer('team_id').references(() => teams.id),
     leadId: integer('lead_id').references(() => leads.id).notNull(),
     address: text('address').notNull(),
     city: text('city'),
@@ -147,6 +178,8 @@ export const properties = pgTable('properties', {
 
 export const buyers = pgTable('buyers', {
     id: serial('id').primaryKey(),
+    userId: integer('user_id').references(() => users.id).notNull(),
+    teamId: integer('team_id').references(() => teams.id),
     name: text('name').notNull(),
     email: text('email'),
     phone: text('phone'),
@@ -222,10 +255,11 @@ export const contactSubmissions = pgTable('contact_submissions', {
 export const contracts = pgTable('contracts', {
     id: serial('id').primaryKey(),
     userId: integer('user_id').references(() => users.id).notNull(),
+    teamId: integer('team_id').references(() => teams.id),
     dealId: integer('deal_id').references(() => deals.id),
-    type: text('type').notNull(), // letter_of_intent, purchase_agreement, psa, assignment, jv_agreement
+    type: text('type').notNull(),
     name: text('name').notNull(),
-    status: text('status').default('draft').notNull(), // draft, sent, signed, expired, cancelled
+    status: text('status').default('draft').notNull(),
     fileUrl: text('file_url'),
     generatedData: jsonb('generated_data'),
     signedAt: timestamp('signed_at'),
@@ -338,6 +372,37 @@ export const timesheetsRelations = relations(timesheets, ({ one }) => ({
     }),
 }));
 
+export const teamsRelations = relations(teams, ({ one, many }) => ({
+    owner: one(users, {
+        fields: [teams.ownerId],
+        references: [users.id],
+    }),
+    members: many(teamMembers),
+    codes: many(teamCodes),
+}));
+
+export const teamMembersRelations = relations(teamMembers, ({ one }) => ({
+    team: one(teams, {
+        fields: [teamMembers.teamId],
+        references: [teams.id],
+    }),
+    user: one(users, {
+        fields: [teamMembers.userId],
+        references: [users.id],
+    }),
+}));
+
+export const teamCodesRelations = relations(teamCodes, ({ one }) => ({
+    team: one(teams, {
+        fields: [teamCodes.teamId],
+        references: [teams.id],
+    }),
+    creator: one(users, {
+        fields: [teamCodes.createdBy],
+        references: [users.id],
+    }),
+}));
+
 export type Lead = InferSelectModel<typeof leads>;
 export type NewLead = InferInsertModel<typeof leads>;
 export type Property = InferSelectModel<typeof properties>;
@@ -345,3 +410,6 @@ export type NewProperty = InferInsertModel<typeof properties>;
 export type User = InferSelectModel<typeof users>;
 export type RefreshToken = InferSelectModel<typeof refreshTokens>;
 export type AuditLog = InferSelectModel<typeof auditLogs>;
+export type Team = InferSelectModel<typeof teams>;
+export type TeamMember = InferSelectModel<typeof teamMembers>;
+export type TeamCode = InferSelectModel<typeof teamCodes>;

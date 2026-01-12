@@ -18,26 +18,30 @@ router.post('/import', requireAuth, requireSubscription('pro'), upload.single('f
     if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded' });
     }
+    if (!req.session.userId) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
 
+    const userId = req.session.userId;
     const results: any[] = [];
     fs.createReadStream(req.file.path)
         .pipe(csv())
         .on('data', (data) => results.push(data))
         .on('end', async () => {
             try {
-                // Delete file after processing
                 fs.unlinkSync(req.file!.path);
 
                 const validLeads = results
                     .filter(row => row.firstName && row.lastName && row.email)
                     .map(row => ({
+                        userId,
                         firstName: row.firstName,
                         lastName: row.lastName,
                         email: row.email,
                         phone: row.phone || null,
                         source: row.source || 'Imported',
                         status: 'New Lead',
-                        assignedTo: req.session.userId,
+                        assignedTo: userId,
                     }));
 
                 if (validLeads.length === 0) {
@@ -56,7 +60,11 @@ router.post('/import', requireAuth, requireSubscription('pro'), upload.single('f
 // Export leads to CSV (Pro feature)
 router.get('/export', requireAuth, requireSubscription('pro'), async (req: Request, res: Response) => {
     try {
-        const allLeads = await db.select().from(leads).orderBy(desc(leads.createdAt));
+        if (!req.session.userId) return res.status(401).json({ message: 'Unauthorized' });
+        
+        const allLeads = await db.select().from(leads)
+            .where(eq(leads.userId, req.session.userId))
+            .orderBy(desc(leads.createdAt));
 
         const csvHeader = 'ID,First Name,Last Name,Email,Phone,Status,Source,Created At\n';
         const csvRows = allLeads.map((lead: Lead) => {
@@ -81,10 +89,14 @@ router.get('/export', requireAuth, requireSubscription('pro'), async (req: Reque
     }
 });
 
-// Get all leads
+// Get all leads for the current user
 router.get('/', requireAuth, async (req: Request, res: Response) => {
     try {
-        const allLeads = await db.select().from(leads).orderBy(desc(leads.createdAt));
+        if (!req.session.userId) return res.status(401).json({ message: 'Unauthorized' });
+        
+        const allLeads = await db.select().from(leads)
+            .where(eq(leads.userId, req.session.userId))
+            .orderBy(desc(leads.createdAt));
         res.json(allLeads);
     } catch (error) {
         console.error('Error fetching leads:', error);
@@ -92,10 +104,13 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
     }
 });
 
-// Get single lead
+// Get single lead (must belong to user)
 router.get('/:id', requireAuth, async (req: Request, res: Response) => {
     try {
-        const [lead] = await db.select().from(leads).where(eq(leads.id, parseInt(req.params.id)));
+        if (!req.session.userId) return res.status(401).json({ message: 'Unauthorized' });
+        
+        const [lead] = await db.select().from(leads)
+            .where(and(eq(leads.id, parseInt(req.params.id)), eq(leads.userId, req.session.userId)));
         if (!lead) {
             return res.status(404).json({ message: 'Lead not found' });
         }
@@ -111,11 +126,13 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
     const { firstName, lastName, email, phone, source, status } = req.body;
 
     try {
+        if (!req.session.userId) return res.status(401).json({ message: 'Unauthorized' });
         if (!firstName || !lastName) {
             return res.status(400).json({ message: 'First Name and Last Name are required' });
         }
 
         const [newLead] = await db.insert(leads).values({
+            userId: req.session.userId,
             firstName,
             lastName,
             email,
@@ -148,10 +165,10 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
     const userId = req.session.userId;
 
     try {
-        // Check if contract signed (support both formats)
+        if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+        
         const isContractSigned = status === 'Contract Signed' || status === 'contract_signed';
 
-        // Build update object with only provided fields to avoid overwriting with undefined
         const updateData: Record<string, any> = { updatedAt: new Date() };
         if (firstName !== undefined) updateData.firstName = firstName;
         if (lastName !== undefined) updateData.lastName = lastName;
@@ -164,7 +181,7 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
 
         const [updatedLead] = await db.update(leads)
             .set(updateData)
-            .where(eq(leads.id, parseInt(req.params.id)))
+            .where(and(eq(leads.id, parseInt(req.params.id)), eq(leads.userId, userId)))
             .returning();
 
         if (!updatedLead) {
@@ -217,7 +234,15 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
 // Delete lead
 router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
     try {
-        await db.delete(leads).where(eq(leads.id, parseInt(req.params.id)));
+        if (!req.session.userId) return res.status(401).json({ message: 'Unauthorized' });
+        
+        const [deleted] = await db.delete(leads)
+            .where(and(eq(leads.id, parseInt(req.params.id)), eq(leads.userId, req.session.userId)))
+            .returning();
+
+        if (!deleted) {
+            return res.status(404).json({ message: 'Lead not found' });
+        }
 
         await logEvent({
             userId: req.session.userId,
@@ -240,29 +265,27 @@ router.post('/:id/convert-to-deal', async (req, res) => {
         const { id } = req.params;
         const userId = req.session.userId;
 
-        // Get lead data
         const [lead] = await db
             .select()
             .from(leads)
-            .where(and(eq(leads.id, parseInt(id)), eq(leads.assignedTo, userId)));
+            .where(and(eq(leads.id, parseInt(id)), eq(leads.userId, userId)));
 
         if (!lead) {
             return res.status(404).json({ error: 'Lead not found' });
         }
 
-        // Create deal from lead
-        const [deal] = await db.insert(properties).values({
+        const [property] = await db.insert(properties).values({
+            userId,
             leadId: lead.id,
-            address: 'TBD', // Placeholder as leads table doesn't have address column in schema provided
+            address: 'TBD',
             status: 'New',
         }).returning();
 
-        // Update lead status
         await db.update(leads)
             .set({ status: 'Converted' })
             .where(eq(leads.id, lead.id));
 
-        res.json(deal);
+        res.json(property);
     } catch (error) {
         console.error('Error converting lead to deal:', error);
         res.status(500).json({ error: 'Failed to convert lead' });
@@ -280,10 +303,8 @@ router.patch('/:id/status', requireAuth, async (req: Request, res: Response) => 
             return res.status(401).json({ error: 'Unauthorized' });
         }
 
-        // Check if contract signed (support both formats)
         const isContractSigned = status === 'Contract Signed' || status === 'contract_signed';
 
-        // Update lead
         const [updatedLead] = await db
             .update(leads)
             .set({
@@ -291,7 +312,7 @@ router.patch('/:id/status', requireAuth, async (req: Request, res: Response) => 
                 contractSignedAt: isContractSigned ? new Date() : undefined,
                 updatedAt: new Date()
             })
-            .where(and(eq(leads.id, parseInt(id)), eq(leads.assignedTo, userId)))
+            .where(and(eq(leads.id, parseInt(id)), eq(leads.userId, userId)))
             .returning();
 
         if (!updatedLead) {
