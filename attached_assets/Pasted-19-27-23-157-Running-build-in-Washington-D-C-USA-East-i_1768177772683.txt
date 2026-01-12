@@ -1,0 +1,67 @@
+19:27:23.157 Running build in Washington, D.C., USA (East) – iad1
+19:27:23.158 Build machine configuration: 2 cores, 8 GB
+19:27:23.318 Cloning github.com/Karfearsw/dealexpressio (Branch: main, Commit: 4db7615)
+19:27:24.284 Cloning completed: 966.000ms
+19:27:24.551 Restored build cache from previous deployment (ANQJnnisrusDDc5gYzQKxehe9XDA)
+19:27:25.346 Running "vercel build"
+19:27:25.795 Vercel CLI 50.1.6
+19:27:26.502 Installing dependencies...
+19:27:27.760 
+19:27:27.760 up to date in 1s
+19:27:27.761 
+19:27:27.761 88 packages are looking for funding
+19:27:27.761   run `npm fund` for details
+19:27:29.012 
+19:27:29.013 up to date, audited 670 packages in 1s
+19:27:29.014 
+19:27:29.014 88 packages are looking for funding
+19:27:29.014   run `npm fund` for details
+19:27:29.025 
+19:27:29.025 5 vulnerabilities (2 moderate, 3 high)
+19:27:29.026 
+19:27:29.026 To address all issues possible (including breaking changes), run:
+19:27:29.026   npm audit fix --force
+19:27:29.026 
+19:27:29.026 Some issues need review, and may require choosing
+19:27:29.026 a different dependency.
+19:27:29.027 
+19:27:29.027 Run `npm audit` for details.
+19:27:29.994 
+19:27:29.994 up to date, audited 451 packages in 903ms
+19:27:29.995 
+19:27:29.995 64 packages are looking for funding
+19:27:29.995   run `npm fund` for details
+19:27:29.996 
+19:27:29.996 found 0 vulnerabilities
+19:27:30.095 
+19:27:30.095 > client@0.0.0 build
+19:27:30.095 > vite build
+19:27:30.096 
+19:27:30.538 [36mvite v7.3.0 [32mbuilding client environment for production...[36m[39m
+19:27:30.642 transforming...
+19:27:36.148 [32m✓[39m 2828 modules transformed.
+19:27:36.631 rendering chunks...
+19:27:37.000 computing gzip size...
+19:27:37.026 [2mdist/[22m[32mindex.html                                        [39m[1m[2m  1.76 kB[22m[1m[22m[2m │ gzip:   0.60 kB[22m
+19:27:37.027 [2mdist/[22m[2massets/[22m[32mlogo-white-D9G9TCRq.png                    [39m[1m[2m262.77 kB[22m[1m[22m
+19:27:37.028 [2mdist/[22m[2massets/[22m[32micon-feature-buyers-list-BtS7n9tz.png      [39m[1m[2m861.44 kB[22m[1m[22m
+19:27:37.028 [2mdist/[22m[2massets/[22m[32micon-feature-lead-management-87qekt6R.png  [39m[1m[2m924.19 kB[22m[1m[22m
+19:27:37.028 [2mdist/[22m[2massets/[22m[35mindex-C3Vv20De.css                         [39m[1m[2m 63.70 kB[22m[1m[22m[2m │ gzip:  10.27 kB[22m
+19:27:37.032 [2mdist/[22m[2massets/[22m[36mvendor-CPUiMCxt.js                         [39m[1m[2m 16.83 kB[22m[1m[22m[2m │ gzip:   6.50 kB[22m
+19:27:37.032 [2mdist/[22m[2massets/[22m[36mui-4vzF4zWS.js                             [39m[1m[2m158.53 kB[22m[1m[22m[2m │ gzip:  52.69 kB[22m
+19:27:37.033 [2mdist/[22m[2massets/[22m[36mcharts-nTHUPnI6.js                         [39m[1m[2m378.88 kB[22m[1m[22m[2m │ gzip: 111.81 kB[22m
+19:27:37.033 [2mdist/[22m[2massets/[22m[36mindex-B9nwhDPH.js                          [39m[1m[2m420.23 kB[22m[1m[22m[2m │ gzip: 121.92 kB[22m
+19:27:37.034 [32m✓ built in 6.45s[39m
+19:27:37.337 Using TypeScript 5.9.3 (local user-provided)
+19:27:41.381 Using TypeScript 5.9.3 (local user-provided)
+19:27:42.556 Using TypeScript 5.9.3 (local user-provided)
+19:27:43.099 server/src/index.ts(8,26): error TS2307: Cannot find module 'cookie-parser' or its corresponding type declarations.
+19:27:43.100 
+19:27:46.888 server/src/utils/jwt.ts(1,17): error TS7016: Could not find a declaration file for module 'jsonwebtoken'. '/vercel/path0/node_modules/jsonwebtoken/index.js' implicitly has an 'any' type.
+19:27:46.889   Try `npm i --save-dev @types/jsonwebtoken` if it exists or add a new declaration (.d.ts) file containing `declare module 'jsonwebtoken';`
+19:27:46.889 
+19:27:52.209 Build Completed in /vercel/output [26s]
+19:27:52.506 Deploying outputs...
+19:27:54.404 Warning: Provided `memory` setting in `vercel.json` is ignored on Active CPU billing. You can safely remove this setting from your configuration. Learn more: https://vercel.com/docs/fluid-compute/pricing
+19:27:58.835 Deployment completed
+19:27:59.767 Creating build cache...
