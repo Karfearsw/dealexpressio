@@ -123,7 +123,7 @@ router.get('/:id', requireAuth, async (req: Request, res: Response) => {
 
 // Create new lead
 router.post('/', requireAuth, async (req: Request, res: Response) => {
-    const { firstName, lastName, email, phone, source, status } = req.body;
+    const { firstName, lastName, email, phone, address, city, zip, source, status } = req.body;
 
     try {
         if (!req.session.userId) return res.status(401).json({ message: 'Unauthorized' });
@@ -137,6 +137,9 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
             lastName,
             email,
             phone,
+            address,
+            city,
+            zip,
             source,
             status: status || 'New Lead',
             assignedTo: req.session.userId,
@@ -161,7 +164,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
 
 // Update lead (status, info, etc)
 router.put('/:id', requireAuth, async (req: Request, res: Response) => {
-    const { firstName, lastName, email, phone, source, status, assignedTo } = req.body;
+    const { firstName, lastName, email, phone, address, city, zip, source, status, assignedTo } = req.body;
     const userId = req.session.userId;
 
     try {
@@ -174,6 +177,9 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
         if (lastName !== undefined) updateData.lastName = lastName;
         if (email !== undefined) updateData.email = email;
         if (phone !== undefined) updateData.phone = phone;
+        if (address !== undefined) updateData.address = address;
+        if (city !== undefined) updateData.city = city;
+        if (zip !== undefined) updateData.zip = zip;
         if (source !== undefined) updateData.source = source;
         if (status !== undefined) updateData.status = status;
         if (assignedTo !== undefined) updateData.assignedTo = assignedTo;
@@ -197,23 +203,23 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
 
         // If contract signed and not already converted, automatically create deal
         if (isContractSigned && !updatedLead.convertedToDealId && userId) {
-            // Try to find property address
+            // Use lead's address first, then try property
             const [property] = await db.select().from(properties).where(eq(properties.leadId, parseInt(req.params.id)));
 
             const [newDeal] = await db.insert(deals).values({
                 userId,
                 leadId: parseInt(req.params.id),
-                address: property?.address || 'TBD',
-                city: property?.city || null,
+                address: updatedLead.address || property?.address || 'TBD',
+                city: updatedLead.city || property?.city || null,
                 state: property?.state || null,
-                zip: property?.zip || null,
-                status: 'under_contract'
+                zip: updatedLead.zip || property?.zip || null,
+                status: 'Under Contract'
             }).returning();
 
-            // Link lead to deal and mark as converted
+            // Link lead to deal (keep status as Contract Signed)
             const [convertedLead] = await db
                 .update(leads)
-                .set({ convertedToDealId: newDeal.id, status: 'Converted' })
+                .set({ convertedToDealId: newDeal.id })
                 .where(eq(leads.id, parseInt(req.params.id)))
                 .returning();
 
@@ -321,24 +327,23 @@ router.patch('/:id/status', requireAuth, async (req: Request, res: Response) => 
 
         // If contract signed, automatically create deal
         if (isContractSigned && !updatedLead.convertedToDealId) {
-
-            // Try to find property address
+            // Use lead's address first, then try property
             const [property] = await db.select().from(properties).where(eq(properties.leadId, parseInt(id)));
 
             const [newDeal] = await db.insert(deals).values({
                 userId,
                 leadId: parseInt(id),
-                address: property?.address || 'TBD',
-                city: property?.city || null,
+                address: updatedLead.address || property?.address || 'TBD',
+                city: updatedLead.city || property?.city || null,
                 state: property?.state || null,
-                zip: property?.zip || null,
-                status: 'under_contract'
+                zip: updatedLead.zip || property?.zip || null,
+                status: 'Under Contract'
             }).returning();
 
-            // Link lead to deal and get fresh data
+            // Link lead to deal (keep status as Contract Signed)
             const [convertedLead] = await db
                 .update(leads)
-                .set({ convertedToDealId: newDeal.id, status: 'Converted' })
+                .set({ convertedToDealId: newDeal.id })
                 .where(eq(leads.id, parseInt(id)))
                 .returning();
 

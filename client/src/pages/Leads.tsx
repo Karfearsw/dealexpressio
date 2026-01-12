@@ -13,7 +13,7 @@ const Leads = () => {
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [showImportModal, setShowImportModal] = useState(false);
-    const [newLead, setNewLead] = useState({ firstName: '', lastName: '', email: '', phone: '', source: 'Manual', status: 'New Lead' });
+    const [newLead, setNewLead] = useState({ firstName: '', lastName: '', email: '', phone: '', address: '', city: '', zip: '', source: 'Manual', status: 'New Lead' });
     const [, setLocation] = useLocation();
 
     useEffect(() => {
@@ -77,7 +77,7 @@ const Leads = () => {
             const res = await axios.post('/leads', newLead);
             setLeads(prev => [res.data, ...prev]);
             setShowModal(false);
-            setNewLead({ firstName: '', lastName: '', email: '', phone: '', source: 'Manual', status: 'New Lead' });
+            setNewLead({ firstName: '', lastName: '', email: '', phone: '', address: '', city: '', zip: '', source: 'Manual', status: 'New Lead' });
         } catch (error: any) {
             console.error('Error creating lead:', error);
             const message = error.response?.data?.message || error.message || 'Failed to create lead';
@@ -209,6 +209,36 @@ const Leads = () => {
                                     onChange={e => setNewLead({ ...newLead, phone: e.target.value })}
                                     className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none"
                                 />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-400 mb-1">Address</label>
+                                <input
+                                    type="text"
+                                    value={newLead.address}
+                                    onChange={e => setNewLead({ ...newLead, address: e.target.value })}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none"
+                                    placeholder="Street address"
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-400 mb-1">City</label>
+                                    <input
+                                        type="text"
+                                        value={newLead.city}
+                                        onChange={e => setNewLead({ ...newLead, city: e.target.value })}
+                                        className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-400 mb-1">Zip Code</label>
+                                    <input
+                                        type="text"
+                                        value={newLead.zip}
+                                        onChange={e => setNewLead({ ...newLead, zip: e.target.value })}
+                                        className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none"
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-slate-400 mb-1">Source</label>

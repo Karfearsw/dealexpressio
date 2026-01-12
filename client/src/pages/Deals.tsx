@@ -177,11 +177,9 @@ const Deals: React.FC<DealsProps> = () => {
     const getStatusColor = (status: string | null) => {
         switch (status) {
             case 'Analyzing': return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
-            case 'Negotiation': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
             case 'Under Contract': return 'bg-purple-500/20 text-purple-400 border-purple-500/30';
-            case 'Assigned': return 'bg-teal-500/20 text-teal-400 border-teal-500/30';
             case 'Closed': return 'bg-green-500/20 text-green-400 border-green-500/30';
-            case 'Dead': return 'bg-red-500/20 text-red-400 border-red-500/30';
+            case 'Lost': return 'bg-red-500/20 text-red-400 border-red-500/30';
             default: return 'bg-slate-500/20 text-slate-400 border-slate-500/30';
         }
     };

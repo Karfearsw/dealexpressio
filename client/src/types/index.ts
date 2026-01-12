@@ -4,7 +4,10 @@ export interface Lead {
     lastName: string;
     email: string | null;
     phone: string | null;
-    status: 'New Lead' | 'Contacted' | 'Warm' | 'Offer Sent' | 'Contract Signed' | 'Converted' | 'Closed';
+    address: string | null;
+    city: string | null;
+    zip: string | null;
+    status: 'New Lead' | 'Contacted' | 'Offer Sent' | 'Contract Signed';
     source: string | null;
     assignedTo: number | null;
     convertedToDealId?: number | null;
@@ -14,19 +17,15 @@ export interface Lead {
 export const LEAD_STAGES = [
     'New Lead',
     'Contacted',
-    'Warm',
     'Offer Sent',
-    'Contract Signed',
-    'Converted'
+    'Contract Signed'
 ] as const;
 
 export const DEAL_STAGES = [
     'Analyzing',
-    'Negotiation', 
     'Under Contract',
-    'Assigned',
     'Closed',
-    'Dead'
+    'Lost'
 ] as const;
 
 export interface Deal {
