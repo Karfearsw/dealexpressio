@@ -27,7 +27,7 @@ const Dashboard = () => {
     const fetchStats = useCallback(async (isRefresh = false) => {
         if (isRefresh) setRefreshing(true);
         try {
-            const res = await axios.get('/api/analytics/dashboard');
+            const res = await axios.get('/analytics/dashboard');
             setStats(res.data);
             setLastUpdated(new Date());
         } catch (error) {

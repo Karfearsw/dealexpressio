@@ -45,7 +45,7 @@ const Timesheets = () => {
 
     const fetchHistory = async () => {
         try {
-            const res = await axios.get('/api/timesheets/history');
+            const res = await axios.get('/timesheets/history');
             setHistory(res.data);
         } catch (error) {
             console.error('Error fetching history:', error);
@@ -54,7 +54,7 @@ const Timesheets = () => {
 
     const handleClockIn = async () => {
         try {
-            const res = await axios.post('/api/timesheets/clock-in');
+            const res = await axios.post('/timesheets/clock-in');
             setStatus('active');
             setCurrentSession(res.data);
             fetchHistory(); // Refresh history

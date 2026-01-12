@@ -114,7 +114,7 @@ const Pricing = () => {
         setIsLoading(tier.name);
 
         try {
-            const { data } = await axios.post('/api/payments/create-checkout', {
+            const { data } = await axios.post('/payments/create-checkout', {
                 tier: tier.name.toLowerCase(),
                 crypto: 'ethereum'
             });

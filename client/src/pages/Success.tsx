@@ -13,7 +13,7 @@ const Success = () => {
     setTier(tierParam);
 
     // Verify payment status
-    axios.get('/api/payments/subscription-status')
+    axios.get('/payments/subscription-status')
       .then(res => {
         console.log('Subscription activated:', res.data);
       })

@@ -12,7 +12,7 @@ const Communication = () => {
     useEffect(() => {
         const fetchHistory = async () => {
             try {
-                const res = await axios.get('/api/communication/recent');
+                const res = await axios.get('/communication/recent');
                 setHistory(res.data || { calls: [], sms: [], voicemail: [] });
             } catch (error: any) {
                 console.error("Failed to fetch communication history", error);

@@ -153,7 +153,7 @@ const Leads = () => {
             <DataImportModal
                 isOpen={showImportModal}
                 onClose={() => setShowImportModal(false)}
-                endpoint="/api/leads/import"
+                endpoint="/leads/import"
                 onSuccess={fetchLeads}
                 title="Import Leads"
                 templateFields={['firstName', 'lastName', 'email']}

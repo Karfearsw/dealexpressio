@@ -33,7 +33,7 @@ const Deals: React.FC<DealsProps> = () => {
 
     const fetchDeals = async () => {
         try {
-            const res = await axios.get('/api/deals');
+            const res = await axios.get('/deals');
             setDeals(res.data);
         } catch (error) {
             console.error('Error fetching deals:', error);
@@ -44,7 +44,7 @@ const Deals: React.FC<DealsProps> = () => {
 
     const handleExport = async () => {
         try {
-            const response = await axios.get('/api/deals/export', { responseType: 'blob' });
+            const response = await axios.get('/deals/export', { responseType: 'blob' });
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
@@ -59,7 +59,7 @@ const Deals: React.FC<DealsProps> = () => {
 
     const fetchLeads = async () => {
         try {
-            const res = await axios.get('/api/leads');
+            const res = await axios.get('/leads');
             setLeads(res.data);
         } catch (error) {
             console.error('Error fetching leads for deal creation:', error);
@@ -69,7 +69,7 @@ const Deals: React.FC<DealsProps> = () => {
     const handleCreateDeal = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const res = await axios.post('/api/deals', {
+            const res = await axios.post('/deals', {
                 ...newDeal,
                 leadId: parseInt(newDeal.leadId)
             });
@@ -307,7 +307,7 @@ const Deals: React.FC<DealsProps> = () => {
             <DataImportModal
                 isOpen={showImportModal}
                 onClose={() => setShowImportModal(false)}
-                endpoint="/api/deals/import"
+                endpoint="/deals/import"
                 onSuccess={fetchDeals}
                 title="Import Deals"
                 templateFields={['leadId', 'address', 'city', 'state', 'zip']}

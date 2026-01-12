@@ -13,7 +13,7 @@ const Analytics = () => {
 
     const fetchAnalytics = async () => {
         try {
-            const res = await axios.get('/api/analytics/dashboard');
+            const res = await axios.get('/analytics/dashboard');
             setData(res.data);
         } catch (error) {
             console.error('Error fetching analytics:', error);

@@ -27,7 +27,7 @@ const BuyersList = () => {
     const handleCreateBuyer = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const res = await axios.post('/api/buyers', newBuyer);
+            const res = await axios.post('/buyers', newBuyer);
             setBuyers(prev => [res.data, ...prev]);
             setShowModal(false);
             setNewBuyer({ name: '', email: '', phone: '', criteria: '' });

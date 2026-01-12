@@ -21,8 +21,8 @@ const Contracts = () => {
         const fetchData = async () => {
             try {
                 const [templatesRes, recentRes] = await Promise.all([
-                    axios.get('/api/contracts/templates'),
-                    axios.get('/api/contracts/recent')
+                    axios.get('/contracts/templates'),
+                    axios.get('/contracts/recent')
                 ]);
                 setTemplates(templatesRes.data || []);
                 setRecentContracts(recentRes.data || []);
@@ -47,7 +47,7 @@ const Contracts = () => {
         e.preventDefault();
         setGenerating(true);
         try {
-            const response = await axios.post('/api/contracts/generate/assignment', formData, {
+            const response = await axios.post('/contracts/generate/assignment', formData, {
                 responseType: 'blob'
             });
             
