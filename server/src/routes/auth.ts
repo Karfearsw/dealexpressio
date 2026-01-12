@@ -9,6 +9,7 @@ import QRCode from 'qrcode';
 import rateLimit from 'express-rate-limit';
 import { isEmailValid, isPasswordValid, isNameValid, sanitize } from '../utils/validation';
 import { logEvent, AuditAction } from '../utils/auditLog';
+import { sendWelcomeEmail } from '../services/email';
 
 const router = Router();
 
@@ -91,6 +92,10 @@ router.post('/register', registerLimiter, async (req: Request, res: Response) =>
             status: 'success',
             details: { method: 'register', email: newUser.email },
             req
+        });
+
+        sendWelcomeEmail(newUser.email, sFirst, sLast).catch(err => {
+            console.error('Failed to send welcome email:', err);
         });
 
         res.status(201).json({ user: { id: newUser.id, email: newUser.email, role: newUser.role, subscriptionTier: newUser.subscriptionTier } });
