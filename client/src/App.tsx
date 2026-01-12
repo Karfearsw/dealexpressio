@@ -10,6 +10,7 @@ import Privacy from './pages/Privacy';
 import Contact from './pages/Contact';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import RegisterSuccess from './pages/RegisterSuccess';
 import Pricing from './pages/Pricing';
 import Success from './pages/Success';
 import Community from './components/layout/Community';
@@ -37,6 +38,7 @@ const AppRoutes = () => {
       </Route>
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
+      <Route path="/register-success" component={RegisterSuccess} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/success" component={Success} />
       <Route path="/community" component={Community} />

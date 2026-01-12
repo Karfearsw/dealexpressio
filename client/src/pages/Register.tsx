@@ -31,11 +31,7 @@ const Register = () => {
                 throw { response: { data: { message: 'Password must be at least 8 characters and include letters and numbers' } } };
             }
             await register(email, password, firstName, lastName, accessCode, subscriptionTier);
-            if (accessCode) {
-                setLocation('/dashboard');
-            } else {
-                setLocation('/pricing');
-            }
+            setLocation('/register-success');
         } catch (err: any) {
             setError(err.response?.data?.message || 'Failed to register');
         } finally {
