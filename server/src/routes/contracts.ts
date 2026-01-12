@@ -8,16 +8,34 @@ import { logEvent, AuditAction } from '../utils/auditLog';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import os from 'os';
 
 const router = Router();
 
-const uploadsDir = path.join(process.cwd(), 'uploads', 'contracts');
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
+const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+const uploadsDir = isServerless 
+    ? path.join(os.tmpdir(), 'contracts') 
+    : path.join(process.cwd(), 'uploads', 'contracts');
+
+try {
+    if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+} catch (err) {
+    console.warn('Could not create uploads directory:', err);
 }
 
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, uploadsDir),
+    destination: (req, file, cb) => {
+        try {
+            if (!fs.existsSync(uploadsDir)) {
+                fs.mkdirSync(uploadsDir, { recursive: true });
+            }
+            cb(null, uploadsDir);
+        } catch (err) {
+            cb(err as Error, uploadsDir);
+        }
+    },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
         cb(null, uniqueSuffix + path.extname(file.originalname));
