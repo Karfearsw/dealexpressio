@@ -22,7 +22,6 @@ export const LEAD_STAGES = [
 ] as const;
 
 export const DEAL_STAGES = [
-    'Analyzing',
     'Under Contract',
     'Closed',
     'Lost'
