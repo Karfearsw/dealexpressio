@@ -219,6 +219,21 @@ export const contactSubmissions = pgTable('contact_submissions', {
     createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+export const contracts = pgTable('contracts', {
+    id: serial('id').primaryKey(),
+    userId: integer('user_id').references(() => users.id).notNull(),
+    dealId: integer('deal_id').references(() => deals.id),
+    type: text('type').notNull(), // letter_of_intent, purchase_agreement, psa, assignment, jv_agreement
+    name: text('name').notNull(),
+    status: text('status').default('draft').notNull(), // draft, sent, signed, expired, cancelled
+    fileUrl: text('file_url'),
+    generatedData: jsonb('generated_data'),
+    signedAt: timestamp('signed_at'),
+    expiresAt: timestamp('expires_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 export const refreshTokens = pgTable('refresh_tokens', {
     id: serial('id').primaryKey(),
     userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),

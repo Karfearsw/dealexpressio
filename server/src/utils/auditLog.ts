@@ -13,6 +13,9 @@ export enum AuditAction {
     LEAD_DELETE = 'lead.delete',
     DEAL_CREATE = 'deal.create',
     DEAL_UPDATE = 'deal.update',
+    DEAL_DELETE = 'deal.delete',
+    CONTRACT_CREATE = 'contract.create',
+    CONTRACT_DELETE = 'contract.delete',
     API_RATE_LIMIT = 'security.rate_limit'
 }
 
