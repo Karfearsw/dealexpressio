@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Deal, Lead, DEAL_STAGES } from '@/types';
 import axios from 'axios';
-import { MapPin, DollarSign, Home, Plus, X, Upload, Download, Filter, Search, Building, Bed, Bath, Square, FileText, Trash2, Eye, Loader2 } from 'lucide-react';
+import { MapPin, DollarSign, Home, Plus, X, Upload, Download, Filter, Search, Building, Bed, Bath, Square, FileText, Trash2, Eye, Loader2, Clock } from 'lucide-react';
 import DataImportModal from '@/components/common/DataImportModal';
 import { Link } from 'wouter';
 
@@ -207,6 +207,17 @@ const Deals: React.FC<DealsProps> = () => {
         }
     };
 
+    const getDaysUntilExpiry = (expiryDate: string | null | undefined): number | null => {
+        if (!expiryDate) return null;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const expiry = new Date(expiryDate);
+        expiry.setHours(0, 0, 0, 0);
+        const diffTime = expiry.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays;
+    };
+
     const filteredDeals = deals.filter(deal => {
         const matchesStatus = filterStatus === 'all' || deal.status === filterStatus;
         const matchesSearch = deal.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -374,7 +385,7 @@ const Deals: React.FC<DealsProps> = () => {
                                 </div>
 
                                 {/* Financial Summary */}
-                                <div className="grid grid-cols-3 gap-3 border-t border-slate-800 pt-3">
+                                <div className="grid grid-cols-4 gap-2 border-t border-slate-800 pt-3">
                                     <div>
                                         <div className="text-xs text-slate-500">Contract Price</div>
                                         <div className="text-sm font-bold text-slate-200 flex items-center">
@@ -394,6 +405,18 @@ const Deals: React.FC<DealsProps> = () => {
                                         <div className="text-sm font-bold text-green-400 flex items-center">
                                             <DollarSign size={12} />
                                             {deal.assignmentFee ? parseFloat(deal.assignmentFee).toLocaleString() : '0'}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div className="text-xs text-red-400">Days to Expiry</div>
+                                        <div className="text-sm font-bold text-red-400 flex items-center">
+                                            <Clock size={12} className="mr-1" />
+                                            {(() => {
+                                                const days = getDaysUntilExpiry(deal.expiryDate);
+                                                if (days === null) return '-';
+                                                if (days < 0) return 'Expired';
+                                                return days;
+                                            })()}
                                         </div>
                                     </div>
                                 </div>
@@ -644,7 +667,7 @@ const Deals: React.FC<DealsProps> = () => {
 
                             {/* Deal Analysis */}
                             <h3 className="text-sm font-semibold text-teal-400 mb-3">Deal Analysis</h3>
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                                 <div className="bg-slate-950 rounded-lg p-3 border border-slate-800">
                                     <div className="text-xs text-slate-500">Contract Price</div>
                                     <div className="text-xl font-bold text-slate-200">
@@ -667,6 +690,19 @@ const Deals: React.FC<DealsProps> = () => {
                                         })()}
                                     </div>
                                     <div className="text-[10px] text-slate-600">Marketed - Contract Price</div>
+                                </div>
+                                <div className="bg-slate-950 rounded-lg p-3 border border-red-500/30">
+                                    <div className="text-xs text-red-400">Days Until Expiry</div>
+                                    <div className="text-xl font-bold text-red-400 flex items-center">
+                                        <Clock size={16} className="mr-2" />
+                                        {(() => {
+                                            const days = getDaysUntilExpiry(selectedDeal.expiryDate);
+                                            if (days === null) return '-';
+                                            if (days < 0) return 'Expired';
+                                            return days;
+                                        })()}
+                                    </div>
+                                    <div className="text-[10px] text-slate-600">Until contract expires</div>
                                 </div>
                             </div>
 
