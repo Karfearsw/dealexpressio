@@ -38,10 +38,8 @@ const Deals: React.FC<DealsProps> = () => {
         squareFeet: '',
         lotSize: '',
         yearBuilt: '',
-        arv: '',
-        repairs: '',
-        purchasePrice: '',
-        assignmentFee: '',
+        contractPrice: '',
+        marketedPrice: '',
         sellerMotivation: 'Medium',
         occupancy: 'Owner Occupied',
         condition: 'Fair',
@@ -102,13 +100,15 @@ const Deals: React.FC<DealsProps> = () => {
     const handleCreateDeal = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
+            const assignmentFee = (parseFloat(newDeal.marketedPrice) || 0) - (parseFloat(newDeal.contractPrice) || 0);
             const res = await axios.post('/deals', {
                 ...newDeal,
                 leadId: newDeal.leadId ? parseInt(newDeal.leadId) : null,
                 bedrooms: newDeal.bedrooms ? parseInt(newDeal.bedrooms) : null,
                 bathrooms: newDeal.bathrooms ? parseInt(newDeal.bathrooms) : null,
                 squareFeet: newDeal.squareFeet ? parseInt(newDeal.squareFeet) : null,
-                yearBuilt: newDeal.yearBuilt ? parseInt(newDeal.yearBuilt) : null
+                yearBuilt: newDeal.yearBuilt ? parseInt(newDeal.yearBuilt) : null,
+                assignmentFee: assignmentFee > 0 ? assignmentFee : null
             });
             setDeals(prev => [res.data, ...prev]);
             setShowModal(false);
@@ -155,10 +155,8 @@ const Deals: React.FC<DealsProps> = () => {
             squareFeet: '',
             lotSize: '',
             yearBuilt: '',
-            arv: '',
-            repairs: '',
-            purchasePrice: '',
-            assignmentFee: '',
+            contractPrice: '',
+            marketedPrice: '',
             sellerMotivation: 'Medium',
             occupancy: 'Owner Occupied',
             condition: 'Fair',
@@ -167,11 +165,6 @@ const Deals: React.FC<DealsProps> = () => {
         });
     };
 
-    const calculateMAO = (arv: string, repairs: string) => {
-        const arvNum = parseFloat(arv) || 0;
-        const repairsNum = parseFloat(repairs) || 0;
-        return (arvNum * 0.7) - repairsNum;
-    };
 
 
     const getStatusColor = (status: string | null) => {
@@ -286,7 +279,7 @@ const Deals: React.FC<DealsProps> = () => {
                                         <div className="text-xs text-slate-500 mt-1">{deal.city}, {deal.state}</div>
                                         <div className="flex items-center justify-between mt-2">
                                             <span className="text-teal-400 text-sm font-medium">
-                                                ${deal.purchasePrice ? parseFloat(deal.purchasePrice).toLocaleString() : '0'}
+                                                ${deal.contractPrice ? parseFloat(deal.contractPrice).toLocaleString() : '0'}
                                             </span>
                                             <span className="text-green-400 text-xs">
                                                 +${deal.assignmentFee ? parseFloat(deal.assignmentFee).toLocaleString() : '0'}
@@ -350,26 +343,19 @@ const Deals: React.FC<DealsProps> = () => {
                                 </div>
 
                                 {/* Financial Summary */}
-                                <div className="grid grid-cols-2 gap-3 border-t border-slate-800 pt-3">
+                                <div className="grid grid-cols-3 gap-3 border-t border-slate-800 pt-3">
                                     <div>
-                                        <div className="text-xs text-slate-500">Purchase</div>
+                                        <div className="text-xs text-slate-500">Contract Price</div>
                                         <div className="text-sm font-bold text-slate-200 flex items-center">
                                             <DollarSign size={12} className="text-slate-500" />
-                                            {deal.purchasePrice ? parseFloat(deal.purchasePrice).toLocaleString() : '0'}
+                                            {deal.contractPrice ? parseFloat(deal.contractPrice).toLocaleString() : '0'}
                                         </div>
                                     </div>
                                     <div>
-                                        <div className="text-xs text-slate-500">ARV</div>
-                                        <div className="text-sm font-bold text-slate-200 flex items-center">
-                                            <DollarSign size={12} className="text-teal-500" />
-                                            {deal.arv ? parseFloat(deal.arv).toLocaleString() : '0'}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div className="text-xs text-slate-500">Repairs</div>
-                                        <div className="text-sm font-bold text-orange-400 flex items-center">
+                                        <div className="text-xs text-slate-500">Marketed Price</div>
+                                        <div className="text-sm font-bold text-teal-400 flex items-center">
                                             <DollarSign size={12} />
-                                            {deal.repairs ? parseFloat(deal.repairs).toLocaleString() : '0'}
+                                            {deal.marketedPrice ? parseFloat(deal.marketedPrice).toLocaleString() : '0'}
                                         </div>
                                     </div>
                                     <div>
@@ -486,32 +472,23 @@ const Deals: React.FC<DealsProps> = () => {
 
                             {/* Financials */}
                             <div className="space-y-4">
-                                <h3 className="text-sm font-semibold text-teal-400 border-b border-slate-800 pb-2">Deal Financials</h3>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                <h3 className="text-sm font-semibold text-teal-400 border-b border-slate-800 pb-2">Contract Details</h3>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                                     <div>
-                                        <label className="block text-xs text-slate-500 mb-1">Purchase Price</label>
-                                        <input type="number" value={newDeal.purchasePrice} onChange={e => setNewDeal({ ...newDeal, purchasePrice: e.target.value })} className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none" placeholder="$0" />
+                                        <label className="block text-xs text-slate-500 mb-1">Contract Price</label>
+                                        <input type="number" value={newDeal.contractPrice} onChange={e => setNewDeal({ ...newDeal, contractPrice: e.target.value })} className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none" placeholder="$0" />
                                     </div>
                                     <div>
-                                        <label className="block text-xs text-slate-500 mb-1">ARV</label>
-                                        <input type="number" value={newDeal.arv} onChange={e => setNewDeal({ ...newDeal, arv: e.target.value })} className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none" placeholder="$0" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs text-slate-500 mb-1">Est. Repairs</label>
-                                        <input type="number" value={newDeal.repairs} onChange={e => setNewDeal({ ...newDeal, repairs: e.target.value })} className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none" placeholder="$0" />
+                                        <label className="block text-xs text-slate-500 mb-1">Marketed Price</label>
+                                        <input type="number" value={newDeal.marketedPrice} onChange={e => setNewDeal({ ...newDeal, marketedPrice: e.target.value })} className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none" placeholder="$0" />
                                     </div>
                                     <div>
                                         <label className="block text-xs text-slate-500 mb-1">Assignment Fee</label>
-                                        <input type="number" value={newDeal.assignmentFee} onChange={e => setNewDeal({ ...newDeal, assignmentFee: e.target.value })} className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none" placeholder="$0" />
+                                        <div className="w-full bg-slate-950 border border-green-500/30 rounded-lg p-2.5 text-green-400 font-bold">
+                                            ${((parseFloat(newDeal.marketedPrice) || 0) - (parseFloat(newDeal.contractPrice) || 0)).toLocaleString()}
+                                        </div>
+                                        <div className="text-[10px] text-slate-600 mt-1">Auto-calculated</div>
                                     </div>
-                                </div>
-                                {/* MAO Calculator */}
-                                <div className="bg-slate-950 border border-slate-800 rounded-lg p-4">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-slate-400">Maximum Allowable Offer (70% Rule)</span>
-                                        <span className="text-lg font-bold text-teal-400">${calculateMAO(newDeal.arv, newDeal.repairs).toLocaleString()}</span>
-                                    </div>
-                                    <div className="text-xs text-slate-500 mt-1">(ARV × 0.70) - Repairs</div>
                                 </div>
                             </div>
 
