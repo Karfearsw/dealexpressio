@@ -4,8 +4,40 @@ import { deals, leads } from '../db/schema';
 import { eq, desc, and } from 'drizzle-orm';
 import { requireAuth } from '../middleware/auth';
 import { logEvent, AuditAction } from '../utils/auditLog';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 
 const router = Router();
+
+const uploadsDir = path.join(process.cwd(), 'uploads', 'deals');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, uploadsDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, 'deal-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({
+    storage,
+    limits: { fileSize: 10 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = /jpeg|jpg|png|gif|webp/;
+        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = allowedTypes.test(file.mimetype);
+        if (extname && mimetype) {
+            return cb(null, true);
+        }
+        cb(new Error('Only image files are allowed'));
+    }
+});
 
 const normalizeDecimal = (val: any): number | null => {
     if (val === null || val === undefined) return null;
@@ -199,6 +231,40 @@ router.put('/:id', requireAuth, async (req, res) => {
     } catch (error) {
         console.error('Error updating deal:', error);
         res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Upload deal property image
+router.post('/:id/image', requireAuth, upload.single('image'), async (req, res) => {
+    try {
+        if (!req.session.userId) return res.status(401).send('Unauthorized');
+        
+        const dealId = parseInt(req.params.id);
+        if (isNaN(dealId)) return res.status(400).json({ message: 'Invalid deal ID' });
+        
+        if (!req.file) {
+            return res.status(400).json({ message: 'No image file provided' });
+        }
+        
+        const imageUrl = `/uploads/deals/${req.file.filename}`;
+        
+        const [updated] = await db.update(deals)
+            .set({ propertyImageUrl: imageUrl, updatedAt: new Date() })
+            .where(and(eq(deals.id, dealId), eq(deals.userId, req.session.userId)))
+            .returning();
+        
+        if (!updated) {
+            fs.unlinkSync(req.file.path);
+            return res.status(404).json({ message: 'Deal not found' });
+        }
+        
+        res.json({ 
+            propertyImageUrl: imageUrl,
+            message: 'Image uploaded successfully' 
+        });
+    } catch (error) {
+        console.error('Error uploading deal image:', error);
+        res.status(500).json({ message: 'Failed to upload image' });
     }
 });
 

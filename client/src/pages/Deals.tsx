@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Deal, Lead, DEAL_STAGES } from '@/types';
 import axios from 'axios';
-import { MapPin, DollarSign, Home, Plus, X, Upload, Download, Filter, Search, Building, Bed, Bath, Square, FileText, Trash2, Eye, Loader2, Clock } from 'lucide-react';
+import { MapPin, DollarSign, Home, Plus, X, Upload, Download, Filter, Search, Building, Bed, Bath, Square, FileText, Trash2, Eye, Loader2, Clock, Edit2, Camera, Save } from 'lucide-react';
 import DataImportModal from '@/components/common/DataImportModal';
 import { Link } from 'wouter';
 
@@ -144,6 +144,9 @@ const Deals: React.FC<DealsProps> = () => {
     };
 
     const [lookupLinks, setLookupLinks] = useState<{ name: string; url: string }[]>([]);
+    const [editingProperty, setEditingProperty] = useState(false);
+    const [propertyEdits, setPropertyEdits] = useState({ bedrooms: '', bathrooms: '', squareFeet: '', yearBuilt: '' });
+    const [uploadingImage, setUploadingImage] = useState(false);
 
     const resetNewDeal = () => {
         setNewDeal({
@@ -196,7 +199,58 @@ const Deals: React.FC<DealsProps> = () => {
         }
     };
 
+    const startEditingProperty = () => {
+        if (selectedDeal) {
+            setPropertyEdits({
+                bedrooms: selectedDeal.bedrooms?.toString() || '',
+                bathrooms: selectedDeal.bathrooms?.toString() || '',
+                squareFeet: selectedDeal.squareFeet?.toString() || '',
+                yearBuilt: selectedDeal.yearBuilt?.toString() || ''
+            });
+            setEditingProperty(true);
+        }
+    };
 
+    const savePropertyEdits = async () => {
+        if (!selectedDeal) return;
+        try {
+            await handleUpdateDeal(selectedDeal.id, {
+                bedrooms: propertyEdits.bedrooms ? parseInt(propertyEdits.bedrooms) : null,
+                bathrooms: propertyEdits.bathrooms ? parseInt(propertyEdits.bathrooms) : null,
+                squareFeet: propertyEdits.squareFeet ? parseInt(propertyEdits.squareFeet) : null,
+                yearBuilt: propertyEdits.yearBuilt ? parseInt(propertyEdits.yearBuilt) : null
+            });
+            setEditingProperty(false);
+        } catch (error) {
+            console.error('Error saving property edits:', error);
+        }
+    };
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!selectedDeal || !e.target.files?.[0]) return;
+        
+        const file = e.target.files[0];
+        const formData = new FormData();
+        formData.append('image', file);
+        
+        setUploadingImage(true);
+        try {
+            const res = await axios.post(`/deals/${selectedDeal.id}/image`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            
+            if (res.data.propertyImageUrl) {
+                setSelectedDeal(prev => prev ? { ...prev, propertyImageUrl: res.data.propertyImageUrl } : null);
+                setDeals(prev => prev.map(d => 
+                    d.id === selectedDeal.id ? { ...d, propertyImageUrl: res.data.propertyImageUrl } : d
+                ));
+            }
+        } catch (error) {
+            console.error('Error uploading image:', error);
+        } finally {
+            setUploadingImage(false);
+        }
+    };
 
     const getStatusColor = (status: string | null) => {
         switch (status) {
@@ -624,7 +678,12 @@ const Deals: React.FC<DealsProps> = () => {
                                     <Home size={64} />
                                 </div>
                             )}
-                            <button onClick={() => setShowDetailModal(false)} className="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-900/50 rounded-full p-2">
+                            <label className="absolute bottom-4 left-4 bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-2 rounded-lg text-sm flex items-center gap-2 cursor-pointer transition-colors">
+                                {uploadingImage ? <Loader2 size={14} className="animate-spin" /> : <Camera size={14} />}
+                                {uploadingImage ? 'Uploading...' : 'Change Photo'}
+                                <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" disabled={uploadingImage} />
+                            </label>
+                            <button onClick={() => { setShowDetailModal(false); setEditingProperty(false); }} className="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-900/50 rounded-full p-2">
                                 <X size={20} />
                             </button>
                         </div>
@@ -646,22 +705,73 @@ const Deals: React.FC<DealsProps> = () => {
                             </div>
 
                             {/* Property Info */}
+                            <div className="flex items-center justify-between mb-3">
+                                <h3 className="text-sm font-semibold text-teal-400">Property Details</h3>
+                                {editingProperty ? (
+                                    <div className="flex gap-2">
+                                        <button onClick={() => setEditingProperty(false)} className="text-xs text-slate-400 hover:text-white px-2 py-1">Cancel</button>
+                                        <button onClick={savePropertyEdits} className="text-xs bg-teal-600 hover:bg-teal-500 text-white px-3 py-1 rounded flex items-center gap-1">
+                                            <Save size={12} /> Save
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <button onClick={startEditingProperty} className="text-xs text-slate-400 hover:text-teal-400 flex items-center gap-1">
+                                        <Edit2 size={12} /> Edit
+                                    </button>
+                                )}
+                            </div>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                                 <div className="bg-slate-950 rounded-lg p-3">
                                     <div className="text-xs text-slate-500">Bedrooms</div>
-                                    <div className="text-lg font-bold text-slate-200">{selectedDeal.bedrooms || '-'}</div>
+                                    {editingProperty ? (
+                                        <input 
+                                            type="number" 
+                                            value={propertyEdits.bedrooms} 
+                                            onChange={e => setPropertyEdits(p => ({ ...p, bedrooms: e.target.value }))}
+                                            className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-lg font-bold text-slate-200 focus:border-teal-500 outline-none"
+                                        />
+                                    ) : (
+                                        <div className="text-lg font-bold text-slate-200">{selectedDeal.bedrooms || '-'}</div>
+                                    )}
                                 </div>
                                 <div className="bg-slate-950 rounded-lg p-3">
                                     <div className="text-xs text-slate-500">Bathrooms</div>
-                                    <div className="text-lg font-bold text-slate-200">{selectedDeal.bathrooms || '-'}</div>
+                                    {editingProperty ? (
+                                        <input 
+                                            type="number" 
+                                            value={propertyEdits.bathrooms} 
+                                            onChange={e => setPropertyEdits(p => ({ ...p, bathrooms: e.target.value }))}
+                                            className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-lg font-bold text-slate-200 focus:border-teal-500 outline-none"
+                                        />
+                                    ) : (
+                                        <div className="text-lg font-bold text-slate-200">{selectedDeal.bathrooms || '-'}</div>
+                                    )}
                                 </div>
                                 <div className="bg-slate-950 rounded-lg p-3">
                                     <div className="text-xs text-slate-500">Sq Feet</div>
-                                    <div className="text-lg font-bold text-slate-200">{selectedDeal.squareFeet?.toLocaleString() || '-'}</div>
+                                    {editingProperty ? (
+                                        <input 
+                                            type="number" 
+                                            value={propertyEdits.squareFeet} 
+                                            onChange={e => setPropertyEdits(p => ({ ...p, squareFeet: e.target.value }))}
+                                            className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-lg font-bold text-slate-200 focus:border-teal-500 outline-none"
+                                        />
+                                    ) : (
+                                        <div className="text-lg font-bold text-slate-200">{selectedDeal.squareFeet?.toLocaleString() || '-'}</div>
+                                    )}
                                 </div>
                                 <div className="bg-slate-950 rounded-lg p-3">
                                     <div className="text-xs text-slate-500">Year Built</div>
-                                    <div className="text-lg font-bold text-slate-200">{selectedDeal.yearBuilt || '-'}</div>
+                                    {editingProperty ? (
+                                        <input 
+                                            type="number" 
+                                            value={propertyEdits.yearBuilt} 
+                                            onChange={e => setPropertyEdits(p => ({ ...p, yearBuilt: e.target.value }))}
+                                            className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-lg font-bold text-slate-200 focus:border-teal-500 outline-none"
+                                        />
+                                    ) : (
+                                        <div className="text-lg font-bold text-slate-200">{selectedDeal.yearBuilt || '-'}</div>
+                                    )}
                                 </div>
                             </div>
 
