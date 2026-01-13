@@ -1,17 +1,44 @@
-import React, { useState, useEffect } from 'react';
-import { Users, Search, Plus, Mail, Phone, MapPin, X } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Users, Search, Plus, Mail, Phone, MapPin, X, Star } from 'lucide-react';
 import axios from 'axios';
+
+interface Deal {
+    id: number;
+    propertyAddress: string;
+    notes?: string;
+}
+
+interface BuyerMatch {
+    buyerId: number;
+    matchingDeals: { id: number; address: string }[];
+}
 
 const BuyersList = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [buyers, setBuyers] = useState<any[]>([]);
+    const [deals, setDeals] = useState<Deal[]>([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [newBuyer, setNewBuyer] = useState({ name: '', email: '', phone: '', criteria: '' });
 
     useEffect(() => {
-        fetchBuyers();
+        fetchData();
     }, []);
+
+    const fetchData = async () => {
+        try {
+            const [buyersRes, dealsRes] = await Promise.all([
+                axios.get('/buyers'),
+                axios.get('/deals')
+            ]);
+            setBuyers(buyersRes.data);
+            setDeals(dealsRes.data);
+        } catch (error) {
+            console.error("Failed to fetch data", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const fetchBuyers = async () => {
         try {
@@ -23,6 +50,40 @@ const BuyersList = () => {
             setLoading(false);
         }
     };
+
+    const buyerMatches = useMemo(() => {
+        const matches: Map<number, { id: number; address: string }[]> = new Map();
+        
+        buyers.forEach(buyer => {
+            if (!buyer.criteria) return;
+            
+            const criteriaWords = buyer.criteria.toLowerCase()
+                .split(/[\s,]+/)
+                .filter((word: string) => word.length > 2)
+                .map((word: string) => word.replace(/[^a-z0-9]/g, ''));
+            
+            if (criteriaWords.length === 0) return;
+            
+            const matchingDeals: { id: number; address: string }[] = [];
+            
+            deals.forEach(deal => {
+                if (!deal.notes) return;
+                
+                const notesLower = deal.notes.toLowerCase();
+                const hasMatch = criteriaWords.some((word: string) => notesLower.includes(word));
+                
+                if (hasMatch) {
+                    matchingDeals.push({ id: deal.id, address: deal.propertyAddress });
+                }
+            });
+            
+            if (matchingDeals.length > 0) {
+                matches.set(buyer.id, matchingDeals);
+            }
+        });
+        
+        return matches;
+    }, [buyers, deals]);
 
     const handleCreateBuyer = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -81,35 +142,53 @@ const BuyersList = () => {
                         No buyers found.
                     </div>
                 ) : (
-                    filteredBuyers.map((buyer) => (
-                        <div key={buyer.id} className="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-teal-500/30 transition-all group">
-                            <div className="flex items-start justify-between mb-4">
-                                <div className="w-12 h-12 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-center text-teal-400">
-                                    <Users size={24} />
+                    filteredBuyers.map((buyer) => {
+                        const matchingDeals = buyerMatches.get(buyer.id);
+                        return (
+                            <div key={buyer.id} className={`bg-slate-900 border rounded-xl p-6 hover:border-teal-500/30 transition-all group ${matchingDeals ? 'border-yellow-500/50' : 'border-slate-800'}`}>
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className="w-12 h-12 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-center text-teal-400">
+                                        <Users size={24} />
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        {matchingDeals && (
+                                            <div className="text-yellow-400" title="Potential deal match">
+                                                <Star size={20} fill="currentColor" />
+                                            </div>
+                                        )}
+                                        <div className="text-[10px] font-bold text-teal-500 bg-teal-500/10 px-2 py-1 rounded uppercase tracking-wider">
+                                            {buyer.dealsClosed || 0} Deals Closed
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="text-[10px] font-bold text-teal-500 bg-teal-500/10 px-2 py-1 rounded uppercase tracking-wider">
-                                    {buyer.dealsClosed || 0} Deals Closed
+
+                                <h3 className="text-lg font-bold text-slate-100 group-hover:text-teal-400 transition-colors">{buyer.name}</h3>
+
+                                {matchingDeals && (
+                                    <div className="mt-2 bg-yellow-500/10 border border-yellow-500/30 rounded-lg px-3 py-2">
+                                        <p className="text-xs text-yellow-400 font-medium">
+                                            Potential match to {matchingDeals.map(d => d.address).join(', ')}
+                                        </p>
+                                    </div>
+                                )}
+
+                                <div className="mt-4 space-y-2">
+                                    <div className="flex items-center text-sm text-slate-400">
+                                        <Mail size={14} className="mr-2 shrink-0" />
+                                        <span className="truncate">{buyer.email || 'No email'}</span>
+                                    </div>
+                                    <div className="flex items-center text-sm text-slate-400">
+                                        <Phone size={14} className="mr-2 shrink-0" />
+                                        <span>{buyer.phone || 'No phone'}</span>
+                                    </div>
+                                    <div className="flex items-start text-sm text-slate-400 pt-2 border-t border-slate-800">
+                                        <MapPin size={14} className="mr-2 mt-0.5 shrink-0" />
+                                        <p className="italic">{buyer.criteria || 'No criteria listed'}</p>
+                                    </div>
                                 </div>
                             </div>
-
-                            <h3 className="text-lg font-bold text-slate-100 group-hover:text-teal-400 transition-colors">{buyer.name}</h3>
-
-                            <div className="mt-4 space-y-2">
-                                <div className="flex items-center text-sm text-slate-400">
-                                    <Mail size={14} className="mr-2 shrink-0" />
-                                    <span className="truncate">{buyer.email || 'No email'}</span>
-                                </div>
-                                <div className="flex items-center text-sm text-slate-400">
-                                    <Phone size={14} className="mr-2 shrink-0" />
-                                    <span>{buyer.phone || 'No phone'}</span>
-                                </div>
-                                <div className="flex items-start text-sm text-slate-400 pt-2 border-t border-slate-800">
-                                    <MapPin size={14} className="mr-2 mt-0.5 shrink-0" />
-                                    <p className="italic">{buyer.criteria || 'No criteria listed'}</p>
-                                </div>
-                            </div>
-                        </div>
-                    ))
+                        );
+                    })
                 )}
             </div>
 
