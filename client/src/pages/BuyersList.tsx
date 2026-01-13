@@ -46,7 +46,7 @@ const BuyersList = () => {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-100 italic">Buyers List</h1>
+                    <h1 className="text-2xl font-bold text-slate-100">Buyers</h1>
                     <p className="text-slate-400">Manage and segment your qualified buyers.</p>
                 </div>
                 <button 

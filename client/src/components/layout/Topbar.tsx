@@ -1,15 +1,12 @@
 import { Bell } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import GlobalSearch from '@/components/common/GlobalSearch';
 
 const Topbar = () => {
     const { user } = useAuth();
 
     return (
         <header className="h-16 border-b border-slate-800 bg-slate-900/50 backdrop-blur flex items-center justify-between px-6">
-            <div className="flex items-center flex-1 max-w-md">
-                <GlobalSearch />
-            </div>
+            <div className="flex-1" />
 
             <div className="flex items-center space-x-4">
                 <button className="relative p-2 text-slate-400 hover:bg-slate-800 rounded-full transition-colors">

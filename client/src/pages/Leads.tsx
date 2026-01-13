@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Pipeline from '@/components/leads/Pipeline';
 import LeadsList from '@/components/leads/LeadsList';
-import { Plus, Columns, List, X, Upload, Download } from 'lucide-react';
+import { Plus, Columns, List, X, Upload, Download, Search } from 'lucide-react';
 import { Lead } from '@/types';
 import axios from 'axios';
 import DataImportModal from '@/components/common/DataImportModal';
@@ -13,6 +13,7 @@ const Leads = () => {
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [showImportModal, setShowImportModal] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
     const [newLead, setNewLead] = useState({ firstName: '', lastName: '', email: '', phone: '', address: '', city: '', state: '', zip: '', source: 'Manual', status: 'New Lead' });
     const [, setLocation] = useLocation();
 
@@ -91,14 +92,37 @@ const Leads = () => {
 
     if (loading) return <div className="p-8 text-center text-slate-400">Loading leads...</div>;
 
+    const filteredLeads = leads.filter(lead => {
+        if (!searchTerm) return true;
+        const term = searchTerm.toLowerCase();
+        return (
+            lead.firstName?.toLowerCase().includes(term) ||
+            lead.lastName?.toLowerCase().includes(term) ||
+            lead.email?.toLowerCase().includes(term) ||
+            lead.phone?.includes(term) ||
+            lead.address?.toLowerCase().includes(term) ||
+            lead.city?.toLowerCase().includes(term)
+        );
+    });
+
     return (
         <div className="flex flex-col h-full relative">
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-100">Leads Pipeline</h1>
+                    <h1 className="text-2xl font-bold text-slate-100">Leads</h1>
                     <p className="text-slate-400">Manage your deal flow from new lead to closed deal.</p>
                 </div>
                 <div className="flex items-center space-x-3">
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+                        <input
+                            type="text"
+                            placeholder="Search leads..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="bg-slate-900 border border-slate-800 rounded-lg pl-9 pr-4 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-teal-500 w-48"
+                        />
+                    </div>
                     <div className="bg-slate-900 border border-slate-800 rounded-lg p-1 flex">
                         <button
                             onClick={() => setShowImportModal(true)}
@@ -142,14 +166,14 @@ const Leads = () => {
             <div className="flex-1 min-h-0">
                 {viewMode === 'pipeline' ? (
                     <Pipeline
-                        leads={leads}
+                        leads={filteredLeads}
                         onLeadUpdate={handleLeadUpdate}
                         onConvertToDeal={handleConvertToDeal}
                         onLeadDelete={handleLeadDelete}
                     />
                 ) : (
                     <LeadsList
-                        leads={leads}
+                        leads={filteredLeads}
                         onConvertToDeal={handleConvertToDeal}
                     />
                 )}
