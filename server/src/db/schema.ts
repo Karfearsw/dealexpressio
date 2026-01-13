@@ -129,15 +129,23 @@ export const deals = pgTable('deals', {
     state: text('state'),
     zip: text('zip'),
 
+    contractPrice: decimal('contract_price', { precision: 12, scale: 2 }),
+    marketedPrice: decimal('marketed_price', { precision: 12, scale: 2 }),
+    assignmentFee: decimal('assignment_fee', { precision: 12, scale: 2 }),
+    expiryDate: timestamp('expiry_date'),
+    notes: text('notes'),
+    contractFileUrl: text('contract_file_url'),
+    propertyImageUrl: text('property_image_url'),
+
     purchasePrice: decimal('purchase_price', { precision: 12, scale: 2 }),
     arv: decimal('arv', { precision: 12, scale: 2 }),
     repairs: decimal('repairs', { precision: 12, scale: 2 }),
-    assignmentFee: decimal('assignment_fee', { precision: 12, scale: 2 }),
     projectedProfit: decimal('projected_profit', { precision: 12, scale: 2 }),
 
     bedrooms: integer('bedrooms'),
     bathrooms: integer('bathrooms'),
     squareFeet: integer('square_feet'),
+    yearBuilt: integer('year_built'),
 
     status: text('status').default('analyzing'),
 
