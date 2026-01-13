@@ -1,0 +1,79 @@
+Jan 13 12:10:42.72
+POST
+500
+www.dealexpress.io
+/api/leads/8/convert-with-contract
+2
+Error converting lead with contract: DrizzleQueryError: Failed query: insert into "deals" ("id", "user_id", "team_id", "lead_id", "address", "city", "state", "zip", "contract_price", "marketed_price", "assignment_fee", "expiry_date", "notes", "contract_file_url", "property_image_url", "purchase_price", "arv", "repairs", "projected_profit", "bedrooms", "bathrooms", "square_feet", "year_built", "status", "closed_at", "created_at", "updated_at") values (default, $1, default, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, default, default, default, default, $14, $15, $16, $17, $18, default, default, default) returning "id", "user_id", "team_id", "lead_id", "address", "city", "state", "zip", "contract_price", "marketed_price", "assignment_fee", "expiry_date", "notes", "contract_file_url", "property_image_url", "purchase_price", "arv", "repairs", "projected_profit", "bedrooms", "bathrooms", "square_feet", "year_built", "status", "closed_at", "created_at", "updated_at" params: 23,8,123 H St,Detroit,Michigan,48226,100000,120000,20000,2026-09-01T00:00:00.000Z,SFH - Divorced Seller,,,,,,,Under Contract at NeonHttpPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:66:15) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async NeonHttpPreparedQuery.execute (/var/task/server/node_modules/drizzle-orm/neon-http/session.cjs:70:20) at async /var/task/server/src/routes/leads.js:366:27 { query: 'insert into "deals" ("id", "user_id", "team_id", "lead_id", "address", "city", "state", "zip", "contract_price", "marketed_price", "assignment_fee", "expiry_date", "notes", "contract_file_url", "property_image_url", "purchase_price", "arv", "repairs", "projected_profit", "bedrooms", "bathrooms", "square_feet", "year_built", "status", "closed_at", "created_at", "updated_at") values (default, $1, default, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, default, default, default, default, $14, $15, $16, $17, $18, default, default, default) returning "id", "user_id", "team_id", "lead_id", "address", "city", "state", "zip", "contract_price", "marketed_price", "assignment_fee", "expiry_date", "notes", "contract_file_url", "property_image_url", "purchase_price", "arv", "repairs", "projected_profit", "bedrooms", "bathrooms", "square_feet", "year_built", "status", "closed_at", "created_at", "updated_at"', params: [ 23, 8, '123 H St', 'Detroit', 'Michigan', '48226', '100000', '120000', '20000', '2026-09-01T00:00:00.000Z', 'SFH - Divorced Seller', null, null, null, null, null, null, 'Under Contract' ], cause: NeonDbError: column "contract_price" of relation "deals" does not exist at mr.execute (/var/task/server/node_modules/@neondatabase/serverless/index.js:1300:10) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/neon-http/session.cjs:71:14 at async NeonHttpPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:64:16) at async NeonHttpPreparedQuery.execute (/var/task/server/node_modules/drizzle-orm/neon-http/session.cjs:70:20) at async /var/task/server/src/routes/leads.js:366:27 { severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: '96', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, column: undefined, dataType: undefined, constraint: undefined, file: 'parse_target.c', line: '1065', routine: 'checkInsertTargets', sourceError: undefined } }
+Jan 13 12:10:38.35
+POST
+404
+www.dealexpress.io
+/api/api/property-lookup
+[0mPOST /api/api/property-lookup [33m404[0m 4.044 ms - 163[0m
+Jan 13 12:10:37.39
+POST
+404
+www.dealexpress.io
+/api/api/property-lookup
+[0mPOST /api/api/property-lookup [33m404[0m 4.282 ms - 163[0m
+Jan 13 12:10:31.45
+POST
+500
+www.dealexpress.io
+/api/leads/8/convert-with-contract
+2
+Error converting lead with contract: DrizzleQueryError: Failed query: insert into "deals" ("id", "user_id", "team_id", "lead_id", "address", "city", "state", "zip", "contract_price", "marketed_price", "assignment_fee", "expiry_date", "notes", "contract_file_url", "property_image_url", "purchase_price", "arv", "repairs", "projected_profit", "bedrooms", "bathrooms", "square_feet", "year_built", "status", "closed_at", "created_at", "updated_at") values (default, $1, default, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, default, default, default, default, $14, $15, $16, $17, $18, default, default, default) returning "id", "user_id", "team_id", "lead_id", "address", "city", "state", "zip", "contract_price", "marketed_price", "assignment_fee", "expiry_date", "notes", "contract_file_url", "property_image_url", "purchase_price", "arv", "repairs", "projected_profit", "bedrooms", "bathrooms", "square_feet", "year_built", "status", "closed_at", "created_at", "updated_at" params: 23,8,123 H St,Detroit,Michigan,48226,100000,120000,20000,2026-09-01T00:00:00.000Z,SFH - Divorced Seller,,,,,,,Under Contract at NeonHttpPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:66:15) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async NeonHttpPreparedQuery.execute (/var/task/server/node_modules/drizzle-orm/neon-http/session.cjs:70:20) at async /var/task/server/src/routes/leads.js:366:27 { query: 'insert into "deals" ("id", "user_id", "team_id", "lead_id", "address", "city", "state", "zip", "contract_price", "marketed_price", "assignment_fee", "expiry_date", "notes", "contract_file_url", "property_image_url", "purchase_price", "arv", "repairs", "projected_profit", "bedrooms", "bathrooms", "square_feet", "year_built", "status", "closed_at", "created_at", "updated_at") values (default, $1, default, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, default, default, default, default, $14, $15, $16, $17, $18, default, default, default) returning "id", "user_id", "team_id", "lead_id", "address", "city", "state", "zip", "contract_price", "marketed_price", "assignment_fee", "expiry_date", "notes", "contract_file_url", "property_image_url", "purchase_price", "arv", "repairs", "projected_profit", "bedrooms", "bathrooms", "square_feet", "year_built", "status", "closed_at", "created_at", "updated_at"', params: [ 23, 8, '123 H St', 'Detroit', 'Michigan', '48226', '100000', '120000', '20000', '2026-09-01T00:00:00.000Z', 'SFH - Divorced Seller', null, null, null, null, null, null, 'Under Contract' ], cause: NeonDbError: column "contract_price" of relation "deals" does not exist at mr.execute (/var/task/server/node_modules/@neondatabase/serverless/index.js:1300:10) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/neon-http/session.cjs:71:14 at async NeonHttpPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:64:16) at async NeonHttpPreparedQuery.execute (/var/task/server/node_modules/drizzle-orm/neon-http/session.cjs:70:20) at async /var/task/server/src/routes/leads.js:366:27 { severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: '96', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, column: undefined, dataType: undefined, constraint: undefined, file: 'parse_target.c', line: '1065', routine: 'checkInsertTargets', sourceError: undefined } }
+Jan 13 12:10:26.77
+POST
+500
+www.dealexpress.io
+/api/leads/8/convert-with-contract
+2
+Error converting lead with contract: DrizzleQueryError: Failed query: insert into "deals" ("id", "user_id", "team_id", "lead_id", "address", "city", "state", "zip", "contract_price", "marketed_price", "assignment_fee", "expiry_date", "notes", "contract_file_url", "property_image_url", "purchase_price", "arv", "repairs", "projected_profit", "bedrooms", "bathrooms", "square_feet", "year_built", "status", "closed_at", "created_at", "updated_at") values (default, $1, default, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, default, default, default, default, $14, $15, $16, $17, $18, default, default, default) returning "id", "user_id", "team_id", "lead_id", "address", "city", "state", "zip", "contract_price", "marketed_price", "assignment_fee", "expiry_date", "notes", "contract_file_url", "property_image_url", "purchase_price", "arv", "repairs", "projected_profit", "bedrooms", "bathrooms", "square_feet", "year_built", "status", "closed_at", "created_at", "updated_at" params: 23,8,123 H St,Detroit,Michigan,48226,100000,120000,20000,2026-09-01T00:00:00.000Z,SFH - Divorced Seller,,,,,,,Under Contract at NeonHttpPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:66:15) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async NeonHttpPreparedQuery.execute (/var/task/server/node_modules/drizzle-orm/neon-http/session.cjs:70:20) at async /var/task/server/src/routes/leads.js:366:27 { query: 'insert into "deals" ("id", "user_id", "team_id", "lead_id", "address", "city", "state", "zip", "contract_price", "marketed_price", "assignment_fee", "expiry_date", "notes", "contract_file_url", "property_image_url", "purchase_price", "arv", "repairs", "projected_profit", "bedrooms", "bathrooms", "square_feet", "year_built", "status", "closed_at", "created_at", "updated_at") values (default, $1, default, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, default, default, default, default, $14, $15, $16, $17, $18, default, default, default) returning "id", "user_id", "team_id", "lead_id", "address", "city", "state", "zip", "contract_price", "marketed_price", "assignment_fee", "expiry_date", "notes", "contract_file_url", "property_image_url", "purchase_price", "arv", "repairs", "projected_profit", "bedrooms", "bathrooms", "square_feet", "year_built", "status", "closed_at", "created_at", "updated_at"', params: [ 23, 8, '123 H St', 'Detroit', 'Michigan', '48226', '100000', '120000', '20000', '2026-09-01T00:00:00.000Z', 'SFH - Divorced Seller', null, null, null, null, null, null, 'Under Contract' ], cause: NeonDbError: column "contract_price" of relation "deals" does not exist at mr.execute (/var/task/server/node_modules/@neondatabase/serverless/index.js:1300:10) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/neon-http/session.cjs:71:14 at async NeonHttpPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:64:16) at async NeonHttpPreparedQuery.execute (/var/task/server/node_modules/drizzle-orm/neon-http/session.cjs:70:20) at async /var/task/server/src/routes/leads.js:366:27 { severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: '96', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, column: undefined, dataType: undefined, constraint: undefined, file: 'parse_target.c', line: '1065', routine: 'checkInsertTargets', sourceError: undefined } }
+Jan 13 12:09:35.64
+PUT
+200
+www.dealexpress.io
+/api/leads/8
+[0mPUT /api/leads/8 [32m200[0m 22.094 ms - 379[0m
+Jan 13 12:09:33.84
+PUT
+200
+www.dealexpress.io
+/api/leads/8
+[0mPUT /api/leads/8 [32m200[0m 68.639 ms - 378[0m
+Jan 13 12:09:31.25
+PUT
+200
+www.dealexpress.io
+/api/leads/8
+[0mPUT /api/leads/8 [32m200[0m 44.259 ms - 377[0m
+Jan 13 12:09:23.20
+PUT
+200
+www.dealexpress.io
+/api/leads/8
+3
+[0mPUT /api/leads/8 [32m200[0m 172.638 ms - 379[0m
+Jan 13 12:09:21.47
+PUT
+200
+www.dealexpress.io
+/api/leads/8
+3
+[0mPUT /api/leads/8 [32m200[0m 730.041 ms - 378[0m
+Jan 13 11:53:09.44
+PUT
+200
+www.dealexpress.io
+/api/leads/8
+[0mPUT /api/leads/8 [32m200[0m 43.240 ms - 379[0m
+Jan 13 11:53:02.61
+POST
+201
+www.dealexpress.io
+/api/leads
+3
+[0mPOST /api/leads [32m201[0m 811.321 ms - 377[0m
+No more logs to show within selected timeline

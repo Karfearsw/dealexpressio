@@ -1,0 +1,78 @@
+11:30:14.505 Running build in Washington, D.C., USA (East) – iad1
+11:30:14.508 Build machine configuration: 2 cores, 8 GB
+11:30:15.005 Cloning github.com/Karfearsw/dealexpressio (Branch: main, Commit: 913c55b)
+11:30:16.993 Cloning completed: 1.988s
+11:30:17.312 Restored build cache from previous deployment (9JXZuhxsNThFkHMUMAhCvzSaE6ff)
+11:30:18.221 Running "vercel build"
+11:30:18.650 Vercel CLI 50.1.6
+11:30:19.409 Installing dependencies...
+11:30:21.090 
+11:30:21.092 up to date in 1s
+11:30:21.093 
+11:30:21.093 89 packages are looking for funding
+11:30:21.093   run `npm fund` for details
+11:30:22.434 
+11:30:22.434 up to date, audited 439 packages in 1s
+11:30:22.435 
+11:30:22.435 53 packages are looking for funding
+11:30:22.435   run `npm fund` for details
+11:30:22.457 
+11:30:22.457 4 moderate severity vulnerabilities
+11:30:22.457 
+11:30:22.458 To address all issues (including breaking changes), run:
+11:30:22.458   npm audit fix --force
+11:30:22.458 
+11:30:22.458 Run `npm audit` for details.
+11:30:23.407 
+11:30:23.407 up to date, audited 451 packages in 873ms
+11:30:23.407 
+11:30:23.408 64 packages are looking for funding
+11:30:23.408   run `npm fund` for details
+11:30:23.409 
+11:30:23.409 found 0 vulnerabilities
+11:30:23.526 
+11:30:23.527 > build
+11:30:23.527 > npm run client:build && npm run server:build
+11:30:23.527 
+11:30:23.631 
+11:30:23.631 > client:build
+11:30:23.631 > npm --prefix client run build
+11:30:23.632 
+11:30:23.742 
+11:30:23.742 > client@0.0.0 build
+11:30:23.742 > vite build
+11:30:23.743 
+11:30:24.251 [36mvite v7.3.0 [32mbuilding client environment for production...[36m[39m
+11:30:24.365 transforming...
+11:30:30.485 [32m✓[39m 2831 modules transformed.
+11:30:31.052 rendering chunks...
+11:30:31.417 computing gzip size...
+11:30:31.447 [2mdist/[22m[32mindex.html                                        [39m[1m[2m  1.76 kB[22m[1m[22m[2m │ gzip:   0.60 kB[22m
+11:30:31.448 [2mdist/[22m[2massets/[22m[32mlogo-white-D9G9TCRq.png                    [39m[1m[2m262.77 kB[22m[1m[22m
+11:30:31.448 [2mdist/[22m[2massets/[22m[32micon-feature-buyers-list-BtS7n9tz.png      [39m[1m[2m861.44 kB[22m[1m[22m
+11:30:31.449 [2mdist/[22m[2massets/[22m[32micon-feature-lead-management-87qekt6R.png  [39m[1m[2m924.19 kB[22m[1m[22m
+11:30:31.449 [2mdist/[22m[2massets/[22m[35mindex-pkUwjFMu.css                         [39m[1m[2m 69.15 kB[22m[1m[22m[2m │ gzip:  10.94 kB[22m
+11:30:31.449 [2mdist/[22m[2massets/[22m[36mvendor-CPUiMCxt.js                         [39m[1m[2m 16.83 kB[22m[1m[22m[2m │ gzip:   6.50 kB[22m
+11:30:31.449 [2mdist/[22m[2massets/[22m[36mui-CTjCQNHp.js                             [39m[1m[2m161.22 kB[22m[1m[22m[2m │ gzip:  53.57 kB[22m
+11:30:31.449 [2mdist/[22m[2massets/[22m[36mcharts-BQZzcgRf.js                         [39m[1m[2m378.88 kB[22m[1m[22m[2m │ gzip: 111.81 kB[22m
+11:30:31.449 [2mdist/[22m[2massets/[22m[36mindex-quKa7pki.js                          [39m[1m[2m470.35 kB[22m[1m[22m[2m │ gzip: 130.97 kB[22m
+11:30:31.450 [32m✓ built in 7.15s[39m
+11:30:31.626 
+11:30:31.627 > server:build
+11:30:31.627 > npm --prefix server run build
+11:30:31.627 
+11:30:31.731 
+11:30:31.732 > dealexpress-server@1.0.0 build
+11:30:31.732 > tsc
+11:30:31.732 
+11:30:37.827 Using TypeScript 5.9.3 (local user-provided)
+11:30:42.674 Using TypeScript 5.9.3 (local user-provided)
+11:30:44.293 Using TypeScript 5.9.3 (local user-provided)
+11:30:56.778 Build Completed in /vercel/output [37s]
+11:30:57.134 Deploying outputs...
+11:30:59.508 Warning: Provided `memory` setting in `vercel.json` is ignored on Active CPU billing. You can safely remove this setting from your configuration. Learn more: https://vercel.com/docs/fluid-compute/pricing
+11:31:03.942 Deployment completed
+11:31:04.885 Creating build cache...
+11:32:17.909 Created build cache: 1:13.024 (m:ss.mmm)
+11:32:17.910 Uploading build cache [120.75 MB]
+11:32:21.270 Build cache uploaded: 3.360s
