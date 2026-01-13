@@ -666,17 +666,11 @@ const Deals: React.FC<DealsProps> = () => {
 
                             {/* Actions */}
                             <div className="flex items-center gap-3 pt-4 border-t border-slate-800">
-                                <Link
-                                    href={`/contracts?dealId=${selectedDeal.id}`}
-                                    className="flex-1 bg-teal-600 hover:bg-teal-500 text-white px-4 py-2 rounded-lg font-medium flex items-center justify-center transition-colors"
-                                >
-                                    <FileText size={18} className="mr-2" /> Generate Contract
-                                </Link>
                                 <button
                                     onClick={() => handleDeleteDeal(selectedDeal.id)}
                                     className="bg-red-500/20 hover:bg-red-500/30 text-red-400 px-4 py-2 rounded-lg flex items-center transition-colors"
                                 >
-                                    <Trash2 size={18} className="mr-2" /> Delete
+                                    <Trash2 size={18} className="mr-2" /> Delete Deal
                                 </button>
                             </div>
                         </div>
