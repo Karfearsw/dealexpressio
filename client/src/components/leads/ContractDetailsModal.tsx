@@ -46,7 +46,7 @@ const ContractDetailsModal: React.FC<ContractDetailsModalProps> = ({ lead, isOpe
         setFetchingProperty(true);
         try {
             const fullAddress = `${lead.address}, ${lead.city || ''}, ${lead.state || ''} ${lead.zip || ''}`;
-            const res = await axios.post('/api/property-lookup', { address: fullAddress });
+            const res = await axios.post('/property-lookup', { address: fullAddress });
             if (res.data) {
                 setPropertyData({
                     bedrooms: res.data.bedrooms || null,

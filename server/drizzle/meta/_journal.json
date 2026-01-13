@@ -22,6 +22,13 @@
       "when": 1768190587986,
       "tag": "0002_add_user_team_ids",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1768324569758,
+      "tag": "0003_soft_maginty",
+      "breakpoints": true
     }
   ]
 }
