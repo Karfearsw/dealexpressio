@@ -3,6 +3,8 @@ import { DndContext, DragEndEvent } from '@dnd-kit/core';
 import { Lead, LEAD_STAGES } from '@/types';
 import PipelineColumn from './PipelineColumn';
 import LeadDetailModal from './LeadDetailModal';
+import ContractDetailsModal from './ContractDetailsModal';
+import { useLocation } from 'wouter';
 
 interface PipelineProps {
     leads: Lead[];
@@ -13,6 +15,8 @@ interface PipelineProps {
 
 const Pipeline: React.FC<PipelineProps> = ({ leads, onLeadUpdate, onConvertToDeal, onLeadDelete }) => {
     const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+    const [contractModalLead, setContractModalLead] = useState<Lead | null>(null);
+    const [, setLocation] = useLocation();
 
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
@@ -21,10 +25,14 @@ const Pipeline: React.FC<PipelineProps> = ({ leads, onLeadUpdate, onConvertToDea
             const leadId = parseInt(active.id.toString());
             const newStatus = over.id as Lead['status'];
             
-            // Find the lead to check its current status
             const lead = leads.find(l => l.id === leadId);
             if (lead?.status === 'Contract Signed') {
                 alert('Leads in "Contract Signed" are now Deals and cannot be moved back to previous stages.');
+                return;
+            }
+
+            if (newStatus === 'Contract Signed' && lead) {
+                setContractModalLead(lead);
                 return;
             }
 
@@ -34,6 +42,14 @@ const Pipeline: React.FC<PipelineProps> = ({ leads, onLeadUpdate, onConvertToDea
 
     const handleLeadClick = (lead: Lead) => {
         setSelectedLead(lead);
+    };
+
+    const handleContractSuccess = () => {
+        if (contractModalLead) {
+            onLeadUpdate(contractModalLead.id, 'Contract Signed');
+        }
+        setContractModalLead(null);
+        setLocation('/deals');
     };
 
     return (
@@ -59,6 +75,15 @@ const Pipeline: React.FC<PipelineProps> = ({ leads, onLeadUpdate, onConvertToDea
                     isOpen={!!selectedLead}
                     onClose={() => setSelectedLead(null)}
                     onConvertToDeal={onConvertToDeal ? () => onConvertToDeal(selectedLead.id) : undefined}
+                />
+            )}
+
+            {contractModalLead && (
+                <ContractDetailsModal
+                    lead={contractModalLead}
+                    isOpen={!!contractModalLead}
+                    onClose={() => setContractModalLead(null)}
+                    onSuccess={handleContractSuccess}
                 />
             )}
         </>

@@ -43,6 +43,11 @@ export interface Deal {
     squareFeet?: number | null;
     lotSize?: string | null;
     yearBuilt?: number | null;
+    contractPrice?: string | null;
+    marketedPrice?: string | null;
+    expiryDate?: string | null;
+    contractFileUrl?: string | null;
+    propertyImageUrl?: string | null;
     purchasePrice: string | null;
     arv: string | null;
     repairs: string | null;

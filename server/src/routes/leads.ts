@@ -363,4 +363,91 @@ router.patch('/:id/status', requireAuth, async (req: Request, res: Response) => 
     }
 });
 
+// Convert lead to deal with contract details
+router.post('/:id/convert-with-contract', requireAuth, upload.single('contractFile'), async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const userId = req.session.userId;
+        
+        if (!userId) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        const { 
+            contractPrice, 
+            marketedPrice, 
+            expiryDate, 
+            notes, 
+            assignmentFee,
+            bedrooms,
+            bathrooms,
+            squareFeet,
+            yearBuilt,
+            propertyImageUrl
+        } = req.body;
+
+        const [lead] = await db
+            .select()
+            .from(leads)
+            .where(and(eq(leads.id, parseInt(id)), eq(leads.userId, userId)));
+
+        if (!lead) {
+            return res.status(404).json({ error: 'Lead not found' });
+        }
+
+        let contractFileUrl = null;
+        if (req.file) {
+            contractFileUrl = `/uploads/${req.file.filename}`;
+        }
+
+        const [newDeal] = await db.insert(deals).values({
+            userId,
+            leadId: parseInt(id),
+            address: lead.address || 'TBD',
+            city: lead.city || null,
+            state: lead.state || null,
+            zip: lead.zip || null,
+            contractPrice: contractPrice || null,
+            marketedPrice: marketedPrice || null,
+            expiryDate: expiryDate ? new Date(expiryDate) : null,
+            notes: notes || null,
+            assignmentFee: assignmentFee || null,
+            contractFileUrl: contractFileUrl,
+            propertyImageUrl: propertyImageUrl || null,
+            bedrooms: bedrooms ? parseInt(bedrooms) : null,
+            bathrooms: bathrooms ? parseInt(bathrooms) : null,
+            squareFeet: squareFeet ? parseInt(squareFeet) : null,
+            yearBuilt: yearBuilt ? parseInt(yearBuilt) : null,
+            status: 'Under Contract'
+        }).returning();
+
+        const [updatedLead] = await db
+            .update(leads)
+            .set({ 
+                status: 'Contract Signed',
+                contractSignedAt: new Date(),
+                convertedToDealId: newDeal.id,
+                updatedAt: new Date()
+            })
+            .where(eq(leads.id, parseInt(id)))
+            .returning();
+
+        await logEvent({
+            userId,
+            action: AuditAction.DEAL_CREATE,
+            resource: `deals:${newDeal.id}`,
+            req
+        });
+
+        res.json({
+            lead: updatedLead,
+            deal: newDeal,
+            message: 'Lead converted to deal with contract details'
+        });
+    } catch (error) {
+        console.error('Error converting lead with contract:', error);
+        res.status(500).json({ error: 'Failed to convert lead' });
+    }
+});
+
 export default router;

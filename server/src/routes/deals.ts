@@ -30,6 +30,8 @@ router.get('/', requireAuth, async (req, res) => {
             repairs: normalizeDecimal(d.repairs),
             assignmentFee: normalizeDecimal(d.assignmentFee),
             projectedProfit: normalizeDecimal(d.projectedProfit),
+            contractPrice: normalizeDecimal(d.contractPrice),
+            marketedPrice: normalizeDecimal(d.marketedPrice),
         })));
     } catch (error) {
         console.error('Error fetching deals:', error);
@@ -210,12 +212,15 @@ router.patch('/:id', requireAuth, async (req, res) => {
 
         const updateData: any = { updatedAt: new Date() };
         const allowedFields = ['address', 'city', 'state', 'zip', 'purchasePrice', 'arv', 'repairs', 
-            'assignmentFee', 'status', 'bedrooms', 'bathrooms', 'squareFeet', 'notes', 'buyerId'];
+            'assignmentFee', 'status', 'bedrooms', 'bathrooms', 'squareFeet', 'notes', 'buyerId',
+            'contractPrice', 'marketedPrice', 'expiryDate', 'yearBuilt', 'propertyImageUrl'];
         
         for (const field of allowedFields) {
             if (req.body[field] !== undefined) {
-                if (['purchasePrice', 'arv', 'repairs', 'assignmentFee'].includes(field)) {
+                if (['purchasePrice', 'arv', 'repairs', 'assignmentFee', 'contractPrice', 'marketedPrice'].includes(field)) {
                     updateData[field] = req.body[field] ? req.body[field].toString() : null;
+                } else if (field === 'expiryDate') {
+                    updateData[field] = req.body[field] ? new Date(req.body[field]) : null;
                 } else {
                     updateData[field] = req.body[field];
                 }
@@ -242,6 +247,8 @@ router.patch('/:id', requireAuth, async (req, res) => {
             arv: normalizeDecimal(updated.arv),
             repairs: normalizeDecimal(updated.repairs),
             assignmentFee: normalizeDecimal(updated.assignmentFee),
+            contractPrice: normalizeDecimal(updated.contractPrice),
+            marketedPrice: normalizeDecimal(updated.marketedPrice),
         });
     } catch (error) {
         console.error('Error updating deal:', error);

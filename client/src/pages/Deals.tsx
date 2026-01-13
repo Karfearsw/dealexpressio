@@ -306,10 +306,18 @@ const Deals: React.FC<DealsProps> = () => {
                             key={deal.id}
                             className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-teal-500/30 transition-all group"
                         >
-                            <div className="h-40 bg-slate-800 relative">
-                                <div className="absolute inset-0 flex items-center justify-center text-slate-600">
-                                    <Home size={48} />
-                                </div>
+                            <div className="h-40 bg-slate-800 relative overflow-hidden">
+                                {deal.propertyImageUrl ? (
+                                    <img 
+                                        src={deal.propertyImageUrl} 
+                                        alt={deal.address}
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="absolute inset-0 flex items-center justify-center text-slate-600">
+                                        <Home size={48} />
+                                    </div>
+                                )}
                                 <div className={`absolute top-2 right-2 flex items-center gap-1`}>
                                     <div className={`px-2 py-1 rounded text-xs font-bold border ${getStatusColor(deal.status)}`}>
                                         {deal.status || 'Analyzing'}
@@ -532,10 +540,18 @@ const Deals: React.FC<DealsProps> = () => {
             {showDetailModal && selectedDeal && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                     <div className="bg-slate-900 border border-slate-800 rounded-xl w-full max-w-3xl shadow-2xl overflow-hidden">
-                        <div className="bg-slate-800 h-32 relative">
-                            <div className="absolute inset-0 flex items-center justify-center text-slate-600">
-                                <Home size={64} />
-                            </div>
+                        <div className="bg-slate-800 h-32 relative overflow-hidden">
+                            {selectedDeal.propertyImageUrl ? (
+                                <img 
+                                    src={selectedDeal.propertyImageUrl} 
+                                    alt={selectedDeal.address}
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <div className="absolute inset-0 flex items-center justify-center text-slate-600">
+                                    <Home size={64} />
+                                </div>
+                            )}
                             <button onClick={() => setShowDetailModal(false)} className="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-900/50 rounded-full p-2">
                                 <X size={20} />
                             </button>
@@ -577,45 +593,74 @@ const Deals: React.FC<DealsProps> = () => {
                                 </div>
                             </div>
 
-                            {/* Financials */}
+                            {/* Deal Analysis */}
                             <h3 className="text-sm font-semibold text-teal-400 mb-3">Deal Analysis</h3>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                                 <div className="bg-slate-950 rounded-lg p-3 border border-slate-800">
-                                    <div className="text-xs text-slate-500">Purchase Price</div>
-                                    <div className="text-xl font-bold text-slate-200">${selectedDeal.purchasePrice ? parseFloat(selectedDeal.purchasePrice).toLocaleString() : '0'}</div>
+                                    <div className="text-xs text-slate-500">Contract Price</div>
+                                    <div className="text-xl font-bold text-slate-200">
+                                        ${selectedDeal.contractPrice ? parseFloat(String(selectedDeal.contractPrice)).toLocaleString() : '0'}
+                                    </div>
                                 </div>
                                 <div className="bg-slate-950 rounded-lg p-3 border border-slate-800">
-                                    <div className="text-xs text-slate-500">ARV</div>
-                                    <div className="text-xl font-bold text-teal-400">${selectedDeal.arv ? parseFloat(selectedDeal.arv).toLocaleString() : '0'}</div>
-                                </div>
-                                <div className="bg-slate-950 rounded-lg p-3 border border-slate-800">
-                                    <div className="text-xs text-slate-500">Repairs</div>
-                                    <div className="text-xl font-bold text-orange-400">${selectedDeal.repairs ? parseFloat(selectedDeal.repairs).toLocaleString() : '0'}</div>
+                                    <div className="text-xs text-slate-500">Marketed Price</div>
+                                    <div className="text-xl font-bold text-teal-400">
+                                        ${selectedDeal.marketedPrice ? parseFloat(String(selectedDeal.marketedPrice)).toLocaleString() : '0'}
+                                    </div>
                                 </div>
                                 <div className="bg-slate-950 rounded-lg p-3 border border-green-500/30">
                                     <div className="text-xs text-slate-500">Assignment Fee</div>
-                                    <div className="text-xl font-bold text-green-400">${selectedDeal.assignmentFee ? parseFloat(selectedDeal.assignmentFee).toLocaleString() : '0'}</div>
+                                    <div className="text-xl font-bold text-green-400">
+                                        ${(() => {
+                                            const marketed = parseFloat(String(selectedDeal.marketedPrice)) || 0;
+                                            const contract = parseFloat(String(selectedDeal.contractPrice)) || 0;
+                                            return (marketed - contract).toLocaleString();
+                                        })()}
+                                    </div>
+                                    <div className="text-[10px] text-slate-600">Marketed - Contract Price</div>
                                 </div>
                             </div>
 
-                            {/* MAO */}
-                            <div className="bg-gradient-to-r from-teal-500/10 to-blue-500/10 border border-teal-500/30 rounded-lg p-4 mb-6">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <div className="text-sm text-slate-400">Maximum Allowable Offer (MAO)</div>
-                                        <div className="text-xs text-slate-500">(ARV × 70%) - Repairs</div>
-                                    </div>
-                                    <div className="text-2xl font-bold text-teal-400">
-                                        ${calculateMAO(selectedDeal.arv || '0', selectedDeal.repairs || '0').toLocaleString()}
+                            {/* Expiry Date */}
+                            {selectedDeal.expiryDate && (
+                                <div className="bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/30 rounded-lg p-4 mb-6">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <div className="text-sm text-slate-400">Contract Expiry Date</div>
+                                            <div className="text-xs text-slate-500">Make sure to close before this date</div>
+                                        </div>
+                                        <div className="text-xl font-bold text-orange-400">
+                                            {new Date(selectedDeal.expiryDate).toLocaleDateString('en-US', { 
+                                                month: 'short', 
+                                                day: 'numeric', 
+                                                year: 'numeric' 
+                                            })}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            )}
 
                             {/* Notes */}
                             {selectedDeal.notes && (
                                 <div className="mb-6">
                                     <h3 className="text-sm font-semibold text-slate-400 mb-2">Notes</h3>
-                                    <p className="text-slate-300 bg-slate-950 rounded-lg p-3">{selectedDeal.notes}</p>
+                                    <p className="text-slate-300 bg-slate-950 rounded-lg p-3 whitespace-pre-wrap">{selectedDeal.notes}</p>
+                                </div>
+                            )}
+
+                            {/* Contract File */}
+                            {selectedDeal.contractFileUrl && (
+                                <div className="mb-6">
+                                    <h3 className="text-sm font-semibold text-slate-400 mb-2">Signed Contract</h3>
+                                    <a 
+                                        href={selectedDeal.contractFileUrl} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-2 text-teal-400 hover:text-teal-300"
+                                    >
+                                        <FileText size={16} />
+                                        View Contract Document
+                                    </a>
                                 </div>
                             )}
 
