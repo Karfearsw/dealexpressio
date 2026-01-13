@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "cd server && npm install && cd ../client && npm install && cd .. && npm run build",
+  "buildCommand": "cd server && npm install && npm run migrate && cd ../client && npm install && cd .. && npm run build",
   "outputDirectory": "client/dist",
   "rewrites": [
     {
