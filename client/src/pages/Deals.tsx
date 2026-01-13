@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Deal, Lead, DEAL_STAGES } from '@/types';
 import axios from 'axios';
-import { MapPin, DollarSign, Home, Plus, X, Upload, Download, Filter, Search, Building, Bed, Bath, Square, FileText, Trash2, Eye } from 'lucide-react';
+import { MapPin, DollarSign, Home, Plus, X, Upload, Download, Filter, Search, Building, Bed, Bath, Square, FileText, Trash2, Eye, Loader2 } from 'lucide-react';
 import DataImportModal from '@/components/common/DataImportModal';
 import { Link } from 'wouter';
 
@@ -44,8 +44,10 @@ const Deals: React.FC<DealsProps> = () => {
         occupancy: 'Owner Occupied',
         condition: 'Fair',
         notes: '',
-        status: 'Analyzing'
+        status: 'Analyzing',
+        propertyImageUrl: ''
     });
+    const [lookupLoading, setLookupLoading] = useState(false);
 
     useEffect(() => {
         fetchDeals();
@@ -141,6 +143,8 @@ const Deals: React.FC<DealsProps> = () => {
         }
     };
 
+    const [lookupLinks, setLookupLinks] = useState<{ name: string; url: string }[]>([]);
+
     const resetNewDeal = () => {
         setNewDeal({
             leadId: '',
@@ -161,8 +165,35 @@ const Deals: React.FC<DealsProps> = () => {
             occupancy: 'Owner Occupied',
             condition: 'Fair',
             notes: '',
-            status: 'Analyzing'
+            status: 'Analyzing',
+            propertyImageUrl: ''
         });
+        setLookupLinks([]);
+    };
+
+    const handlePropertyLookup = async () => {
+        if (!newDeal.address) return;
+        
+        setLookupLoading(true);
+        try {
+            const res = await axios.post('/property-lookup', {
+                address: newDeal.address,
+                city: newDeal.city,
+                state: newDeal.state,
+                zip: newDeal.zip
+            });
+            
+            if (res.data.propertyImageUrl) {
+                setNewDeal(prev => ({ ...prev, propertyImageUrl: res.data.propertyImageUrl }));
+            }
+            if (res.data.quickLinks) {
+                setLookupLinks(res.data.quickLinks);
+            }
+        } catch (error) {
+            console.error('Property lookup error:', error);
+        } finally {
+            setLookupLoading(false);
+        }
     };
 
 
@@ -445,7 +476,48 @@ const Deals: React.FC<DealsProps> = () => {
 
                             {/* Property Details */}
                             <div className="space-y-4">
-                                <h3 className="text-sm font-semibold text-teal-400 border-b border-slate-800 pb-2">Property Details</h3>
+                                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                                    <h3 className="text-sm font-semibold text-teal-400">Property Details</h3>
+                                    <button
+                                        type="button"
+                                        onClick={handlePropertyLookup}
+                                        disabled={!newDeal.address || lookupLoading}
+                                        className="text-xs bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-300 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors"
+                                    >
+                                        {lookupLoading ? <Loader2 size={12} className="animate-spin" /> : <Search size={12} />}
+                                        Lookup Property
+                                    </button>
+                                </div>
+                                
+                                {/* Quick Links for manual lookup */}
+                                {lookupLinks.length > 0 && (
+                                    <div className="bg-slate-950 border border-slate-800 rounded-lg p-3">
+                                        <p className="text-xs text-slate-500 mb-2">Find property details from these sources:</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {lookupLinks.map((link, idx) => (
+                                                <a
+                                                    key={idx}
+                                                    href={link.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-xs bg-teal-600/20 hover:bg-teal-600/30 text-teal-400 px-3 py-1.5 rounded-md transition-colors"
+                                                >
+                                                    {link.name}
+                                                </a>
+                                            ))}
+                                        </div>
+                                        <p className="text-[10px] text-slate-600 mt-2">Click a link, find the property details, then enter them below.</p>
+                                    </div>
+                                )}
+                                
+                                {/* Property Image Preview */}
+                                {newDeal.propertyImageUrl && (
+                                    <div className="relative h-32 rounded-lg overflow-hidden">
+                                        <img src={newDeal.propertyImageUrl} alt="Property" className="w-full h-full object-cover" />
+                                        <div className="absolute bottom-2 right-2 text-[10px] bg-black/50 text-slate-400 px-2 py-0.5 rounded">Placeholder Image</div>
+                                    </div>
+                                )}
+                                
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                                     <select value={newDeal.propertyType} onChange={e => setNewDeal({ ...newDeal, propertyType: e.target.value })} className="bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none">
                                         {PROPERTY_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
