@@ -86,7 +86,6 @@ const Dashboard = () => {
                     <h2 className="text-2xl md:text-3xl font-bold text-white mb-2 transition-opacity duration-500">
                         "{motivationalQuotes[quoteIndex]}"
                     </h2>
-                    <p className="text-teal-400 font-medium">Keep pushing for that mailbox money.</p>
                 </div>
             </div>
 
