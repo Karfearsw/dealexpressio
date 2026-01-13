@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Deal, Lead, DEAL_STAGES } from '@/types';
 import axios from 'axios';
-import { MapPin, DollarSign, Home, Plus, X, Upload, Download, Filter, Search, Building, Bed, Bath, Square, FileText, Trash2, Eye, Loader2, Clock, Edit2, Camera, Save } from 'lucide-react';
+import { MapPin, Home, Plus, X, Upload, Download, Filter, Search, Building, Bed, Bath, Square, FileText, Trash2, Eye, Loader2, Clock, Edit2, Camera, Save } from 'lucide-react';
 import DataImportModal from '@/components/common/DataImportModal';
 import { Link } from 'wouter';
 
@@ -439,32 +439,29 @@ const Deals: React.FC<DealsProps> = () => {
                                 </div>
 
                                 {/* Financial Summary */}
-                                <div className="grid grid-cols-4 gap-2 border-t border-slate-800 pt-3">
-                                    <div>
-                                        <div className="text-xs text-slate-500">Contract Price</div>
-                                        <div className="text-sm font-bold text-slate-200 flex items-center">
-                                            <DollarSign size={12} className="text-slate-500" />
-                                            {deal.contractPrice ? parseFloat(deal.contractPrice).toLocaleString() : '0'}
+                                <div className="grid grid-cols-2 gap-3 border-t border-slate-800 pt-3">
+                                    <div className="bg-slate-950/50 rounded-lg p-2">
+                                        <div className="text-[10px] text-slate-500 uppercase tracking-wide">Contract Price</div>
+                                        <div className="text-base font-bold text-slate-200">
+                                            ${deal.contractPrice ? parseFloat(deal.contractPrice).toLocaleString() : '0'}
                                         </div>
                                     </div>
-                                    <div>
-                                        <div className="text-xs text-slate-500">Marketed Price</div>
-                                        <div className="text-sm font-bold text-teal-400 flex items-center">
-                                            <DollarSign size={12} />
-                                            {deal.marketedPrice ? parseFloat(deal.marketedPrice).toLocaleString() : '0'}
+                                    <div className="bg-slate-950/50 rounded-lg p-2">
+                                        <div className="text-[10px] text-slate-500 uppercase tracking-wide">Marketed Price</div>
+                                        <div className="text-base font-bold text-teal-400">
+                                            ${deal.marketedPrice ? parseFloat(deal.marketedPrice).toLocaleString() : '0'}
                                         </div>
                                     </div>
-                                    <div>
-                                        <div className="text-xs text-slate-500">Assignment Fee</div>
-                                        <div className="text-sm font-bold text-green-400 flex items-center">
-                                            <DollarSign size={12} />
-                                            {deal.assignmentFee ? parseFloat(deal.assignmentFee).toLocaleString() : '0'}
+                                    <div className="bg-slate-950/50 rounded-lg p-2">
+                                        <div className="text-[10px] text-slate-500 uppercase tracking-wide">Assignment Fee</div>
+                                        <div className="text-base font-bold text-green-400">
+                                            ${deal.assignmentFee ? parseFloat(deal.assignmentFee).toLocaleString() : '0'}
                                         </div>
                                     </div>
-                                    <div>
-                                        <div className="text-xs text-red-400">Days to Expiry</div>
-                                        <div className="text-sm font-bold text-red-400 flex items-center">
-                                            <Clock size={12} className="mr-1" />
+                                    <div className="bg-slate-950/50 rounded-lg p-2">
+                                        <div className="text-[10px] text-red-400 uppercase tracking-wide">Days to Expiry</div>
+                                        <div className="text-base font-bold text-red-400 flex items-center">
+                                            <Clock size={14} className="mr-1" />
                                             {(() => {
                                                 const days = getDaysUntilExpiry(deal.expiryDate);
                                                 if (days === null) return '-';
