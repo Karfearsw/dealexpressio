@@ -1,6 +1,6 @@
-import React from 'react';
-import { Bell, Search } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import GlobalSearch from '@/components/common/GlobalSearch';
 
 const Topbar = () => {
     const { user } = useAuth();
@@ -8,14 +8,7 @@ const Topbar = () => {
     return (
         <header className="h-16 border-b border-slate-800 bg-slate-900/50 backdrop-blur flex items-center justify-between px-6">
             <div className="flex items-center flex-1 max-w-md">
-                <div className="relative w-full">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                    <input
-                        type="text"
-                        placeholder="Search leads, properties, or contacts..."
-                        className="w-full bg-slate-800 border-none rounded-lg py-2 pl-10 pr-4 text-sm text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-teal-500/50"
-                    />
-                </div>
+                <GlobalSearch />
             </div>
 
             <div className="flex items-center space-x-4">

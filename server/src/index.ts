@@ -22,6 +22,7 @@ import marketingRoutes from './routes/marketing';
 import buyersRoutes from './routes/buyers';
 import teamsRoutes from './routes/teams';
 import propertyLookupRoutes from './routes/property-lookup';
+import searchRoutes from './routes/search';
 import { pool } from './db';
 
 import path from 'path';
@@ -137,6 +138,7 @@ app.use('/api/buyers', buyersRoutes);
 app.use('/api/teams', teamsRoutes);
 app.use('/api/payments', paymentsRoutes);
 app.use('/api/property-lookup', propertyLookupRoutes);
+app.use('/api/search', searchRoutes);
 
 app.get('/health', (req: express.Request, res: express.Response) => {
     res.json({ status: 'ok' });
