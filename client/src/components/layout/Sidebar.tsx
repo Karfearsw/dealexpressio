@@ -34,18 +34,18 @@ const Sidebar = () => {
         { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
         { name: 'Leads', path: '/leads', icon: Users },
         { name: 'Deals', path: '/deals', icon: Home },
+        { name: 'Buyers', path: '/buyers', icon: Users },
+        { name: 'Analytics', path: '/analytics', icon: BarChart },
+        { name: 'Deal Calculator', path: '/calculator', icon: Calculator },
+        { name: 'Document Generator', path: '/contracts', icon: FileText },
+        { name: 'Team', path: '/teams', icon: UsersRound },
+        { name: 'Settings', path: '/settings', icon: Settings },
         {
             name: 'Communication',
             path: '/communication',
             icon: MessageSquare,
             locked: !['business@kevnbenestate.org', 'sk@dealexpress.io', 'enterprise_test@example.com'].includes(user?.email || '')
         },
-        { name: 'Contracts', path: '/contracts', icon: FileText },
-        { name: 'Analytics', path: '/analytics', icon: BarChart },
-        { name: 'Buyers List', path: '/buyers', icon: Users },
-        { name: 'Deal Calculator', path: '/calculator', icon: Calculator },
-        { name: 'Team', path: '/teams', icon: UsersRound },
-        { name: 'Settings', path: '/settings', icon: Settings },
     ];
 
     return (
