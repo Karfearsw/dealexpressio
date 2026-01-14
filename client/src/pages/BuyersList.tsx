@@ -1,16 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Users, Search, Plus, Mail, Phone, MapPin, X, Star } from 'lucide-react';
+import { Users, Search, Plus, Mail, Phone, MapPin, X, Star, Pencil } from 'lucide-react';
 import axios from 'axios';
 
 interface Deal {
     id: number;
-    propertyAddress: string;
+    address: string;
     notes?: string;
-}
-
-interface BuyerMatch {
-    buyerId: number;
-    matchingDeals: { id: number; address: string }[];
 }
 
 const BuyersList = () => {
@@ -19,6 +14,7 @@ const BuyersList = () => {
     const [deals, setDeals] = useState<Deal[]>([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+    const [editingBuyer, setEditingBuyer] = useState<any | null>(null);
     const [newBuyer, setNewBuyer] = useState({ name: '', email: '', phone: '', criteria: '' });
 
     useEffect(() => {
@@ -73,7 +69,7 @@ const BuyersList = () => {
                 const hasMatch = criteriaWords.some((word: string) => notesLower.includes(word));
                 
                 if (hasMatch) {
-                    matchingDeals.push({ id: deal.id, address: deal.propertyAddress });
+                    matchingDeals.push({ id: deal.id, address: deal.address });
                 }
             });
             
@@ -94,6 +90,22 @@ const BuyersList = () => {
             setNewBuyer({ name: '', email: '', phone: '', criteria: '' });
         } catch (error) {
             console.error("Failed to create buyer", error);
+        }
+    };
+
+    const handleEditBuyer = (buyer: any) => {
+        setEditingBuyer({ ...buyer });
+    };
+
+    const handleUpdateBuyer = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingBuyer) return;
+        try {
+            const res = await axios.put(`/buyers/${editingBuyer.id}`, editingBuyer);
+            setBuyers(prev => prev.map(b => b.id === editingBuyer.id ? res.data : b));
+            setEditingBuyer(null);
+        } catch (error) {
+            console.error("Failed to update buyer", error);
         }
     };
 
@@ -162,7 +174,16 @@ const BuyersList = () => {
                                     </div>
                                 </div>
 
-                                <h3 className="text-lg font-bold text-slate-100 group-hover:text-teal-400 transition-colors">{buyer.name}</h3>
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-lg font-bold text-slate-100 group-hover:text-teal-400 transition-colors">{buyer.name}</h3>
+                                    <button
+                                        onClick={() => handleEditBuyer(buyer)}
+                                        className="p-1.5 text-slate-400 hover:text-teal-400 hover:bg-slate-800 rounded-lg transition-colors"
+                                        title="Edit buyer"
+                                    >
+                                        <Pencil size={16} />
+                                    </button>
+                                </div>
 
                                 {matchingDeals && (
                                     <div className="mt-2 bg-yellow-500/10 border border-yellow-500/30 rounded-lg px-3 py-2">
@@ -253,6 +274,74 @@ const BuyersList = () => {
                                     className="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg font-medium transition-colors"
                                 >
                                     Add Buyer
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Buyer Modal */}
+            {editingBuyer && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-slate-900 border border-slate-800 rounded-xl w-full max-w-md p-6 shadow-2xl">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-xl font-bold text-slate-100">Edit Buyer</h2>
+                            <button onClick={() => setEditingBuyer(null)} className="text-slate-400 hover:text-white">
+                                <X size={24} />
+                            </button>
+                        </div>
+                        <form onSubmit={handleUpdateBuyer} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-slate-400 mb-1">Name</label>
+                                <input
+                                    required
+                                    type="text"
+                                    value={editingBuyer.name}
+                                    onChange={e => setEditingBuyer({ ...editingBuyer, name: e.target.value })}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-400 mb-1">Email</label>
+                                <input
+                                    type="email"
+                                    value={editingBuyer.email || ''}
+                                    onChange={e => setEditingBuyer({ ...editingBuyer, email: e.target.value })}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-400 mb-1">Phone</label>
+                                <input
+                                    type="tel"
+                                    value={editingBuyer.phone || ''}
+                                    onChange={e => setEditingBuyer({ ...editingBuyer, phone: e.target.value })}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-400 mb-1">Criteria</label>
+                                <textarea
+                                    value={editingBuyer.criteria || ''}
+                                    onChange={e => setEditingBuyer({ ...editingBuyer, criteria: e.target.value })}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none h-24 resize-none"
+                                    placeholder="e.g. Single family in Orlando, under $200k"
+                                />
+                            </div>
+                            <div className="pt-4 flex justify-end space-x-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setEditingBuyer(null)}
+                                    className="px-4 py-2 text-slate-300 hover:text-white transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-lg font-medium transition-colors"
+                                >
+                                    Save Changes
                                 </button>
                             </div>
                         </form>
