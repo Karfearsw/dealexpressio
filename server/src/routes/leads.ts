@@ -125,6 +125,78 @@ router.get('/export', requireAuth, requireSubscription('pro'), async (req: Reque
     }
 });
 
+// Bulk assign leads to a team member (Admin only)
+router.put('/bulk-assign', requireAuth, async (req: Request, res: Response) => {
+    try {
+        if (!req.session.userId) return res.status(401).json({ message: 'Unauthorized' });
+        
+        const userId = req.session.userId;
+        const { leadIds, assignToUserId } = req.body;
+        
+        if (!leadIds || !Array.isArray(leadIds) || leadIds.length === 0) {
+            return res.status(400).json({ message: 'Lead IDs are required' });
+        }
+        if (!assignToUserId) {
+            return res.status(400).json({ message: 'Target user ID is required' });
+        }
+        
+        // Check if current user is a team admin/owner
+        const userMemberships = await db.select({ 
+            teamId: teamMembers.teamId, 
+            role: teamMembers.role 
+        })
+            .from(teamMembers)
+            .where(eq(teamMembers.userId, userId));
+        
+        const isAdmin = userMemberships.some((m: { teamId: number; role: string }) => m.role === 'owner' || m.role === 'admin');
+        if (!isAdmin) {
+            return res.status(403).json({ message: 'Only team admins can bulk assign leads' });
+        }
+        
+        // Verify target user is in one of the same teams
+        const userTeamIds = userMemberships.map((m: { teamId: number; role: string }) => m.teamId);
+        const targetMemberships = await db.select({ teamId: teamMembers.teamId })
+            .from(teamMembers)
+            .where(and(
+                eq(teamMembers.userId, assignToUserId),
+                inArray(teamMembers.teamId, userTeamIds)
+            ));
+        
+        if (targetMemberships.length === 0) {
+            return res.status(400).json({ message: 'Target user is not in your team' });
+        }
+        
+        // Get the target user's primary team ID (use the first shared team)
+        const targetTeamId = targetMemberships[0].teamId;
+        
+        // Get team member user IDs to verify leads belong to team
+        const teamMemberIds = await getTeamMemberUserIds(userId);
+        
+        // Update all specified leads that belong to team members
+        // Also update teamId to keep it consistent with the new owner
+        const updatedLeads = await db.update(leads)
+            .set({ 
+                userId: assignToUserId,
+                assignedTo: assignToUserId,
+                teamId: targetTeamId,
+                updatedAt: new Date() 
+            })
+            .where(and(
+                inArray(leads.id, leadIds),
+                inArray(leads.userId, teamMemberIds)
+            ))
+            .returning();
+        
+        res.json({ 
+            message: `Successfully reassigned ${updatedLeads.length} leads`,
+            count: updatedLeads.length 
+        });
+    } catch (error) {
+        console.error('Error bulk assigning leads:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 // Get all leads for the current user and their teams
 router.get('/', requireAuth, async (req: Request, res: Response) => {
     try {

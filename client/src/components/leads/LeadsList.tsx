@@ -1,6 +1,6 @@
 import React from 'react';
 import { Lead } from '@/types';
-import { Phone, Mail, Calendar, User } from 'lucide-react';
+import { Phone, Mail, Calendar, User, CheckSquare, Square } from 'lucide-react';
 
 interface LeadWithOwner extends Lead {
     ownerName?: string;
@@ -10,15 +10,18 @@ interface LeadWithOwner extends Lead {
 interface LeadsListProps {
     leads: LeadWithOwner[];
     onConvertToDeal?: (leadId: number) => void;
+    selectedLeadIds?: Set<number>;
+    onToggleSelect?: (leadId: number) => void;
 }
 
-const LeadsList: React.FC<LeadsListProps> = ({ leads, onConvertToDeal }) => {
+const LeadsList: React.FC<LeadsListProps> = ({ leads, onConvertToDeal, selectedLeadIds, onToggleSelect }) => {
     return (
         <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="bg-slate-950 border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider">
+                            {onToggleSelect && <th className="p-4 w-10"></th>}
                             <th className="p-4 font-medium">Name</th>
                             <th className="p-4 font-medium">Owner</th>
                             <th className="p-4 font-medium">Status</th>
@@ -30,7 +33,21 @@ const LeadsList: React.FC<LeadsListProps> = ({ leads, onConvertToDeal }) => {
                     </thead>
                     <tbody className="divide-y divide-slate-800">
                         {leads.map((lead) => (
-                            <tr key={lead.id} className="hover:bg-slate-800/50 transition-colors">
+                            <tr key={lead.id} className={`hover:bg-slate-800/50 transition-colors ${selectedLeadIds?.has(lead.id) ? 'bg-teal-900/20' : ''}`}>
+                                {onToggleSelect && (
+                                    <td className="p-4 w-10">
+                                        <button
+                                            onClick={() => onToggleSelect(lead.id)}
+                                            className="text-slate-400 hover:text-teal-400"
+                                        >
+                                            {selectedLeadIds?.has(lead.id) ? (
+                                                <CheckSquare size={18} className="text-teal-400" />
+                                            ) : (
+                                                <Square size={18} />
+                                            )}
+                                        </button>
+                                    </td>
+                                )}
                                 <td className="p-4">
                                     <div className="font-medium text-slate-200">{lead.firstName} {lead.lastName}</div>
                                 </td>

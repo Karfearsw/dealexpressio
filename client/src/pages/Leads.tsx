@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Pipeline from '@/components/leads/Pipeline';
 import LeadsList from '@/components/leads/LeadsList';
-import { Plus, Columns, List, X, Upload, Download, Search, Users, User } from 'lucide-react';
+import { Plus, Columns, List, X, Upload, Download, Search, Users, User, CheckSquare, Square, UserPlus } from 'lucide-react';
 import { Lead } from '@/types';
 import axios from 'axios';
 import DataImportModal from '@/components/common/DataImportModal';
@@ -37,12 +37,21 @@ const Leads = () => {
     const [newLead, setNewLead] = useState({ firstName: '', lastName: '', email: '', phone: '', address: '', city: '', state: '', zip: '', source: 'Manual', status: 'New Lead', assignedTo: 0 });
     const [teamInfo, setTeamInfo] = useState<TeamAssignmentInfo | null>(null);
     const [, setLocation] = useLocation();
+    
+    // Bulk selection state
+    const [selectedLeadIds, setSelectedLeadIds] = useState<Set<number>>(new Set());
+    const [bulkAssignTo, setBulkAssignTo] = useState<number>(0);
+    const [isBulkAssigning, setIsBulkAssigning] = useState(false);
 
     useEffect(() => {
         fetchLeads();
     }, [leadScope]);
 
-    // Fetch team info when modal opens
+    // Fetch team info on mount and when modal opens
+    useEffect(() => {
+        fetchTeamInfo();
+    }, []);
+    
     useEffect(() => {
         if (showModal) {
             fetchTeamInfo();
@@ -131,6 +140,48 @@ const Leads = () => {
 
     const handleLeadDelete = (leadId: number) => {
         setLeads(prev => prev.filter(l => l.id !== leadId));
+    };
+
+    // Bulk selection handlers
+    const toggleLeadSelection = (leadId: number) => {
+        setSelectedLeadIds(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(leadId)) {
+                newSet.delete(leadId);
+            } else {
+                newSet.add(leadId);
+            }
+            return newSet;
+        });
+    };
+
+    const selectAllLeads = () => {
+        setSelectedLeadIds(new Set(filteredLeads.map(l => l.id)));
+    };
+
+    const clearSelection = () => {
+        setSelectedLeadIds(new Set());
+    };
+
+    const handleBulkAssign = async () => {
+        if (selectedLeadIds.size === 0 || !bulkAssignTo) return;
+        
+        setIsBulkAssigning(true);
+        try {
+            const res = await axios.put('/leads/bulk-assign', {
+                leadIds: Array.from(selectedLeadIds),
+                assignToUserId: bulkAssignTo
+            });
+            alert(res.data.message);
+            clearSelection();
+            setBulkAssignTo(0);
+            fetchLeads();
+        } catch (error: any) {
+            console.error('Error bulk assigning leads:', error);
+            alert(error.response?.data?.message || 'Failed to assign leads');
+        } finally {
+            setIsBulkAssigning(false);
+        }
     };
 
     if (loading) return <div className="p-8 text-center text-slate-400">Loading leads...</div>;
@@ -224,6 +275,61 @@ const Leads = () => {
                 </div>
             </div>
 
+            {/* Bulk Action Bar - Only for admins in list view */}
+            {teamInfo?.isAdmin && viewMode === 'list' && (
+                <div className="mb-4 bg-slate-900 border border-slate-800 rounded-lg p-3 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={selectedLeadIds.size === filteredLeads.length ? clearSelection : selectAllLeads}
+                            className="flex items-center gap-2 text-sm text-slate-300 hover:text-white"
+                        >
+                            {selectedLeadIds.size === filteredLeads.length && filteredLeads.length > 0 ? (
+                                <CheckSquare size={18} className="text-teal-400" />
+                            ) : (
+                                <Square size={18} />
+                            )}
+                            {selectedLeadIds.size === filteredLeads.length && filteredLeads.length > 0 ? 'Deselect All' : 'Select All'}
+                        </button>
+                        {selectedLeadIds.size > 0 && (
+                            <span className="text-sm text-teal-400">{selectedLeadIds.size} lead{selectedLeadIds.size !== 1 ? 's' : ''} selected</span>
+                        )}
+                    </div>
+                    
+                    {selectedLeadIds.size > 0 && (
+                        <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2">
+                                <UserPlus size={16} className="text-slate-400" />
+                                <select
+                                    value={bulkAssignTo}
+                                    onChange={(e) => setBulkAssignTo(Number(e.target.value))}
+                                    className="bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-slate-100 focus:border-teal-500 outline-none"
+                                >
+                                    <option value={0}>Assign to...</option>
+                                    {teamInfo.members.map(member => (
+                                        <option key={member.userId} value={member.userId}>
+                                            {member.name || member.email}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <button
+                                onClick={handleBulkAssign}
+                                disabled={!bulkAssignTo || isBulkAssigning}
+                                className="bg-teal-600 hover:bg-teal-500 disabled:bg-slate-700 disabled:text-slate-500 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors"
+                            >
+                                {isBulkAssigning ? 'Assigning...' : 'Assign'}
+                            </button>
+                            <button
+                                onClick={clearSelection}
+                                className="text-slate-400 hover:text-white text-sm"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    )}
+                </div>
+            )}
+
             <div className="flex-1 min-h-0">
                 {viewMode === 'pipeline' ? (
                     <Pipeline
@@ -236,6 +342,8 @@ const Leads = () => {
                     <LeadsList
                         leads={filteredLeads}
                         onConvertToDeal={handleConvertToDeal}
+                        selectedLeadIds={selectedLeadIds}
+                        onToggleSelect={teamInfo?.isAdmin ? toggleLeadSelection : undefined}
                     />
                 )}
             </div>
