@@ -11,6 +11,72 @@ function generateTeamCode(): string {
     return crypto.randomBytes(4).toString('hex').toUpperCase();
 }
 
+// Get team members for assignment dropdown (lightweight endpoint)
+router.get('/members-for-assignment', requireAuth, async (req: Request, res: Response) => {
+    try {
+        if (!req.session.userId) return res.status(401).json({ message: 'Unauthorized' });
+
+        const [membership] = await db.select({
+            teamId: teamMembers.teamId,
+            role: teamMembers.role,
+        })
+            .from(teamMembers)
+            .where(eq(teamMembers.userId, req.session.userId))
+            .limit(1);
+
+        if (!membership) {
+            // User not in a team - still include self in members so they can assign to themselves
+            const [currentUser] = await db.select({
+                firstName: users.firstName,
+                lastName: users.lastName,
+                email: users.email,
+            }).from(users).where(eq(users.id, req.session.userId));
+            
+            return res.json({ 
+                isAdmin: false, 
+                currentUserId: req.session.userId,
+                members: currentUser ? [{
+                    userId: req.session.userId,
+                    name: currentUser.firstName && currentUser.lastName 
+                        ? `${currentUser.firstName} ${currentUser.lastName}` 
+                        : currentUser.email,
+                    email: currentUser.email,
+                    role: 'owner',
+                }] : []
+            });
+        }
+
+        const isAdmin = ['owner', 'admin'].includes(membership.role);
+        
+        // Get all team members for the dropdown
+        const members = await db.select({
+            userId: teamMembers.userId,
+            role: teamMembers.role,
+            firstName: users.firstName,
+            lastName: users.lastName,
+            email: users.email,
+        })
+            .from(teamMembers)
+            .innerJoin(users, eq(teamMembers.userId, users.id))
+            .where(eq(teamMembers.teamId, membership.teamId));
+
+        res.json({ 
+            isAdmin, 
+            currentUserId: req.session.userId,
+            teamId: membership.teamId,
+            members: members.map((m: { userId: number; firstName: string | null; lastName: string | null; email: string; role: string }) => ({
+                userId: m.userId,
+                name: m.firstName && m.lastName ? `${m.firstName} ${m.lastName}` : m.email,
+                email: m.email,
+                role: m.role,
+            }))
+        });
+    } catch (error) {
+        console.error('Error fetching team members for assignment:', error);
+        res.status(500).json({ message: 'Error fetching team members' });
+    }
+});
+
 // Get user's primary team with full details
 router.get('/my-team', requireAuth, async (req: Request, res: Response) => {
     try {

@@ -213,7 +213,7 @@ router.get('/:id', requireAuth, async (req: Request, res: Response) => {
 
 // Create new lead
 router.post('/', requireAuth, async (req: Request, res: Response) => {
-    const { firstName, lastName, email, phone, address, city, state, zip, source, status } = req.body;
+    const { firstName, lastName, email, phone, address, city, state, zip, source, status, assignedTo } = req.body;
 
     try {
         if (!req.session.userId) return res.status(401).json({ message: 'Unauthorized' });
@@ -221,11 +221,44 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
             return res.status(400).json({ message: 'First Name and Last Name are required' });
         }
 
+        const userId = req.session.userId;
+        
         // Get user's primary team ID to assign to the lead
-        const teamId = await getUserPrimaryTeamId(req.session.userId);
+        const teamId = await getUserPrimaryTeamId(userId);
+        
+        // Determine who to assign the lead to
+        let finalAssignedTo = userId; // Default to self
+        
+        if (assignedTo && assignedTo !== userId) {
+            // User is trying to assign to someone else - check if they are admin
+            if (teamId) {
+                const [membership] = await db.select({ role: teamMembers.role })
+                    .from(teamMembers)
+                    .where(and(eq(teamMembers.teamId, teamId), eq(teamMembers.userId, userId)));
+                
+                const isAdmin = membership && ['owner', 'admin'].includes(membership.role);
+                
+                if (!isAdmin) {
+                    return res.status(403).json({ message: 'Only team admins can assign leads to other members' });
+                }
+                
+                // Verify assignee is in the same team
+                const [assigneeMembership] = await db.select({ userId: teamMembers.userId })
+                    .from(teamMembers)
+                    .where(and(eq(teamMembers.teamId, teamId), eq(teamMembers.userId, assignedTo)));
+                
+                if (!assigneeMembership) {
+                    return res.status(400).json({ message: 'Assignee is not a member of this team' });
+                }
+                
+                finalAssignedTo = assignedTo;
+            } else {
+                return res.status(400).json({ message: 'Cannot assign to others without a team' });
+            }
+        }
 
         const [newLead] = await db.insert(leads).values({
-            userId: req.session.userId,
+            userId: userId,
             teamId: teamId,
             firstName,
             lastName,
@@ -237,11 +270,11 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
             zip,
             source,
             status: status || 'New Lead',
-            assignedTo: req.session.userId,
+            assignedTo: finalAssignedTo,
         }).returning();
 
         await logEvent({
-            userId: req.session.userId,
+            userId: userId,
             action: AuditAction.LEAD_CREATE,
             resource: `leads:${newLead.id}`,
             req

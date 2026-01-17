@@ -12,6 +12,20 @@ interface LeadWithOwner extends Lead {
     ownerEmail?: string;
 }
 
+interface TeamMember {
+    userId: number;
+    name: string;
+    email: string;
+    role: string;
+}
+
+interface TeamAssignmentInfo {
+    isAdmin: boolean;
+    currentUserId: number;
+    teamId?: number;
+    members: TeamMember[];
+}
+
 const Leads = () => {
     const [viewMode, setViewMode] = useState<'pipeline' | 'list'>('pipeline');
     const [leads, setLeads] = useState<LeadWithOwner[]>([]);
@@ -20,12 +34,31 @@ const Leads = () => {
     const [showImportModal, setShowImportModal] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [leadScope, setLeadScope] = useState<'team' | 'mine'>('team');
-    const [newLead, setNewLead] = useState({ firstName: '', lastName: '', email: '', phone: '', address: '', city: '', state: '', zip: '', source: 'Manual', status: 'New Lead' });
+    const [newLead, setNewLead] = useState({ firstName: '', lastName: '', email: '', phone: '', address: '', city: '', state: '', zip: '', source: 'Manual', status: 'New Lead', assignedTo: 0 });
+    const [teamInfo, setTeamInfo] = useState<TeamAssignmentInfo | null>(null);
     const [, setLocation] = useLocation();
 
     useEffect(() => {
         fetchLeads();
     }, [leadScope]);
+
+    // Fetch team info when modal opens
+    useEffect(() => {
+        if (showModal) {
+            fetchTeamInfo();
+        }
+    }, [showModal]);
+
+    const fetchTeamInfo = async () => {
+        try {
+            const res = await axios.get('/teams/members-for-assignment');
+            setTeamInfo(res.data);
+            // Default assignedTo to current user
+            setNewLead(prev => ({ ...prev, assignedTo: res.data.currentUserId }));
+        } catch (error) {
+            console.error('Error fetching team info:', error);
+        }
+    };
 
     const fetchLeads = async () => {
         try {
@@ -81,10 +114,14 @@ const Leads = () => {
     const handleCreateLead = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const res = await axios.post('/leads', newLead);
+            const payload = {
+                ...newLead,
+                assignedTo: newLead.assignedTo || undefined, // Only include if set
+            };
+            const res = await axios.post('/leads', payload);
             setLeads(prev => [res.data, ...prev]);
             setShowModal(false);
-            setNewLead({ firstName: '', lastName: '', email: '', phone: '', address: '', city: '', state: '', zip: '', source: 'Manual', status: 'New Lead' });
+            setNewLead({ firstName: '', lastName: '', email: '', phone: '', address: '', city: '', state: '', zip: '', source: 'Manual', status: 'New Lead', assignedTo: 0 });
         } catch (error: any) {
             console.error('Error creating lead:', error);
             const message = error.response?.data?.message || error.message || 'Failed to create lead';
@@ -315,6 +352,26 @@ const Leads = () => {
                                     <option value="Cold Call">Cold Call</option>
                                 </select>
                             </div>
+                            {teamInfo && teamInfo.members.length > 0 && (
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-400 mb-1">
+                                        Assign To
+                                        {!teamInfo.isAdmin && <span className="text-slate-500 ml-1">(Admin only)</span>}
+                                    </label>
+                                    <select
+                                        value={newLead.assignedTo}
+                                        onChange={e => setNewLead({ ...newLead, assignedTo: parseInt(e.target.value) })}
+                                        disabled={!teamInfo.isAdmin}
+                                        className={`w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:border-teal-500 outline-none ${!teamInfo.isAdmin ? 'opacity-60 cursor-not-allowed' : ''}`}
+                                    >
+                                        {teamInfo.members.map(member => (
+                                            <option key={member.userId} value={member.userId}>
+                                                {member.name} {member.userId === teamInfo.currentUserId ? '(Me)' : ''}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
                             <div className="pt-4 flex justify-end space-x-3">
                                 <button
                                     type="button"
