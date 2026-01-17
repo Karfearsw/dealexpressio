@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'wouter';
+import { useLocation } from 'wouter';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Check, Shield, Zap, Database, Loader2 } from 'lucide-react';
@@ -11,34 +11,34 @@ const Pricing = () => {
     const [, setLocation] = useLocation();
     const [isLoading, setIsLoading] = useState<string | null>(null);
 
+    const sharedFeatures = [
+        "Lead Management & Auto-Enrich",
+        "Deal Calculator & Offer Letters",
+        "Advanced Property Analysis",
+        "Automated Follow-ups",
+        "Multi-Seat Team Access",
+        "Priority Support"
+    ];
+
     const [tiers, setTiers] = useState<any[]>([
         {
             name: "Basic",
-            price: "50",
+            price: "150",
             period: "per month",
-            description: "For starters who need a solid foundation.",
-            features: [
-                "Includes 500 leads",
-                "Lead Management & Auto-Enrich",
-                "Deal Calculator & Offer Letters",
-                "1 User Seat"
-            ],
+            description: "400 leads per month from FSBO & County Records.",
+            leadCount: "400 Leads",
+            leadSource: "FSBO & County Records",
             priceId: 'price_1Q...Basic',
             color: "border-teal-500/50 hover:border-teal-400 bg-teal-500/5",
             buttonColor: "bg-teal-600 hover:bg-teal-500 text-white shadow-lg shadow-teal-500/25",
         },
         {
             name: "Pro",
-            price: "100",
+            price: "250",
             period: "per month",
-            description: "For growing operations ready to scale.",
-            features: [
-                "Includes 1,000 leads",
-                "Advanced Property Analysis",
-                "Automated Follow-ups",
-                "Up to 3 User Seats",
-                "Priority Support"
-            ],
+            description: "700 leads per month from FSBO & County Records.",
+            leadCount: "700 Leads",
+            leadSource: "FSBO & County Records",
             popular: true,
             priceId: 'price_1Q...Pro',
             color: "border-blue-500/50 hover:border-blue-400 bg-blue-500/5",
@@ -46,16 +46,11 @@ const Pricing = () => {
         },
         {
             name: "Enterprise",
-            price: "1000",
+            price: "500",
             period: "per month",
-            description: "For teams demanding performance at scale.",
-            features: [
-                "Includes 15,000 leads",
-                "Multi-Seat Access",
-                "Custom Contract Templates",
-                "Dedicated Account Manager",
-                "API Access"
-            ],
+            description: "1,200 leads including 20 prequalified inbound leads with recordings.",
+            leadCount: "1,200 Leads",
+            leadSource: "FSBO & County Records + 20 Prequalified Inbound Leads with Recordings",
             priceId: 'price_1Q...Enterprise',
             color: "border-indigo-500/50 hover:border-indigo-400 bg-indigo-500/5",
             buttonColor: "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/25",
@@ -66,23 +61,30 @@ const Pricing = () => {
         const loadPricing = async () => {
             try {
                 const res = await axios.get('/marketing/pricing-tiers');
+                const priceMap: Record<string, string> = { Basic: '150', Pro: '250', Enterprise: '500' };
                 const apiTiers = res.data.map((t: any) => ({
                     name: t.name,
-                    price: String(t.price),
+                    price: priceMap[t.name] || String(t.price),
                     period: t.period,
                     priceId: t.priceId,
                     description:
                         t.name === 'Basic'
-                            ? 'For starters who need a solid foundation.'
+                            ? '400 leads per month from FSBO & County Records.'
                             : t.name === 'Pro'
-                                ? 'For growing operations ready to scale.'
-                                : 'For teams demanding performance at scale.',
-                    features:
+                                ? '700 leads per month from FSBO & County Records.'
+                                : '1,200 leads including 20 prequalified inbound leads with recordings.',
+                    leadCount:
                         t.name === 'Basic'
-                            ? ["Includes 500 leads", "Lead Management & Auto-Enrich", "Deal Calculator & Offer Letters", "1 User Seat"]
+                            ? '400 Leads'
                             : t.name === 'Pro'
-                                ? ["Includes 1,000 leads", "Advanced Property Analysis", "Automated Follow-ups", "Up to 3 User Seats", "Priority Support"]
-                                : ["Includes 15,000 leads", "Multi-Seat Access", "Custom Contract Templates", "Dedicated Account Manager", "API Access"],
+                                ? '700 Leads'
+                                : '1,200 Leads',
+                    leadSource:
+                        t.name === 'Basic'
+                            ? 'FSBO & County Records'
+                            : t.name === 'Pro'
+                                ? 'FSBO & County Records'
+                                : 'FSBO & County Records + 20 Prequalified Inbound Leads with Recordings',
                     color:
                         t.name === 'Basic'
                             ? "border-teal-500/50 hover:border-teal-400 bg-teal-500/5"
@@ -148,7 +150,7 @@ const Pricing = () => {
                         </motion.p>
                     </div>
 
-                    <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
                         {tiers.map((tier, index) => (
                             <motion.div
                                 key={tier.name}
@@ -158,26 +160,28 @@ const Pricing = () => {
                                 className={`relative p-8 rounded-2xl border ${tier.color} bg-slate-900/40 backdrop-blur-sm flex flex-col`}
                             >
                                 {tier.popular && (
-                                    <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4">
+                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
                                         <span className="bg-teal-500 text-slate-950 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                                             Most Popular
                                         </span>
                                     </div>
                                 )}
 
-                                <div className="mb-8">
+                                <div className="mb-6 text-center">
                                     <h3 className="text-xl font-bold text-slate-100 mb-2">{tier.name}</h3>
-                                    <div className="flex items-baseline space-x-1">
+                                    <div className="flex items-baseline justify-center space-x-1">
                                         <span className="text-4xl font-extrabold text-white">${tier.price}</span>
                                         <span className="text-slate-500 text-sm">/{tier.period}</span>
                                     </div>
-                                    <p className="mt-4 text-slate-400 text-sm leading-relaxed min-h-[60px]">
-                                        {tier.description}
-                                    </p>
                                 </div>
 
-                                <ul className="space-y-4 mb-8 flex-1">
-                                    {tier.features.map((feature: string) => (
+                                <div className="mb-6 p-4 bg-slate-800/50 rounded-xl text-center">
+                                    <p className="text-2xl font-bold text-teal-400">{tier.leadCount}</p>
+                                    <p className="text-slate-400 text-sm mt-1">{tier.leadSource}</p>
+                                </div>
+
+                                <ul className="space-y-3 mb-8 flex-1">
+                                    {sharedFeatures.map((feature: string) => (
                                         <li key={feature} className="flex items-start">
                                             <Check className="h-5 w-5 text-teal-500 shrink-0 mr-3" />
                                             <span className="text-slate-300 text-sm">{feature}</span>
