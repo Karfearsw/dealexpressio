@@ -1,29 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import Pipeline from '@/components/leads/Pipeline';
 import LeadsList from '@/components/leads/LeadsList';
-import { Plus, Columns, List, X, Upload, Download, Search } from 'lucide-react';
+import { Plus, Columns, List, X, Upload, Download, Search, Users, User } from 'lucide-react';
 import { Lead } from '@/types';
 import axios from 'axios';
 import DataImportModal from '@/components/common/DataImportModal';
 import { useLocation } from 'wouter';
 
+interface LeadWithOwner extends Lead {
+    ownerName?: string;
+    ownerEmail?: string;
+}
+
 const Leads = () => {
     const [viewMode, setViewMode] = useState<'pipeline' | 'list'>('pipeline');
-    const [leads, setLeads] = useState<Lead[]>([]);
+    const [leads, setLeads] = useState<LeadWithOwner[]>([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [showImportModal, setShowImportModal] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [leadScope, setLeadScope] = useState<'team' | 'mine'>('team');
     const [newLead, setNewLead] = useState({ firstName: '', lastName: '', email: '', phone: '', address: '', city: '', state: '', zip: '', source: 'Manual', status: 'New Lead' });
     const [, setLocation] = useLocation();
 
     useEffect(() => {
         fetchLeads();
-    }, []);
+    }, [leadScope]);
 
     const fetchLeads = async () => {
         try {
-            const res = await axios.get('/leads');
+            const res = await axios.get(`/leads?scope=${leadScope}`);
             setLeads(res.data);
         } catch (error) {
             console.error('Error fetching leads:', error);
@@ -113,6 +119,24 @@ const Leads = () => {
                     <p className="text-slate-400">Manage your deal flow from new lead to closed deal.</p>
                 </div>
                 <div className="flex items-center space-x-3">
+                    <div className="bg-slate-900 border border-slate-800 rounded-lg p-1 flex">
+                        <button
+                            onClick={() => setLeadScope('team')}
+                            className={`px-3 py-1.5 rounded flex items-center gap-1.5 text-sm ${leadScope === 'team' ? 'bg-slate-800 text-teal-400 shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
+                            title="View all team leads"
+                        >
+                            <Users size={16} />
+                            Team
+                        </button>
+                        <button
+                            onClick={() => setLeadScope('mine')}
+                            className={`px-3 py-1.5 rounded flex items-center gap-1.5 text-sm ${leadScope === 'mine' ? 'bg-slate-800 text-teal-400 shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
+                            title="View only my leads"
+                        >
+                            <User size={16} />
+                            Mine
+                        </button>
+                    </div>
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
                         <input

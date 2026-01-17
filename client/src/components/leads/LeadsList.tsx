@@ -1,9 +1,14 @@
 import React from 'react';
 import { Lead } from '@/types';
-import { Phone, Mail, Calendar } from 'lucide-react';
+import { Phone, Mail, Calendar, User } from 'lucide-react';
+
+interface LeadWithOwner extends Lead {
+    ownerName?: string;
+    ownerEmail?: string;
+}
 
 interface LeadsListProps {
-    leads: Lead[];
+    leads: LeadWithOwner[];
     onConvertToDeal?: (leadId: number) => void;
 }
 
@@ -15,6 +20,7 @@ const LeadsList: React.FC<LeadsListProps> = ({ leads, onConvertToDeal }) => {
                     <thead>
                         <tr className="bg-slate-950 border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider">
                             <th className="p-4 font-medium">Name</th>
+                            <th className="p-4 font-medium">Owner</th>
                             <th className="p-4 font-medium">Status</th>
                             <th className="p-4 font-medium">Contact</th>
                             <th className="p-4 font-medium">Source</th>
@@ -27,6 +33,16 @@ const LeadsList: React.FC<LeadsListProps> = ({ leads, onConvertToDeal }) => {
                             <tr key={lead.id} className="hover:bg-slate-800/50 transition-colors">
                                 <td className="p-4">
                                     <div className="font-medium text-slate-200">{lead.firstName} {lead.lastName}</div>
+                                </td>
+                                <td className="p-4">
+                                    {lead.ownerName ? (
+                                        <div className="flex items-center gap-2 text-sm text-slate-400">
+                                            <User size={14} className="text-slate-500" />
+                                            <span>{lead.ownerName}</span>
+                                        </div>
+                                    ) : (
+                                        <span className="text-sm text-slate-500">-</span>
+                                    )}
                                 </td>
                                 <td className="p-4">
                                     <span className={`px-2 py-1 rounded text-xs font-medium 

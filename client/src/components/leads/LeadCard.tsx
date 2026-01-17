@@ -5,8 +5,13 @@ import { Lead } from '@/types';
 import { Phone, Mail, User, Trash2 } from 'lucide-react';
 import axios from 'axios';
 
+interface LeadWithOwner extends Lead {
+    ownerName?: string;
+    ownerEmail?: string;
+}
+
 interface LeadCardProps {
-    lead: Lead;
+    lead: LeadWithOwner;
     onDelete?: (id: number) => void;
 }
 
@@ -71,9 +76,15 @@ const LeadCard: React.FC<LeadCardProps> = ({ lead, onDelete }) => {
                     <span className="text-xs text-teal-400 font-medium">{lead.source || 'Unknown Source'}</span>
                     <div className="flex items-center gap-2">
                         <span className="text-[10px] text-slate-500">{new Date(lead.createdAt).toLocaleDateString()}</span>
-                        <div className="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center text-xs text-slate-300">
-                            <User size={12} />
-                        </div>
+                        {lead.ownerName && (
+                            <div 
+                                className="flex items-center gap-1 bg-slate-700/50 px-1.5 py-0.5 rounded text-[10px] text-slate-300"
+                                title={`Owner: ${lead.ownerName}`}
+                            >
+                                <User size={10} />
+                                <span className="max-w-[60px] truncate">{lead.ownerName.split(' ')[0]}</span>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

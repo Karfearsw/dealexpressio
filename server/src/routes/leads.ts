@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { db } from '../db';
-import { leads, deals, properties, type Lead } from '../db/schema';
-import { eq, desc, and } from 'drizzle-orm';
+import { leads, deals, properties, teamMembers, users, type Lead } from '../db/schema';
+import { eq, desc, and, or, inArray } from 'drizzle-orm';
 import { requireAuth, requireSubscription } from '../middleware/auth';
 import multer from 'multer';
 import csv from 'csv-parser';
@@ -9,6 +9,23 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { logEvent, AuditAction } from '../utils/auditLog';
+
+// Helper to get user's team IDs
+async function getUserTeamIds(userId: number): Promise<number[]> {
+    const memberships = await db.select({ teamId: teamMembers.teamId })
+        .from(teamMembers)
+        .where(eq(teamMembers.userId, userId));
+    return memberships.map((m: { teamId: number }) => m.teamId);
+}
+
+// Helper to get user's primary team ID (first team they belong to)
+async function getUserPrimaryTeamId(userId: number): Promise<number | null> {
+    const [membership] = await db.select({ teamId: teamMembers.teamId })
+        .from(teamMembers)
+        .where(eq(teamMembers.userId, userId))
+        .limit(1);
+    return membership?.teamId || null;
+}
 
 const router = Router();
 const upload = multer({ dest: path.join(os.tmpdir(), 'uploads/') });
@@ -23,6 +40,7 @@ router.post('/import', requireAuth, requireSubscription('pro'), upload.single('f
     }
 
     const userId = req.session.userId;
+    const teamId = await getUserPrimaryTeamId(userId);
     const results: any[] = [];
     fs.createReadStream(req.file.path)
         .pipe(csv())
@@ -35,6 +53,7 @@ router.post('/import', requireAuth, requireSubscription('pro'), upload.single('f
                     .filter(row => row.firstName && row.lastName && row.email)
                     .map(row => ({
                         userId,
+                        teamId,
                         firstName: row.firstName,
                         lastName: row.lastName,
                         email: row.email,
@@ -89,15 +108,81 @@ router.get('/export', requireAuth, requireSubscription('pro'), async (req: Reque
     }
 });
 
-// Get all leads for the current user
+// Get all leads for the current user and their teams
 router.get('/', requireAuth, async (req: Request, res: Response) => {
     try {
         if (!req.session.userId) return res.status(401).json({ message: 'Unauthorized' });
         
-        const allLeads = await db.select().from(leads)
-            .where(eq(leads.userId, req.session.userId))
-            .orderBy(desc(leads.createdAt));
-        res.json(allLeads);
+        const userId = req.session.userId;
+        const scope = req.query.scope as string; // 'mine' or 'team' (default)
+        
+        // Get user's team IDs
+        const teamIds = await getUserTeamIds(userId);
+        
+        let allLeads;
+        
+        // Define common select fields
+        const selectFields = {
+            id: leads.id,
+            userId: leads.userId,
+            teamId: leads.teamId,
+            firstName: leads.firstName,
+            lastName: leads.lastName,
+            email: leads.email,
+            phone: leads.phone,
+            address: leads.address,
+            city: leads.city,
+            state: leads.state,
+            zip: leads.zip,
+            source: leads.source,
+            status: leads.status,
+            assignedTo: leads.assignedTo,
+            convertedToDealId: leads.convertedToDealId,
+            contractSignedAt: leads.contractSignedAt,
+            createdAt: leads.createdAt,
+            updatedAt: leads.updatedAt,
+            ownerFirstName: users.firstName,
+            ownerLastName: users.lastName,
+            ownerEmail: users.email,
+        };
+        
+        if (scope === 'mine') {
+            // Only user's own leads
+            allLeads = await db.select(selectFields)
+                .from(leads)
+                .leftJoin(users, eq(leads.userId, users.id))
+                .where(eq(leads.userId, userId))
+                .orderBy(desc(leads.createdAt));
+        } else {
+            // User's leads + team leads
+            if (teamIds.length > 0) {
+                allLeads = await db.select(selectFields)
+                    .from(leads)
+                    .leftJoin(users, eq(leads.userId, users.id))
+                    .where(or(
+                        eq(leads.userId, userId),
+                        inArray(leads.teamId, teamIds)
+                    ))
+                    .orderBy(desc(leads.createdAt));
+            } else {
+                // No teams, just user's leads
+                allLeads = await db.select(selectFields)
+                    .from(leads)
+                    .leftJoin(users, eq(leads.userId, users.id))
+                    .where(eq(leads.userId, userId))
+                    .orderBy(desc(leads.createdAt));
+            }
+        }
+        
+        // Transform to include combined ownerName
+        const transformedLeads = allLeads.map((lead: any) => ({
+            ...lead,
+            ownerName: lead.ownerFirstName && lead.ownerLastName 
+                ? `${lead.ownerFirstName} ${lead.ownerLastName}` 
+                : lead.ownerFirstName || lead.ownerLastName || null,
+        }));
+        
+        res.json(transformedLeads);
     } catch (error) {
         console.error('Error fetching leads:', error);
         res.status(500).json({ message: 'Internal server error' });
@@ -131,8 +216,12 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
             return res.status(400).json({ message: 'First Name and Last Name are required' });
         }
 
+        // Get user's primary team ID to assign to the lead
+        const teamId = await getUserPrimaryTeamId(req.session.userId);
+
         const [newLead] = await db.insert(leads).values({
             userId: req.session.userId,
+            teamId: teamId,
             firstName,
             lastName,
             email,
