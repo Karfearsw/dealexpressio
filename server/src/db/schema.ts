@@ -110,6 +110,8 @@ export const leads = pgTable('leads', {
     city: text('city'),
     state: text('state'),
     zip: text('zip'),
+    askingPrice: decimal('asking_price', { precision: 12, scale: 2 }),
+    link: text('link'),
     status: text('status').default('new').notNull(),
     source: text('source'),
     assignedTo: integer('assigned_to').references(() => users.id),

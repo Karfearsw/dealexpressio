@@ -354,7 +354,7 @@ const Leads = () => {
                 endpoint="/leads/import"
                 onSuccess={fetchLeads}
                 title="Import Leads"
-                templateFields={['firstName', 'lastName', 'email']}
+                templateFields={['Name', 'Address', 'Phone']}
             />
 
             {/* Add Lead Modal */}

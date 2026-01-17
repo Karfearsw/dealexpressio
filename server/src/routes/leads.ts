@@ -48,6 +48,8 @@ const router = Router();
 const upload = multer({ dest: path.join(os.tmpdir(), 'uploads/') });
 
 // Import leads from CSV (Pro feature)
+// Required columns: Name, Address, Phone
+// Optional columns: Email, Asking Price, Link
 router.post('/import', requireAuth, requireSubscription('pro'), upload.single('file'), async (req: Request, res: Response) => {
     if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded' });
@@ -67,21 +69,33 @@ router.post('/import', requireAuth, requireSubscription('pro'), upload.single('f
                 fs.unlinkSync(req.file!.path);
 
                 const validLeads = results
-                    .filter(row => row.firstName && row.lastName && row.email)
-                    .map(row => ({
-                        userId,
-                        teamId,
-                        firstName: row.firstName,
-                        lastName: row.lastName,
-                        email: row.email,
-                        phone: row.phone || null,
-                        source: row.source || 'Imported',
-                        status: 'New Lead',
-                        assignedTo: userId,
-                    }));
+                    .filter(row => row.Name && row.Address && row.Phone)
+                    .map(row => {
+                        const nameParts = (row.Name || '').trim().split(/\s+/);
+                        const firstName = nameParts[0] || 'Unknown';
+                        const lastName = nameParts.slice(1).join(' ') || '';
+                        
+                        const askingPriceStr = row['Asking Price'] || '';
+                        const askingPrice = askingPriceStr ? parseFloat(askingPriceStr.replace(/[$,]/g, '')) : null;
+                        
+                        return {
+                            userId,
+                            teamId,
+                            firstName,
+                            lastName: lastName || firstName,
+                            address: row.Address || null,
+                            phone: row.Phone || null,
+                            email: row.Email || null,
+                            askingPrice: askingPrice && !isNaN(askingPrice) ? String(askingPrice) : null,
+                            link: row.Link || null,
+                            source: 'Imported',
+                            status: 'New Lead',
+                            assignedTo: userId,
+                        };
+                    });
 
                 if (validLeads.length === 0) {
-                    return res.status(400).json({ message: 'No valid leads found in CSV' });
+                    return res.status(400).json({ message: 'No valid leads found in CSV. Required columns: Name, Address, Phone' });
                 }
 
                 await db.insert(leads).values(validLeads);
