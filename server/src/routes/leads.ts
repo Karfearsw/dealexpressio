@@ -27,6 +27,23 @@ async function getUserPrimaryTeamId(userId: number): Promise<number | null> {
     return membership?.teamId || null;
 }
 
+// Helper to get all user IDs in the same teams as this user
+async function getTeamMemberUserIds(userId: number): Promise<number[]> {
+    const teamIds = await getUserTeamIds(userId);
+    if (teamIds.length === 0) return [userId];
+    
+    const membershipResults = await db.select({ memberId: teamMembers.userId })
+        .from(teamMembers)
+        .where(inArray(teamMembers.teamId, teamIds));
+    
+    const memberIds = membershipResults.map((m: { memberId: number }) => m.memberId);
+    // Ensure current user is always included
+    if (!memberIds.includes(userId)) {
+        memberIds.push(userId);
+    }
+    return memberIds;
+}
+
 const router = Router();
 const upload = multer({ dest: path.join(os.tmpdir(), 'uploads/') });
 
@@ -116,8 +133,8 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
         const userId = req.session.userId;
         const scope = req.query.scope as string; // 'mine' or 'team' (default)
         
-        // Get user's team IDs
-        const teamIds = await getUserTeamIds(userId);
+        // Get all user IDs from the same teams (includes current user)
+        const teamMemberIds = await getTeamMemberUserIds(userId);
         
         let allLeads;
         
@@ -154,24 +171,12 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
                 .where(eq(leads.userId, userId))
                 .orderBy(desc(leads.createdAt));
         } else {
-            // User's leads + team leads
-            if (teamIds.length > 0) {
-                allLeads = await db.select(selectFields)
-                    .from(leads)
-                    .leftJoin(users, eq(leads.userId, users.id))
-                    .where(or(
-                        eq(leads.userId, userId),
-                        inArray(leads.teamId, teamIds)
-                    ))
-                    .orderBy(desc(leads.createdAt));
-            } else {
-                // No teams, just user's leads
-                allLeads = await db.select(selectFields)
-                    .from(leads)
-                    .leftJoin(users, eq(leads.userId, users.id))
-                    .where(eq(leads.userId, userId))
-                    .orderBy(desc(leads.createdAt));
-            }
+            // Team leads: get all leads from any team member (includes user's own leads)
+            allLeads = await db.select(selectFields)
+                .from(leads)
+                .leftJoin(users, eq(leads.userId, users.id))
+                .where(inArray(leads.userId, teamMemberIds))
+                .orderBy(desc(leads.createdAt));
         }
         
         // Transform to include combined ownerName
