@@ -46,7 +46,7 @@ const Teams = () => {
     const fetchTeam = async () => {
         try {
             setLoading(true);
-            const res = await axios.get('/api/teams/my-team');
+            const res = await axios.get('/teams/my-team');
             setTeam(res.data);
         } catch (err: any) {
             if (err.response?.status !== 404) {
@@ -66,7 +66,7 @@ const Teams = () => {
         e.preventDefault();
         setCreateError('');
         try {
-            await axios.post('/api/teams', { name: teamName });
+            await axios.post('/teams', { name: teamName });
             setShowCreateModal(false);
             setTeamName('');
             fetchTeam();
@@ -79,7 +79,7 @@ const Teams = () => {
         e.preventDefault();
         setJoinError('');
         try {
-            await axios.post('/api/teams/join', { code: joinCode });
+            await axios.post('/teams/join', { code: joinCode });
             setShowJoinModal(false);
             setJoinCode('');
             fetchTeam();
@@ -91,7 +91,7 @@ const Teams = () => {
     const handleGenerateCode = async () => {
         if (!team) return;
         try {
-            await axios.post(`/api/teams/${team.id}/codes`, {
+            await axios.post(`/teams/${team.id}/codes`, {
                 expiresInDays: 7,
                 maxUses: 10
             });
@@ -104,7 +104,7 @@ const Teams = () => {
     const handleDeactivateCode = async (codeId: number) => {
         if (!team) return;
         try {
-            await axios.delete(`/api/teams/${team.id}/codes/${codeId}`);
+            await axios.delete(`/teams/${team.id}/codes/${codeId}`);
             fetchTeam();
         } catch (err) {
             console.error('Failed to deactivate code');
@@ -114,7 +114,7 @@ const Teams = () => {
     const handleUpdateRole = async (memberId: number, newRole: 'admin' | 'member') => {
         if (!team) return;
         try {
-            await axios.put(`/api/teams/${team.id}/members/${memberId}/role`, { role: newRole });
+            await axios.put(`/teams/${team.id}/members/${memberId}/role`, { role: newRole });
             fetchTeam();
         } catch (err) {
             console.error('Failed to update role');
@@ -125,7 +125,7 @@ const Teams = () => {
         if (!team) return;
         if (!confirm('Are you sure you want to remove this member?')) return;
         try {
-            await axios.delete(`/api/teams/${team.id}/members/${memberId}`);
+            await axios.delete(`/teams/${team.id}/members/${memberId}`);
             fetchTeam();
         } catch (err) {
             console.error('Failed to remove member');
@@ -136,7 +136,7 @@ const Teams = () => {
         if (!team) return;
         if (!confirm('Are you sure you want to leave this team?')) return;
         try {
-            await axios.delete(`/api/teams/${team.id}/members`);
+            await axios.delete(`/teams/${team.id}/members`);
             fetchTeam();
         } catch (err) {
             console.error('Failed to leave team');
