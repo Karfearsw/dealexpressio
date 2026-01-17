@@ -194,17 +194,46 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
     }
 });
 
-// Get single lead (must belong to user)
+// Helper to check if user can access a lead (own lead or team admin)
+async function canUserAccessLead(userId: number, leadId: number): Promise<{ canAccess: boolean; isAdmin: boolean; lead: any }> {
+    const [lead] = await db.select().from(leads).where(eq(leads.id, leadId));
+    if (!lead) return { canAccess: false, isAdmin: false, lead: null };
+    
+    // User owns the lead
+    if (lead.userId === userId) return { canAccess: true, isAdmin: true, lead };
+    
+    // Check if user is admin in lead's team
+    if (lead.teamId) {
+        const [membership] = await db.select({ role: teamMembers.role })
+            .from(teamMembers)
+            .where(and(eq(teamMembers.teamId, lead.teamId), eq(teamMembers.userId, userId)));
+        
+        if (membership && ['owner', 'admin'].includes(membership.role)) {
+            return { canAccess: true, isAdmin: true, lead };
+        }
+        
+        // Check if user is in the same team (can view but not edit)
+        if (membership) {
+            return { canAccess: true, isAdmin: false, lead };
+        }
+    }
+    
+    return { canAccess: false, isAdmin: false, lead: null };
+}
+
+// Get single lead (can be accessed by owner or team members, admins can edit)
 router.get('/:id', requireAuth, async (req: Request, res: Response) => {
     try {
         if (!req.session.userId) return res.status(401).json({ message: 'Unauthorized' });
         
-        const [lead] = await db.select().from(leads)
-            .where(and(eq(leads.id, parseInt(req.params.id)), eq(leads.userId, req.session.userId)));
-        if (!lead) {
+        const { canAccess, isAdmin, lead } = await canUserAccessLead(req.session.userId, parseInt(req.params.id));
+        
+        if (!canAccess || !lead) {
             return res.status(404).json({ message: 'Lead not found' });
         }
-        res.json(lead);
+        
+        // Include permission info in response
+        res.json({ ...lead, canEdit: isAdmin });
     } catch (error) {
         console.error('Error fetching lead:', error);
         res.status(500).json({ message: 'Internal server error' });
@@ -290,13 +319,24 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
     }
 });
 
-// Update lead (status, info, etc)
+// Update lead (status, info, etc) - owner or team admin can update
 router.put('/:id', requireAuth, async (req: Request, res: Response) => {
     const { firstName, lastName, email, phone, address, city, state, zip, source, status, assignedTo } = req.body;
     const userId = req.session.userId;
 
     try {
         if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+        
+        // Check if user can edit this lead
+        const { canAccess, isAdmin, lead: existingLead } = await canUserAccessLead(userId, parseInt(req.params.id));
+        
+        if (!canAccess || !existingLead) {
+            return res.status(404).json({ message: 'Lead not found' });
+        }
+        
+        if (!isAdmin) {
+            return res.status(403).json({ message: 'Only the lead owner or team admins can edit this lead' });
+        }
         
         const isContractSigned = status === 'Contract Signed' || status === 'contract_signed';
 
@@ -316,7 +356,7 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
 
         const [updatedLead] = await db.update(leads)
             .set(updateData)
-            .where(and(eq(leads.id, parseInt(req.params.id)), eq(leads.userId, userId)))
+            .where(eq(leads.id, parseInt(req.params.id)))
             .returning();
 
         if (!updatedLead) {

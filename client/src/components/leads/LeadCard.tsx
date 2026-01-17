@@ -13,9 +13,10 @@ interface LeadWithOwner extends Lead {
 interface LeadCardProps {
     lead: LeadWithOwner;
     onDelete?: (id: number) => void;
+    onClick?: (lead: LeadWithOwner) => void;
 }
 
-const LeadCard: React.FC<LeadCardProps> = ({ lead, onDelete }) => {
+const LeadCard: React.FC<LeadCardProps> = ({ lead, onDelete, onClick }) => {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: lead.id.toString(),
         data: { lead },
@@ -37,11 +38,18 @@ const LeadCard: React.FC<LeadCardProps> = ({ lead, onDelete }) => {
         transform: CSS.Translate.toString(transform),
     };
 
+    const handleCardClick = (e: React.MouseEvent) => {
+        // Don't trigger click if we're dragging
+        if (transform) return;
+        onClick?.(lead);
+    };
+
     return (
         <div
             ref={setNodeRef}
             style={style}
-            className="bg-slate-800 p-4 rounded-lg border border-slate-700 shadow-sm hover:shadow-md hover:border-teal-500/50 transition-all mb-3 relative group"
+            onClick={handleCardClick}
+            className="bg-slate-800 p-4 rounded-lg border border-slate-700 shadow-sm hover:shadow-md hover:border-teal-500/50 transition-all mb-3 relative group cursor-pointer"
         >
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button 

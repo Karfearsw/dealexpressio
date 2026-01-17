@@ -32,12 +32,12 @@ const PipelineColumn: React.FC<PipelineColumnProps> = ({ id, title, leads, onLea
                 className="flex-1 bg-slate-900/50 rounded-xl p-3 border border-slate-800/50 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent"
             >
                 {leads.map((lead) => (
-                    <div key={lead.id} onClick={() => onLeadClick && onLeadClick(lead)}>
-                        <LeadCard 
-                            lead={lead} 
-                            onDelete={onLeadDelete}
-                        />
-                    </div>
+                    <LeadCard 
+                        key={lead.id}
+                        lead={lead} 
+                        onClick={onLeadClick}
+                        onDelete={onLeadDelete}
+                    />
                 ))}
                 {leads.length === 0 && (
                     <div className="h-full flex items-center justify-center border-2 border-dashed border-slate-800 rounded-lg opacity-50">
