@@ -1,0 +1,35 @@
+2026-01-19 15:01:13.140 [error] Login error: DrizzleQueryError: Failed query: select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1
+params: enterprise_test@example.com
+    at NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:66:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22
+    at async /var/task/server/src/routes/auth.js:109:24 {
+  query: 'select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1',
+  params: [ 'enterprise_test@example.com' ],
+  cause: error: column "stripe_subscription_id" does not exist
+      at /var/task/server/node_modules/pg-pool/index.js:45:11
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:159:18
+      at async NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:64:16)
+      at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22
+      at async /var/task/server/src/routes/auth.js:109:24 {
+    length: 123,
+    severity: 'ERROR',
+    code: '42703',
+    detail: undefined,
+    hint: undefined,
+    position: '155',
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'parse_relation.c',
+    line: '3716',
+    routine: 'errorMissingColumn'
+  }
+}
+2026-01-19 15:01:13.218 [info] [0mPOST /api/auth/login [31m500[0m 8.599 ms - 35[0m
