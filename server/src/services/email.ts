@@ -118,8 +118,8 @@ function getEmailHtml(template: EmailTemplate, data: EmailData): string {
         new_account_created: `
             <div style="${baseStyle}">
                 <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #00d4aa; margin: 0;">DealExpress</h1>
-                    <p style="color: #888; margin: 5px 0;">Mailbox Money</p>
+                    <h1 style="color: #00d4aa; margin: 0;">Deal Express</h1>
+                    <p style="color: #888; margin: 5px 0;">Real Estate Wholesaling CRM</p>
                 </div>
                 <h2 style="color: #ffffff; margin-bottom: 20px;">Welcome, ${fullName}!</h2>
                 <p style="color: #cccccc; line-height: 1.6;">

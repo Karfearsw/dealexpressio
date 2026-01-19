@@ -4,7 +4,7 @@ import axios from 'axios';
 
 const motivationalQuotes = [
     "Real estate investing, even on a very small scale, remains a tried and true means of building an individual's cash flow and wealth. - Robert Kiyosaki",
-    "Where Deal Express Become Mailbox Money.",
+    "Turn your deals into consistent income with Deal Express.",
     "Don't wait to buy real estate. Buy real estate and wait. - Will Rogers",
     "Ninety percent of all millionaires become so through owning real estate. - Andrew Carnegie"
 ];
