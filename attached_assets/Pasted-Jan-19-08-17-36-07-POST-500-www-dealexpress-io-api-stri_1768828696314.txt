@@ -1,0 +1,87 @@
+Jan 19 08:17:36.07
+POST
+500
+www.dealexpress.io
+/api/stripe/create-checkout
+2
+Create checkout error: DrizzleQueryError: Failed query: select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1 params: bennyjelleh123@gmail.com at NeonHttpPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:66:15) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async NeonHttpPreparedQuery.execute (/var/task/server/node_modules/drizzle-orm/neon-http/session.cjs:70:20) at async /var/task/server/src/routes/stripe.js:60:32 { query: 'select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1', params: [ 'bennyjelleh123@gmail.com' ], cause: NeonDbError: column "stripe_subscription_id" does not exist at mr.execute (/var/task/server/node_modules/@neondatabase/serverless/index.js:1300:10) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/neon-http/session.cjs:71:14 at async NeonHttpPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:64:16) at async NeonHttpPreparedQuery.execute (/var/task/server/node_modules/drizzle-orm/neon-http/session.cjs:70:20) at async /var/task/server/src/routes/stripe.js:60:32 { severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: '155', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, column: undefined, dataType: undefined, constraint: undefined, file: 'parse_relation.c', line: '3716', routine: 'errorMissingColumn', sourceError: undefined } }
+Jan 19 08:16:54.96
+POST
+500
+www.dealexpress.io
+/api/auth/login
+2
+Login error: DrizzleQueryError: Failed query: select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1 params: skcapital1995@gmail.com at NeonHttpPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:66:15) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async NeonHttpPreparedQuery.execute (/var/task/server/node_modules/drizzle-orm/neon-http/session.cjs:70:20) at async /var/task/server/src/routes/auth.js:109:24 { query: 'select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1', params: [ 'skcapital1995@gmail.com' ], cause: NeonDbError: column "stripe_subscription_id" does not exist at mr.execute (/var/task/server/node_modules/@neondatabase/serverless/index.js:1300:10) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/neon-http/session.cjs:71:14 at async NeonHttpPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:64:16) at async NeonHttpPreparedQuery.execute (/var/task/server/node_modules/drizzle-orm/neon-http/session.cjs:70:20) at async /var/task/server/src/routes/auth.js:109:24 { severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: '155', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, column: undefined, dataType: undefined, constraint: undefined, file: 'parse_relation.c', line: '3716', routine: 'errorMissingColumn', sourceError: undefined } }
+Jan 19 08:16:53.58
+POST
+500
+www.dealexpress.io
+/api/stripe/create-checkout
+2
+Create checkout error: DrizzleQueryError: Failed query: select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1 params: bennyjelleh123@gmail.com at NeonHttpPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:66:15) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async NeonHttpPreparedQuery.execute (/var/task/server/node_modules/drizzle-orm/neon-http/session.cjs:70:20) at async /var/task/server/src/routes/stripe.js:60:32 { query: 'select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1', params: [ 'bennyjelleh123@gmail.com' ], cause: NeonDbError: column "stripe_subscription_id" does not exist at mr.execute (/var/task/server/node_modules/@neondatabase/serverless/index.js:1300:10) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/neon-http/session.cjs:71:14 at async NeonHttpPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:64:16) at async NeonHttpPreparedQuery.execute (/var/task/server/node_modules/drizzle-orm/neon-http/session.cjs:70:20) at async /var/task/server/src/routes/stripe.js:60:32 { severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: '155', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, column: undefined, dataType: undefined, constraint: undefined, file: 'parse_relation.c', line: '3716', routine: 'errorMissingColumn', sourceError: undefined } }
+Jan 19 08:16:53.28
+POST
+500
+www.dealexpress.io
+/api/auth/login
+2
+Login error: DrizzleQueryError: Failed query: select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1 params: skcapital1995@gmail.com at NeonHttpPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:66:15) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async NeonHttpPreparedQuery.execute (/var/task/server/node_modules/drizzle-orm/neon-http/session.cjs:70:20) at async /var/task/server/src/routes/auth.js:109:24 { query: 'select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1', params: [ 'skcapital1995@gmail.com' ], cause: NeonDbError: column "stripe_subscription_id" does not exist at mr.execute (/var/task/server/node_modules/@neondatabase/serverless/index.js:1300:10) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/neon-http/session.cjs:71:14 at async NeonHttpPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:64:16) at async NeonHttpPreparedQuery.execute (/var/task/server/node_modules/drizzle-orm/neon-http/session.cjs:70:20) at async /var/task/server/src/routes/auth.js:109:24 { severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: '155', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, column: undefined, dataType: undefined, constraint: undefined, file: 'parse_relation.c', line: '3716', routine: 'errorMissingColumn', sourceError: undefined } }
+Jan 19 08:15:56.62
+GET
+401
+www.dealexpress.io
+/api/auth/me
+3
+[0mGET /api/auth/me [33m401[0m 3.794 ms - 26[0m
+Jan 19 08:15:41.40
+GET
+504
+www.dealexpress.io
+/api/auth/me
+3
+Vercel Runtime Timeout Error: Task timed out after 10 seconds
+Jan 19 08:15:40.44
+GET
+200
+www.dealexpress.io
+/
+Jan 19 08:14:40.32
+GET
+401
+www.dealexpress.io
+/api/auth/me
+[0mGET /api/auth/me [33m401[0m 12.988 ms - 26[0m
+Jan 19 08:14:19.62
+GET
+401
+www.dealexpress.io
+/api/auth/me
+3
+[0mGET /api/auth/me [33m401[0m 3.640 ms - 26[0m
+Jan 19 08:13:50.88
+GET
+504
+www.dealexpress.io
+/api/auth/me
+5
+Vercel Runtime Timeout Error: Task timed out after 10 seconds
+Jan 19 08:13:49.64
+GET
+200
+www.dealexpress.io
+/
+Jan 19 08:13:09.58
+GET
+401
+dealexpressio-74whcnykr-karfearsws-projects.vercel.app
+/api/auth/me
+3
+[0mGET /api/auth/me [33m401[0m 35.383 ms - 26[0m
+Jan 19 08:13:09.54
+GET
+---
+dealexpressio-74whcnykr-karfearsws-projects.vercel.app
+/api/auth/me
+3
+[0mGET /api/auth/me [33m401[0m 22.113 ms - 26[0m
+No more logs to show within selected timeline

@@ -1,0 +1,98 @@
+08:24:07.553 Running build in Washington, D.C., USA (East) – iad1
+08:24:07.553 Build machine configuration: 2 cores, 8 GB
+08:24:07.563 Cloning github.com/Karfearsw/dealexpressio (Branch: main, Commit: be36c52)
+08:24:07.564 Skipping build cache, deployment was triggered without cache.
+08:24:08.147 Cloning completed: 584.000ms
+08:24:08.795 Running "vercel build"
+08:24:09.757 Vercel CLI 50.4.5
+08:24:10.589 Installing dependencies...
+08:24:13.560 npm warn deprecated scmp@2.1.0: Just use Node.js's crypto.timingSafeEqual()
+08:24:13.646 npm warn deprecated q@2.0.3: You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
+08:24:13.647 npm warn deprecated
+08:24:13.647 npm warn deprecated (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
+08:24:14.272 npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+08:24:15.635 npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+08:24:21.082 
+08:24:21.083 added 675 packages in 10s
+08:24:21.083 
+08:24:21.084 89 packages are looking for funding
+08:24:21.084   run `npm fund` for details
+08:24:23.112 npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+08:24:23.329 npm warn deprecated q@2.0.3: You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
+08:24:23.330 npm warn deprecated
+08:24:23.330 npm warn deprecated (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
+08:24:23.354 npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+08:24:23.437 npm warn deprecated scmp@2.1.0: Just use Node.js's crypto.timingSafeEqual()
+08:24:23.686 npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+08:24:23.721 npm warn deprecated npmlog@5.0.1: This package is no longer supported.
+08:24:23.811 npm warn deprecated are-we-there-yet@2.0.0: This package is no longer supported.
+08:24:23.813 npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+08:24:23.825 npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+08:24:23.948 npm warn deprecated gauge@3.0.2: This package is no longer supported.
+08:24:27.796 
+08:24:27.797 added 438 packages, and audited 439 packages in 7s
+08:24:27.798 
+08:24:27.798 53 packages are looking for funding
+08:24:27.798   run `npm fund` for details
+08:24:27.824 
+08:24:27.825 8 vulnerabilities (2 low, 4 moderate, 2 high)
+08:24:27.825 
+08:24:27.825 To address issues that do not require attention, run:
+08:24:27.826   npm audit fix
+08:24:27.827 
+08:24:27.828 To address all issues (including breaking changes), run:
+08:24:27.828   npm audit fix --force
+08:24:27.828 
+08:24:27.828 Run `npm audit` for details.
+08:24:27.947 
+08:24:27.947 > dealexpress-server@1.0.0 build
+08:24:27.947 > tsc
+08:24:27.947 
+08:24:34.615 
+08:24:34.616 > dealexpress-server@1.0.0 migrate:prod
+08:24:34.616 > node dist/migrate.js
+08:24:34.616 
+08:24:34.731 Running migrations...
+08:24:34.732 Migrations folder: /vercel/path0/server/drizzle
+08:24:34.816 Migrations completed successfully!
+08:24:42.096 
+08:24:42.096 added 450 packages, and audited 451 packages in 7s
+08:24:42.097 
+08:24:42.097 64 packages are looking for funding
+08:24:42.097   run `npm fund` for details
+08:24:42.098 
+08:24:42.098 found 0 vulnerabilities
+08:24:42.224 
+08:24:42.225 > client:build
+08:24:42.225 > npm --prefix client run build
+08:24:42.225 
+08:24:42.331 
+08:24:42.331 > client@0.0.0 build
+08:24:42.332 > vite build
+08:24:42.332 
+08:24:42.746 [36mvite v7.3.0 [32mbuilding client environment for production...[36m[39m
+08:24:42.838 transforming...
+08:24:48.386 [32m✓[39m 2831 modules transformed.
+08:24:48.976 rendering chunks...
+08:24:49.289 computing gzip size...
+08:24:49.322 [2mdist/[22m[32mindex.html                                        [39m[1m[2m  1.81 kB[22m[1m[22m[2m │ gzip:   0.61 kB[22m
+08:24:49.323 [2mdist/[22m[2massets/[22m[32mlogo-white-zZ6eir96.png                    [39m[1m[2m 41.45 kB[22m[1m[22m
+08:24:49.324 [2mdist/[22m[2massets/[22m[32micon-feature-buyers-list-BtS7n9tz.png      [39m[1m[2m861.44 kB[22m[1m[22m
+08:24:49.324 [2mdist/[22m[2massets/[22m[32micon-feature-lead-management-87qekt6R.png  [39m[1m[2m924.19 kB[22m[1m[22m
+08:24:49.324 [2mdist/[22m[2massets/[22m[35mindex-C6cApUXr.css                         [39m[1m[2m 69.48 kB[22m[1m[22m[2m │ gzip:  10.99 kB[22m
+08:24:49.324 [2mdist/[22m[2massets/[22m[36mvendor-CPUiMCxt.js                         [39m[1m[2m 16.83 kB[22m[1m[22m[2m │ gzip:   6.50 kB[22m
+08:24:49.324 [2mdist/[22m[2massets/[22m[36mui-C4_WdthJ.js                             [39m[1m[2m163.23 kB[22m[1m[22m[2m │ gzip:  54.26 kB[22m
+08:24:49.324 [2mdist/[22m[2massets/[22m[36mcharts-BrC4KgZT.js                         [39m[1m[2m378.88 kB[22m[1m[22m[2m │ gzip: 111.81 kB[22m
+08:24:49.324 [2mdist/[22m[2massets/[22m[36mindex-ik8JDUWn.js                          [39m[1m[2m484.94 kB[22m[1m[22m[2m │ gzip: 133.74 kB[22m
+08:24:49.324 [32m✓ built in 6.54s[39m
+08:24:49.680 Using TypeScript 5.9.3 (local user-provided)
+08:24:54.862 Using TypeScript 5.9.3 (local user-provided)
+08:24:56.418 Using TypeScript 5.9.3 (local user-provided)
+08:25:09.206 Build Completed in /vercel/output [59s]
+08:25:09.586 Deploying outputs...
+08:25:14.162 Warning: Provided `memory` setting in `vercel.json` is ignored on Active CPU billing. You can safely remove this setting from your configuration. Learn more: https://vercel.com/docs/fluid-compute/pricing
+08:25:18.660 Deployment completed
+08:25:19.555 Creating build cache...
+08:26:31.259 Created build cache: 1:11.703 (m:ss.mmm)
+08:26:31.260 Uploading build cache [120.75 MB]
+08:26:32.599 Build cache uploaded: 1.338s
