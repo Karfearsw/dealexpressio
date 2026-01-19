@@ -12,25 +12,27 @@ import os from 'os';
 
 const router = Router();
 
-const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+// Use /tmp for serverless environments (Vercel), fallback to local uploads for development
+const isServerless = process.env.VERCEL === '1' || process.env.AWS_LAMBDA_FUNCTION_NAME;
 const uploadsDir = isServerless 
     ? path.join(os.tmpdir(), 'contracts') 
     : path.join(process.cwd(), 'uploads', 'contracts');
 
-try {
-    if (!fs.existsSync(uploadsDir)) {
-        fs.mkdirSync(uploadsDir, { recursive: true });
+// Create directory lazily only when needed, not at module load time
+const ensureUploadsDir = () => {
+    try {
+        if (!fs.existsSync(uploadsDir)) {
+            fs.mkdirSync(uploadsDir, { recursive: true });
+        }
+    } catch (err) {
+        console.warn('Could not create uploads directory:', err);
     }
-} catch (err) {
-    console.warn('Could not create uploads directory:', err);
-}
+};
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         try {
-            if (!fs.existsSync(uploadsDir)) {
-                fs.mkdirSync(uploadsDir, { recursive: true });
-            }
+            ensureUploadsDir();
             cb(null, uploadsDir);
         } catch (err) {
             cb(err as Error, uploadsDir);
