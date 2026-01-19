@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { TrendingUp, Users, FileText, CheckCircle, DollarSign, Activity, RefreshCcw } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { TrendingUp, Users, FileText, DollarSign, Activity, RefreshCcw } from 'lucide-react';
 import axios from 'axios';
 
 const motivationalQuotes = [

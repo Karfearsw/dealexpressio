@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, Users, Search, Calculator, Database, CheckCircle2 } from 'lucide-react';
@@ -13,7 +12,7 @@ const LandingPage = () => {
 
     // formatCurrency removed as it was unused
 
-    const features = [
+    const features: Array<{title: string; description: string; icon: typeof Users; color: string; image?: string}> = [
         {
             title: "Lead Management",
             description: "Imported leads DONE FOR YOU or instantly auto-enrich your own data so you have the full picture immediately.",
@@ -46,7 +45,7 @@ const LandingPage = () => {
         }
     ];
 
-    const workflowSteps = [
+    const workflowSteps: Array<{id: number; title: string; description: string; icon: typeof Search; color: string; image?: string}> = [
         {
             id: 1,
             title: "Find & Capture",
