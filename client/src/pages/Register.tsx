@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useLocation, Link } from 'wouter';
-import { Lock, Mail, User, CreditCard, Tag } from 'lucide-react';
+import { Lock, Mail, User, CreditCard, Tag, Eye, EyeOff } from 'lucide-react';
 
 const Register = () => {
     const [email, setEmail] = useState('');
@@ -12,6 +12,7 @@ const Register = () => {
     const [subscriptionTier, setSubscriptionTier] = useState('basic');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const [, setLocation] = useLocation();
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -130,13 +131,20 @@ const Register = () => {
                         <div className="relative">
                             <span className="absolute left-3 top-3 text-slate-500"><Lock size={18} /></span>
                             <input
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2.5 pl-10 pr-4 text-slate-200 focus:outline-none focus:border-teal-500 transition-colors"
+                                className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2.5 pl-10 pr-12 text-slate-200 focus:outline-none focus:border-teal-500 transition-colors"
                                 placeholder="Min 8 chars, letters and numbers"
                                 required
                             />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-3 text-slate-500 hover:text-slate-300 transition-colors"
+                            >
+                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
                         </div>
                     </div>
 
