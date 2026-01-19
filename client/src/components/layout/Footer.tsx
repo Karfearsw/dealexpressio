@@ -59,13 +59,13 @@ const Footer = () => {
                 <Link href="/">
                     <div className="flex items-center space-x-2 cursor-pointer group">
                         <div className="font-extrabold text-2xl tracking-tighter text-white group-hover:text-teal-400 transition-colors">
-                            Express<span className="text-teal-500">Deal</span>
+                            Deal<span className="text-teal-500">Express</span>
                         </div>
                     </div>
                 </Link>
 
                 <div className="text-slate-500 text-sm text-center md:text-left">
-                    <p>© 2025 Express Brands LLC. All rights reserved.</p>
+                    <p>© 2025 Deal Express LLC. All rights reserved.</p>
                     <p className="mt-1">1000 Brickell Ave Miami, FL 33131</p>
                 </div>
 
