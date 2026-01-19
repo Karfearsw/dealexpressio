@@ -1,0 +1,176 @@
+
+Jan 19 09:54:25.84
+POST
+---
+www.dealexpress.io
+/api/stripe/create-checkout
+2
+Create checkout error: DrizzleQueryError: Failed query: select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1 params: test@dealexpress.io at NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:66:15) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/stripe.js:60:32 { query: 'select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1', params: [ 'test@dealexpress.io' ], cause: error: column "stripe_subscription_id" does not exist at /var/task/server/node_modules/pg-pool/index.js:45:11 at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:159:18 at async NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:64:16) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/stripe.js:60:32 { length: 123, severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: '155', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, column: undefined, dataType: undefined, constraint: undefined, file: 'parse_relation.c', line: '3716', routine: 'errorMissingColumn' } }
+Jan 19 09:54:20.15
+POST
+500
+www.dealexpress.io
+/api/stripe/create-checkout
+2
+Create checkout error: DrizzleQueryError: Failed query: select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1 params: test@dealexpress.io at NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:66:15) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/stripe.js:60:32 { query: 'select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1', params: [ 'test@dealexpress.io' ], cause: error: column "stripe_subscription_id" does not exist at /var/task/server/node_modules/pg-pool/index.js:45:11 at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:159:18 at async NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:64:16) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/stripe.js:60:32 { length: 123, severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: '155', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, column: undefined, dataType: undefined, constraint: undefined, file: 'parse_relation.c', line: '3716', routine: 'errorMissingColumn' } }
+Jan 19 09:53:59.92
+POST
+500
+www.dealexpress.io
+/api/auth/login
+2
+Login error: DrizzleQueryError: Failed query: select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1 params: bennyjelleh123@gmail.com at NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:66:15) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/auth.js:109:24 { query: 'select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1', params: [ 'bennyjelleh123@gmail.com' ], cause: error: column "stripe_subscription_id" does not exist at /var/task/server/node_modules/pg-pool/index.js:45:11 at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:159:18 at async NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:64:16) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/auth.js:109:24 { length: 123, severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: '155', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, column: undefined, dataType: undefined, constraint: undefined, file: 'parse_relation.c', line: '3716', routine: 'errorMissingColumn' } }
+Jan 19 09:53:59.78
+POST
+---
+www.dealexpress.io
+/api/auth/login
+2
+Login error: DrizzleQueryError: Failed query: select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1 params: bennyjelleh123@gmail.com at NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:66:15) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/auth.js:109:24 { query: 'select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1', params: [ 'bennyjelleh123@gmail.com' ], cause: error: column "stripe_subscription_id" does not exist at /var/task/server/node_modules/pg-pool/index.js:45:11 at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:159:18 at async NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:64:16) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/auth.js:109:24 { length: 123, severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: '155', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, column: undefined, dataType: undefined, constraint: undefined, file: 'parse_relation.c', line: '3716', routine: 'errorMissingColumn' } }
+Jan 19 09:53:59.62
+POST
+500
+www.dealexpress.io
+/api/auth/login
+2
+Login error: DrizzleQueryError: Failed query: select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1 params: bennyjelleh123@gmail.com at NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:66:15) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/auth.js:109:24 { query: 'select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1', params: [ 'bennyjelleh123@gmail.com' ], cause: error: column "stripe_subscription_id" does not exist at /var/task/server/node_modules/pg-pool/index.js:45:11 at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:159:18 at async NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:64:16) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/auth.js:109:24 { length: 123, severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: '155', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, column: undefined, dataType: undefined, constraint: undefined, file: 'parse_relation.c', line: '3716', routine: 'errorMissingColumn' } }
+Jan 19 09:53:59.46
+POST
+500
+www.dealexpress.io
+/api/auth/login
+2
+Login error: DrizzleQueryError: Failed query: select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1 params: bennyjelleh123@gmail.com at NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:66:15) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/auth.js:109:24 { query: 'select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1', params: [ 'bennyjelleh123@gmail.com' ], cause: error: column "stripe_subscription_id" does not exist at /var/task/server/node_modules/pg-pool/index.js:45:11 at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:159:18 at async NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:64:16) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/auth.js:109:24 { length: 123, severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: '155', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, column: undefined, dataType: undefined, constraint: undefined, file: 'parse_relation.c', line: '3716', routine: 'errorMissingColumn' } }
+Jan 19 09:53:59.15
+POST
+500
+www.dealexpress.io
+/api/auth/login
+2
+Login error: DrizzleQueryError: Failed query: select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1 params: bennyjelleh123@gmail.com at NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:66:15) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/auth.js:109:24 { query: 'select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1', params: [ 'bennyjelleh123@gmail.com' ], cause: error: column "stripe_subscription_id" does not exist at /var/task/server/node_modules/pg-pool/index.js:45:11 at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:159:18 at async NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:64:16) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/auth.js:109:24 { length: 123, severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: '155', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, column: undefined, dataType: undefined, constraint: undefined, file: 'parse_relation.c', line: '3716', routine: 'errorMissingColumn' } }
+Jan 19 09:53:59.04
+GET
+304
+www.dealexpress.io
+/api/marketing/pricing-tiers
+[0mGET /api/marketing/pricing-tiers [32m200[0m 4.842 ms - 254[0m
+Jan 19 09:53:58.96
+POST
+500
+www.dealexpress.io
+/api/auth/login
+2
+Login error: DrizzleQueryError: Failed query: select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1 params: bennyjelleh123@gmail.com at NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:66:15) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/auth.js:109:24 { query: 'select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1', params: [ 'bennyjelleh123@gmail.com' ], cause: error: column "stripe_subscription_id" does not exist at /var/task/server/node_modules/pg-pool/index.js:45:11 at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:159:18 at async NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:64:16) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/auth.js:109:24 { length: 123, severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: '155', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, column: undefined, dataType: undefined, constraint: undefined, file: 'parse_relation.c', line: '3716', routine: 'errorMissingColumn' } }
+Jan 19 09:53:58.25
+POST
+500
+www.dealexpress.io
+/api/auth/login
+2
+Login error: DrizzleQueryError: Failed query: select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1 params: bennyjelleh123@gmail.com at NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:66:15) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/auth.js:109:24 { query: 'select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1', params: [ 'bennyjelleh123@gmail.com' ], cause: error: column "stripe_subscription_id" does not exist at /var/task/server/node_modules/pg-pool/index.js:45:11 at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:159:18 at async NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:64:16) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/auth.js:109:24 { length: 123, severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: '155', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, column: undefined, dataType: undefined, constraint: undefined, file: 'parse_relation.c', line: '3716', routine: 'errorMissingColumn' } }
+Jan 19 09:53:58.10
+POST
+500
+www.dealexpress.io
+/api/auth/login
+2
+Login error: DrizzleQueryError: Failed query: select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1 params: bennyjelleh123@gmail.com at NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:66:15) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/auth.js:109:24 { query: 'select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1', params: [ 'bennyjelleh123@gmail.com' ], cause: error: column "stripe_subscription_id" does not exist at /var/task/server/node_modules/pg-pool/index.js:45:11 at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:159:18 at async NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:64:16) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/auth.js:109:24 { length: 123, severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: '155', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, column: undefined, dataType: undefined, constraint: undefined, file: 'parse_relation.c', line: '3716', routine: 'errorMissingColumn' } }
+Jan 19 09:53:57.94
+POST
+500
+www.dealexpress.io
+/api/auth/login
+2
+Login error: DrizzleQueryError: Failed query: select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1 params: bennyjelleh123@gmail.com at NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:66:15) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/auth.js:109:24 { query: 'select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1', params: [ 'bennyjelleh123@gmail.com' ], cause: error: column "stripe_subscription_id" does not exist at /var/task/server/node_modules/pg-pool/index.js:45:11 at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:159:18 at async NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:64:16) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/auth.js:109:24 { length: 123, severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: '155', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, column: undefined, dataType: undefined, constraint: undefined, file: 'parse_relation.c', line: '3716', routine: 'errorMissingColumn' } }
+Jan 19 09:53:57.78
+POST
+500
+www.dealexpress.io
+/api/auth/login
+2
+Login error: DrizzleQueryError: Failed query: select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1 params: bennyjelleh123@gmail.com at NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:66:15) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/auth.js:109:24 { query: 'select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1', params: [ 'bennyjelleh123@gmail.com' ], cause: error: column "stripe_subscription_id" does not exist at /var/task/server/node_modules/pg-pool/index.js:45:11 at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:159:18 at async NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:64:16) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/auth.js:109:24 { length: 123, severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: '155', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, column: undefined, dataType: undefined, constraint: undefined, file: 'parse_relation.c', line: '3716', routine: 'errorMissingColumn' } }
+Jan 19 09:53:57.58
+POST
+500
+www.dealexpress.io
+/api/auth/login
+4
+Login error: DrizzleQueryError: Failed query: select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1 params: bennyjelleh123@gmail.com at NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:66:15) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/auth.js:109:24 { query: 'select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1', params: [ 'bennyjelleh123@gmail.com' ], cause: error: column "stripe_subscription_id" does not exist at /var/task/server/node_modules/pg-pool/index.js:45:11 at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:159:18 at async NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:64:16) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/auth.js:109:24 { length: 123, severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: '155', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, column: undefined, dataType: undefined, constraint: undefined, file: 'parse_relation.c', line: '3716', routine: 'errorMissingColumn' } }
+Jan 19 09:53:55.19
+POST
+500
+www.dealexpress.io
+/api/auth/login
+4
+Login error: DrizzleQueryError: Failed query: select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1 params: bennyjelleh123@gmail.com at NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:66:15) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/auth.js:109:24 { query: 'select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1', params: [ 'bennyjelleh123@gmail.com' ], cause: error: column "stripe_subscription_id" does not exist at /var/task/server/node_modules/pg-pool/index.js:45:11 at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:159:18 at async NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:64:16) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/auth.js:109:24 { length: 123, severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: '155', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, column: undefined, dataType: undefined, constraint: undefined, file: 'parse_relation.c', line: '3716', routine: 'errorMissingColumn' } }
+Jan 19 09:53:54.16
+POST
+500
+www.dealexpress.io
+/api/auth/login
+4
+Login error: DrizzleQueryError: Failed query: select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1 params: bennyjelleh123@gmail.com at NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:66:15) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/auth.js:109:24 { query: 'select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1', params: [ 'bennyjelleh123@gmail.com' ], cause: error: column "stripe_subscription_id" does not exist at /var/task/server/node_modules/pg-pool/index.js:45:11 at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:159:18 at async NodePgPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:64:16) at async /var/task/server/node_modules/drizzle-orm/node-postgres/session.cjs:152:22 at async /var/task/server/src/routes/auth.js:109:24 { length: 123, severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: '155', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, column: undefined, dataType: undefined, constraint: undefined, file: 'parse_relation.c', line: '3716', routine: 'errorMissingColumn' } }
+Jan 19 09:53:45.35
+GET
+504
+www.dealexpress.io
+/api/auth/me
+5
+Vercel Runtime Timeout Error: Task timed out after 10 seconds
+Jan 19 09:53:44.81
+GET
+200
+www.dealexpress.io
+/
+Jan 19 09:53:24.94
+GET
+504
+www.dealexpress.io
+/api/auth/me
+5
+Vercel Runtime Timeout Error: Task timed out after 10 seconds
+Jan 19 09:53:23.26
+GET
+504
+www.dealexpress.io
+/api/auth/me
+5
+Vercel Runtime Timeout Error: Task timed out after 10 seconds
+Jan 19 09:53:22.83
+GET
+200
+www.dealexpress.io
+/register
+Jan 19 09:53:19.90
+GET
+504
+www.dealexpress.io
+/api/auth/me
+5
+Vercel Runtime Timeout Error: Task timed out after 10 seconds
+Jan 19 09:53:19.23
+GET
+200
+www.dealexpress.io
+/register
+Jan 19 09:53:14.79
+GET
+504
+www.dealexpress.io
+/api/auth/me
+3
+Vercel Runtime Timeout Error: Task timed out after 10 seconds
+Jan 19 09:53:05.62
+GET
+---
+dealexpressio-mt143p04c-karfearsws-projects.vercel.app
+/api/auth/me
+3
+[0mGET /api/auth/me [33m401[0m 15.443 ms - 26[0m
+Jan 19 09:53:05.61
+GET
+---
+dealexpressio-mt143p04c-karfearsws-projects.vercel.app
+/api/auth/me
+3
+[0mGET /api/auth/me [33m401[0m 28.949 ms - 26[0m
