@@ -1,6 +1,6 @@
 import { Link } from 'wouter';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowRight, Users, Search, Calculator, Database, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Search, Calculator, CheckCircle2 } from 'lucide-react';
 import PublicLayout from '@/components/layout/PublicLayout';
 const LandingPage = () => {
     const { scrollY } = useScroll();
@@ -9,41 +9,6 @@ const LandingPage = () => {
     const heroY = useTransform(scrollY, [0, 500], [0, 200]);
     const heroOpacity = useTransform(scrollY, [0, 300], [1, 0]);
     const dashboardY = useTransform(scrollY, [0, 500], [0, -100]);
-
-    // formatCurrency removed as it was unused
-
-    const features: Array<{title: string; description: string; icon: typeof Users; color: string; image?: string}> = [
-        {
-            title: "Lead Management",
-            description: "Imported leads DONE FOR YOU or instantly auto-enrich your own data so you have the full picture immediately.",
-            icon: Users,
-            color: "text-teal-400"
-        },
-        {
-            title: "Property Analysis",
-            description: "Real-time CMA research and property analysis tools to help you make informed decisions.",
-            icon: Search,
-            color: "text-blue-400"
-        },
-        {
-            title: "Deal Calculator",
-            description: "Run the numbers in seconds. Our deal calculator helps you determine your max offer amount and generate professional offer letters with one click.",
-            icon: Calculator,
-            color: "text-indigo-400"
-        },
-        {
-            title: "Financial Tools",
-            description: "Powerful financial calculators to evaluate MAO, ARV, and projected spreads instantly.",
-            icon: Calculator,
-            color: "text-indigo-400"
-        },
-        {
-            title: "Buyers List",
-            description: "Maintain a curated list of qualified buyers ready for your next big assignment.",
-            icon: Database,
-            color: "text-teal-500"
-        }
-    ];
 
     const workflowSteps: Array<{id: number; title: string; description: string; icon: typeof Search; color: string; image?: string}> = [
         {
@@ -224,44 +189,6 @@ const LandingPage = () => {
                                         )}
                                     </motion.div>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-
-                {/* Features Section */}
-                <section id="features" className="py-24 px-4 bg-slate-950">
-                    <div className="max-w-7xl mx-auto">
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            className="text-center mb-16 space-y-4"
-                        >
-                            <h2 className="text-4xl font-bold tracking-tight">Everything You Need to Scale</h2>
-                            <p className="text-slate-400 max-w-xl mx-auto">Focus on what makes you money: finding and closing deals. Let us handle the data and organization.</p>
-                        </motion.div>
-
-                        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                            {features.map((feature, i) => (
-                                <motion.div
-                                    key={i}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ delay: i * 0.1 }}
-                                    className="p-8 bg-slate-900/40 border border-slate-800/60 rounded-3xl hover:border-teal-500/30 transition-all hover:bg-slate-900/60 group"
-                                >
-                                    <div className={`w-14 h-14 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center mb-6 shadow-inner group-hover:scale-110 transition-transform ${feature.color}`}>
-                                        {feature.image ? (
-                                            <img src={feature.image} alt={feature.title} className="w-10 h-10 object-contain" />
-                                        ) : (
-                                            <feature.icon size={28} />
-                                        )}
-                                    </div>
-                                    <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
-                                    <p className="text-slate-400 text-sm leading-relaxed">{feature.description}</p>
-                                </motion.div>
                             ))}
                         </div>
                     </div>

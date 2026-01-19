@@ -1,0 +1,26 @@
+Time
+Status
+Host
+Request
+Messages
+Jan 19 08:02:00.06
+POST
+500
+www.dealexpress.io
+/api/stripe/create-checkout
+4
+Create checkout error: DrizzleQueryError: Failed query: select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1 params: bennyjelleh123@gmail.com at NeonHttpPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:66:15) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async NeonHttpPreparedQuery.execute (/var/task/server/node_modules/drizzle-orm/neon-http/session.cjs:70:20) at async /var/task/server/src/routes/stripe.js:60:32 { query: 'select "id", "first_name", "last_name", "email", "password_hash", "role", "two_factor_secret", "two_factor_enabled", "access_code", "stripe_customer_id", "stripe_subscription_id", "subscription_status", "subscription_tier", "failed_login_attempts", "lock_until", "token_version", "last_login", "created_at" from "users" where "users"."email" = $1', params: [ 'bennyjelleh123@gmail.com' ], cause: NeonDbError: column "stripe_subscription_id" does not exist at mr.execute (/var/task/server/node_modules/@neondatabase/serverless/index.js:1300:10) at process.processTicksAndRejections (node:internal/process/task_queues:105:5) at async /var/task/server/node_modules/drizzle-orm/neon-http/session.cjs:71:14 at async NeonHttpPreparedQuery.queryWithCache (/var/task/server/node_modules/drizzle-orm/pg-core/session.cjs:64:16) at async NeonHttpPreparedQuery.execute (/var/task/server/node_modules/drizzle-orm/neon-http/session.cjs:70:20) at async /var/task/server/src/routes/stripe.js:60:32 { severity: 'ERROR', code: '42703', detail: undefined, hint: undefined, position: '155', internalPosition: undefined, internalQuery: undefined, where: undefined, schema: undefined, table: undefined, column: undefined, dataType: undefined, constraint: undefined, file: 'parse_relation.c', line: '3716', routine: 'errorMissingColumn', sourceError: undefined } }
+Jan 19 08:01:44.87
+GET
+---
+dealexpressio-2ccl84o2m-karfearsws-projects.vercel.app
+/api/auth/me
+3
+[0mGET /api/auth/me [33m401[0m 30.152 ms - 26[0m
+Jan 19 08:01:44.86
+GET
+401
+dealexpressio-2ccl84o2m-karfearsws-projects.vercel.app
+/api/auth/me
+3
+[0mGET /api/auth/me [33m401[0m 29.159 ms - 26[0m
