@@ -271,11 +271,10 @@ const LandingPage = () => {
                 {/* Social Proof / Stats */}
                 <div className="min-h-screen flex items-center justify-center">
                     <section className="py-20 border-y border-slate-900 bg-slate-950/50">
-                        <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                        <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 gap-8 text-center">
                             {[
-                            { value: "1000+", label: "Monthly Leads", color: "text-teal-400" },
-                            { value: "$11M", label: "Tracked Volume", color: "text-blue-400" },
-                            { value: "24/7", label: "Support", color: "text-teal-500" }
+                            { value: "1000+", label: "Users", color: "text-teal-400" },
+                            { value: "$100M+", label: "Closed Pipeline", color: "text-blue-400" }
                             ].map((stat, i) => (
                             <motion.div
                                 key={i}
