@@ -1,0 +1,80 @@
+07:43:30.728 Running build in Washington, D.C., USA (East) – iad1
+07:43:30.731 Build machine configuration: 2 cores, 8 GB
+07:43:31.056 Cloning github.com/Karfearsw/dealexpressio (Branch: main, Commit: 3f80e4e)
+07:43:33.074 Cloning completed: 2.011s
+07:43:33.438 Restored build cache from previous deployment (H4z2NQWH8ZwtDDJLM66Q3vu6Q1tn)
+07:43:33.746 Running "vercel build"
+07:43:34.686 Vercel CLI 50.4.5
+07:43:35.318 Installing dependencies...
+07:43:36.644 
+07:43:36.645 up to date in 1s
+07:43:36.645 
+07:43:36.646 89 packages are looking for funding
+07:43:36.646   run `npm fund` for details
+07:43:37.981 
+07:43:37.982 up to date, audited 439 packages in 1s
+07:43:37.982 
+07:43:37.982 53 packages are looking for funding
+07:43:37.983   run `npm fund` for details
+07:43:38.006 
+07:43:38.006 8 vulnerabilities (2 low, 4 moderate, 2 high)
+07:43:38.006 
+07:43:38.006 To address issues that do not require attention, run:
+07:43:38.007   npm audit fix
+07:43:38.007 
+07:43:38.007 To address all issues (including breaking changes), run:
+07:43:38.007   npm audit fix --force
+07:43:38.007 
+07:43:38.008 Run `npm audit` for details.
+07:43:38.127 
+07:43:38.128 > dealexpress-server@1.0.0 build
+07:43:38.128 > tsc
+07:43:38.128 
+07:43:44.548 
+07:43:44.549 > dealexpress-server@1.0.0 migrate:prod
+07:43:44.549 > node dist/migrate.js
+07:43:44.549 
+07:43:44.670 Running migrations...
+07:43:44.671 Migrations folder: /vercel/path0/server/drizzle
+07:43:45.155 Migrations completed successfully!
+07:43:46.056 
+07:43:46.057 up to date, audited 451 packages in 840ms
+07:43:46.058 
+07:43:46.058 64 packages are looking for funding
+07:43:46.058   run `npm fund` for details
+07:43:46.059 
+07:43:46.059 found 0 vulnerabilities
+07:43:46.168 
+07:43:46.169 > client:build
+07:43:46.169 > npm --prefix client run build
+07:43:46.169 
+07:43:46.272 
+07:43:46.272 > client@0.0.0 build
+07:43:46.272 > vite build
+07:43:46.272 
+07:43:46.716 [36mvite v7.3.0 [32mbuilding client environment for production...[36m[39m
+07:43:46.811 transforming...
+07:43:52.456 [32m✓[39m 2831 modules transformed.
+07:43:52.992 rendering chunks...
+07:43:53.346 computing gzip size...
+07:43:53.404 [2mdist/[22m[32mindex.html                                        [39m[1m[2m  1.81 kB[22m[1m[22m[2m │ gzip:   0.61 kB[22m
+07:43:53.404 [2mdist/[22m[2massets/[22m[32mlogo-white-zZ6eir96.png                    [39m[1m[2m 41.45 kB[22m[1m[22m
+07:43:53.405 [2mdist/[22m[2massets/[22m[32micon-feature-buyers-list-BtS7n9tz.png      [39m[1m[2m861.44 kB[22m[1m[22m
+07:43:53.405 [2mdist/[22m[2massets/[22m[32micon-feature-lead-management-87qekt6R.png  [39m[1m[2m924.19 kB[22m[1m[22m
+07:43:53.406 [2mdist/[22m[2massets/[22m[35mindex-JuSEP0TW.css                         [39m[1m[2m 70.30 kB[22m[1m[22m[2m │ gzip:  11.08 kB[22m
+07:43:53.408 [2mdist/[22m[2massets/[22m[36mvendor-CPUiMCxt.js                         [39m[1m[2m 16.83 kB[22m[1m[22m[2m │ gzip:   6.50 kB[22m
+07:43:53.408 [2mdist/[22m[2massets/[22m[36mui-C4_WdthJ.js                             [39m[1m[2m163.23 kB[22m[1m[22m[2m │ gzip:  54.26 kB[22m
+07:43:53.408 [2mdist/[22m[2massets/[22m[36mcharts-BrC4KgZT.js                         [39m[1m[2m378.88 kB[22m[1m[22m[2m │ gzip: 111.81 kB[22m
+07:43:53.409 [2mdist/[22m[2massets/[22m[36mindex-BEaLYAIw.js                          [39m[1m[2m487.17 kB[22m[1m[22m[2m │ gzip: 134.22 kB[22m
+07:43:53.409 [32m✓ built in 6.66s[39m
+07:43:53.783 Using TypeScript 5.9.3 (local user-provided)
+07:43:58.957 Using TypeScript 5.9.3 (local user-provided)
+07:44:00.487 Using TypeScript 5.9.3 (local user-provided)
+07:44:13.587 Build Completed in /vercel/output [38s]
+07:44:13.952 Deploying outputs...
+07:44:16.799 Warning: Provided `memory` setting in `vercel.json` is ignored on Active CPU billing. You can safely remove this setting from your configuration. Learn more: https://vercel.com/docs/fluid-compute/pricing
+07:44:21.282 Deployment completed
+07:44:22.193 Creating build cache...
+07:45:37.415 Created build cache: 1:15.219 (m:ss.mmm)
+07:45:37.416 Uploading build cache [120.75 MB]
+07:45:39.264 Build cache uploaded: 1.848s
