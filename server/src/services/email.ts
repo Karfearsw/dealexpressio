@@ -64,6 +64,7 @@ export async function getResendClient() {
 
 export type EmailTemplate = 
     | 'new_account_created'
+    | 'signup_welcome'
     | 'subscription_paid'
     | 'payment_confirmed'
     | 'premium_subscription'
@@ -79,6 +80,7 @@ interface EmailData {
 function getEmailSubject(template: EmailTemplate): string {
     const subjects: Record<EmailTemplate, string> = {
         new_account_created: 'Welcome to DealExpress - Your Account is Ready!',
+        signup_welcome: 'Welcome to Deal Express - Your Login Credentials',
         subscription_paid: 'Payment Received - DealExpress Subscription',
         payment_confirmed: 'Payment Confirmed - Thank You!',
         premium_subscription: 'Welcome to DealExpress Premium!',
@@ -140,6 +142,51 @@ function getEmailHtml(template: EmailTemplate, data: EmailData): string {
                 </div>
                 <p style="color: #888; font-size: 12px; margin-top: 30px; text-align: center;">
                     If you have any questions, reply to this email or contact support.
+                </p>
+            </div>
+        `,
+        signup_welcome: `
+            <div style="${baseStyle}">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h1 style="color: #00d4aa; margin: 0;">Deal Express</h1>
+                </div>
+                <p style="color: #cccccc; line-height: 1.6;">
+                    Dear ${firstName},
+                </p>
+                <p style="color: #cccccc; line-height: 1.6;">
+                    Thank you for signing up for Deal Express — your one-stop shop to wholesale your deals and scale your business.
+                </p>
+                <p style="color: #cccccc; line-height: 1.6;">
+                    Below are your login credentials:
+                </p>
+                <div style="background: rgba(0,212,170,0.1); padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <p style="color: #ffffff; margin: 0 0 10px 0;">
+                        <strong>Username:</strong> ${rest.username || data.to}
+                    </p>
+                    <p style="color: #ffffff; margin: 0 0 10px 0;">
+                        <strong>Password:</strong> Your password you set during registration
+                    </p>
+                    <p style="color: #ffffff; margin: 0;">
+                        <strong>Team Name Joined:</strong> ${rest.teamName || 'N/A'}
+                    </p>
+                </div>
+                <p style="color: #cccccc; line-height: 1.6;">
+                    You can log in anytime to start submitting, managing, and scaling your deals through the platform.
+                </p>
+                <div style="text-align: center;">
+                    <a href="https://www.dealexpress.io/login" style="${buttonStyle}">
+                        Log In Now
+                    </a>
+                </div>
+                <p style="color: #cccccc; line-height: 1.6; margin-top: 20px;">
+                    If you have any questions or need assistance getting started, feel free to reach out — we're here to help.
+                </p>
+                <p style="color: #cccccc; line-height: 1.6;">
+                    Welcome aboard, and we look forward to working with you.
+                </p>
+                <p style="color: #cccccc; line-height: 1.6; margin-top: 20px;">
+                    Best regards,<br/>
+                    <strong style="color: #00d4aa;">The Deal Express Team</strong>
                 </p>
             </div>
         `,
@@ -318,4 +365,18 @@ export async function sendNewLeadEmail(
     status?: string
 ): Promise<{ success: boolean; error?: string }> {
     return sendEmail('new_lead_added', { to: email, firstName, leadName, propertyAddress, status });
+}
+
+export async function sendSignupWelcomeEmail(
+    email: string,
+    firstName: string,
+    username: string,
+    teamName: string | null
+): Promise<{ success: boolean; error?: string }> {
+    return sendEmail('signup_welcome', { 
+        to: email, 
+        firstName, 
+        username,
+        teamName: teamName || 'N/A'
+    });
 }

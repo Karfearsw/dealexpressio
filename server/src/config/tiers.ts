@@ -22,37 +22,42 @@ export const PRICING_TIERS: Record<SubscriptionTier, TierConfig> = {
     basic: {
         id: 'basic',
         name: 'Basic',
-        price: '50',
-        priceId: 'price_1Q...Basic',
-        leadsIncluded: 500,
+        price: '150',
+        priceId: process.env.STRIPE_PRICE_BASIC || '',
+        leadsIncluded: 400,
         seats: 1,
         features: [
-            "Includes 500 leads",
+            "400 Leads (FSBO & County Records)",
             "Lead Management & Auto-Enrich",
             "Deal Calculator & Offer Letters",
-            "1 User Seat"
+            "Advanced Property Analysis",
+            "Automated Follow-ups",
+            "Multi-Seat Team Access",
+            "Priority Support"
         ],
         capabilities: {
             canImportLeads: true,
-            canExportLeads: false,
-            canManageTeam: false,
+            canExportLeads: true,
+            canManageTeam: true,
             canAccessAPI: false,
-            canUseDialer: false,
-            canUseAI: false
+            canUseDialer: true,
+            canUseAI: true
         }
     },
     pro: {
         id: 'pro',
         name: 'Pro',
-        price: '100',
-        priceId: 'price_1Q...Pro',
-        leadsIncluded: 1000,
-        seats: 3,
+        price: '250',
+        priceId: process.env.STRIPE_PRICE_PRO || '',
+        leadsIncluded: 700,
+        seats: 5,
         features: [
-            "Includes 1,000 leads",
+            "700 Leads (FSBO & County Records)",
+            "Lead Management & Auto-Enrich",
+            "Deal Calculator & Offer Letters",
             "Advanced Property Analysis",
             "Automated Follow-ups",
-            "Up to 3 User Seats",
+            "Multi-Seat Team Access",
             "Priority Support"
         ],
         capabilities: {
@@ -67,16 +72,19 @@ export const PRICING_TIERS: Record<SubscriptionTier, TierConfig> = {
     enterprise: {
         id: 'enterprise',
         name: 'Enterprise',
-        price: '1000',
-        priceId: 'price_1Q...Enterprise',
-        leadsIncluded: 15000,
+        price: '500',
+        priceId: process.env.STRIPE_PRICE_ENTERPRISE || '',
+        leadsIncluded: 1200,
         seats: 999,
         features: [
-            "Includes 15,000 leads",
-            "Multi-Seat Access",
-            "Custom Contract Templates",
-            "Dedicated Account Manager",
-            "API Access"
+            "1,200 Leads (FSBO & County Records)",
+            "20 Prequalified Inbound Leads with Recordings",
+            "Lead Management & Auto-Enrich",
+            "Deal Calculator & Offer Letters",
+            "Advanced Property Analysis",
+            "Automated Follow-ups",
+            "Multi-Seat Team Access",
+            "Priority Support"
         ],
         capabilities: {
             canImportLeads: true,

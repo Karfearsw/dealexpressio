@@ -30,6 +30,21 @@ export const teamCodes = pgTable('team_codes', {
     createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+export const pendingRegistrations = pgTable('pending_registrations', {
+    id: serial('id').primaryKey(),
+    email: text('email').unique().notNull(),
+    firstName: text('first_name').notNull(),
+    lastName: text('last_name').notNull(),
+    passwordHash: text('password_hash').notNull(),
+    tier: text('tier').notNull(),
+    discountCode: text('discount_code'),
+    teamCodeId: integer('team_code_id').references(() => teamCodes.id),
+    teamName: text('team_name'),
+    stripeSessionId: text('stripe_session_id').unique(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    expiresAt: timestamp('expires_at').notNull(),
+});
+
 export const users = pgTable('users', {
     id: serial('id').primaryKey(),
     firstName: text('first_name'),
@@ -41,6 +56,7 @@ export const users = pgTable('users', {
     twoFactorEnabled: boolean('two_factor_enabled').default(false),
     accessCode: text('access_code'),
     stripeCustomerId: text('stripe_customer_id').unique(),
+    stripeSubscriptionId: text('stripe_subscription_id').unique(),
     subscriptionStatus: text('subscription_status').default('inactive'),
     subscriptionTier: text('subscription_tier'),
     failedLoginAttempts: integer('failed_login_attempts').default(0),

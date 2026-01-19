@@ -22,6 +22,7 @@ import marketingRoutes from './routes/marketing';
 import buyersRoutes from './routes/buyers';
 import teamsRoutes from './routes/teams';
 import propertyLookupRoutes from './routes/property-lookup';
+import stripeRoutes from './routes/stripe';
 import { pool } from './db';
 
 import path from 'path';
@@ -96,6 +97,7 @@ app.use(cors({
     },
     credentials: true,
 }));
+app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -137,6 +139,7 @@ app.use('/api/buyers', buyersRoutes);
 app.use('/api/teams', teamsRoutes);
 app.use('/api/payments', paymentsRoutes);
 app.use('/api/property-lookup', propertyLookupRoutes);
+app.use('/api/stripe', stripeRoutes);
 
 app.get('/health', (req: express.Request, res: express.Response) => {
     res.json({ status: 'ok' });

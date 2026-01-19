@@ -52,3 +52,6 @@ build = ["npm", "run", "build"]
 [userenv.production]
 NODE_ENV = "production"
 SERVE_CLIENT = "true"
+
+[userenv.shared]
+VITE_STRIPE_PUBLISHABLE_KEY = "pk_test_51Sq48ARbCdhGZmgAzHueVEbStgHb3s5PxpEZ0n11NMMxH2IPOq9nH9Z76sHXTXAc7YvECyf0YcAZq0FFWg2tpdDm00bE4YsKEQ"
